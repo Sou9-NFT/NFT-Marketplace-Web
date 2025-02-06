@@ -1,3 +1,8 @@
+Download dependencies
+```
+composer install
+```
+
 How to start a server with Symfony
 ```
 symfony server:start 
