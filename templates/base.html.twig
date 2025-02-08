@@ -1,17 +1,302 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
+<html class="no-js" lang="{{ app.request.locale|default('en') }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="{{ meta_description|default('') }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>{% block title %}NetStorm - NFT Marketplace{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('front_office/img/favicon.png') }}">
+
+    <!-- Style css -->
+    <link rel="stylesheet" href="{{ asset('front_office/css/style.css') }}">
+
+    {% block stylesheets %}{% endblock %}
+</head>
+
+<body>
+
+    {% block preloader %}
+    <!--====== Preloader Area Start ======-->
+    <div id="netstorm-preloader" class="netstorm-preloader">
+        <!-- Preloader Animation -->
+        <div class="preloader-animation">
+            <!-- Spinner -->
+            <div class="spinner"></div>
+            <p class="fw-5 text-center text-uppercase">Loading</p>
+        </div>
+        <!-- Loader Animation -->
+        <div class="loader-animation">
+            <div class="row h-100">
+                <!-- Single Loader -->
+                <div class="col-3 single-loader p-0">
+                    <div class="loader-bg"></div>
+                </div>
+                <!-- Single Loader -->
+                <div class="col-3 single-loader p-0">
+                    <div class="loader-bg"></div>
+                </div>
+                <!-- Single Loader -->
+                <div class="col-3 single-loader p-0">
+                    <div class="loader-bg"></div>
+                </div>
+                <!-- Single Loader -->
+                <div class="col-3 single-loader p-0">
+                    <div class="loader-bg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--====== Preloader Area End ======-->
+    {% endblock %}
+
+    <!-- Header Block -->
+    {% block header %}
+    <div class="main">
+        <!-- ***** Header Start ***** -->
+        <header id="header">
+            <!-- Navbar -->
+            <nav data-aos="zoom-out" data-aos-delay="800" class="navbar navbar-expand">
+                <div class="container header">
+                    <!-- Navbar Brand-->
+                    <a class="navbar-brand" href="">
+                        <img class="navbar-brand-sticky" src="{{ asset('front_office/img/logo/logo.png') }}" alt="sticky brand-logo">
+                    </a>
+                    <div class="ml-auto"></div>
+                    <!-- Navbar -->
+                    <ul class="navbar-nav items mx-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#">Explore <i class="fas fa-angle-down ml-1"></i></a>
+                            <ul class="dropdown-menu">
+                                <li class="nav-item"><a href="" class="nav-link">Explore Style 1</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Explore Style 2</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Explore Style 3</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Explore Style 4</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Live Auctions</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Item Details</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link">Activity</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#">Community <i class="fas fa-angle-down ml-1"></i></a>
+                            <ul class="dropdown-menu">
+                                <li class="nav-item"><a href="" class="nav-link">Blog</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Blog Single</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Help Center</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#">Pages <i class="fas fa-angle-down ml-1"></i></a>
+                            <ul class="dropdown-menu">
+                                <li class="nav-item"><a href="" class="nav-link">Authors</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Author</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Wallet Connect</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Create</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Login</a></li>
+                                <li class="nav-item"><a href="" class="nav-link">Signup</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link">Contact</a>
+                        </li>
+                    </ul>
+                    <!-- Navbar Icons -->
+                    <ul class="navbar-nav icons">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#search">
+                                <i class="fas fa-search"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Navbar Toggler -->
+                    <ul class="navbar-nav toggle">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#menu">
+                                <i class="fas fa-bars toggle-icon m-0"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Navbar Action Button -->
+                    <ul class="navbar-nav action">
+                        <li class="nav-item ml-3">
+                            <a href="" class="btn ml-lg-auto btn-bordered-white"><i class="icon-wallet mr-md-2"></i>Wallet Connect</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+    </div>
+    {% endblock %}
+
+        {% block body %}
+        <!-- Default content for body block -->
         {% endblock %}
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    <!-- Footer Block -->
+    {% block footer %}
+    <!--====== Footer Area Start ======-->
+    <footer class="footer-area">
+        <!-- Footer Top -->
+        <div class="footer-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-3 res-margin">
+                        <!-- Footer Items -->
+                        <div class="footer-items">
+                            <!-- Logo -->
+                            <a class="navbar-brand" href="">
+                                <img src="img/logo/logo.png" alt="">
+                            </a>
+                            <p>{{ 'footer.description'|trans }}</p>
+                            <!-- Social Icons -->
+                            <div class="social-icons d-flex">
+                                <a class="facebook" href="#">
+                                    <i class="fab fa-facebook-f"></i>
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a class="twitter" href="#">
+                                    <i class="fab fa-twitter"></i>
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a class="google-plus" href="#">
+                                    <i class="fab fa-google-plus-g"></i>
+                                    <i class="fab fa-google-plus-g"></i>
+                                </a>
+                                <a class="vine" href="#">
+                                    <i class="fab fa-vine"></i>
+                                    <i class="fab fa-vine"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 res-margin">
+                        <!-- Footer Items -->
+                        <div class="footer-items">
+                            <!-- Footer Title -->
+                            <h4 class="footer-title">{{ 'footer.links.title'|trans }}</h4>
+                            <ul>
+                                <li><a href="">{{ 'footer.links.all_nfts'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.links.how_it_works'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.links.create'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.links.explore'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.links.privacy_terms'|trans }}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 res-margin">
+                        <!-- Footer Items -->
+                        <div class="footer-items">
+                            <!-- Footer Title -->
+                            <h4 class="footer-title">{{ 'footer.community.title'|trans }}</h4>
+                            <ul>
+                                <li><a href="">{{ 'footer.community.help_center'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.community.partners'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.community.suggestions'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.community.blog'|trans }}</a></li>
+                                <li><a href="">{{ 'footer.community.newsletter'|trans }}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <!-- Footer Items -->
+                        <div class="footer-items">
+                            <!-- Footer Title -->
+                            <h4 class="footer-title">{{ 'footer.subscribe.title'|trans }}</h4>
+                            <!-- Subscribe Form -->
+                            <form action="" method="POST" class="subscribe-form d-flex align-items-center">
+                                <input type="email" name="email" class="form-control" placeholder="{{ 'footer.subscribe.placeholder'|trans }}" required>
+                                <button type="submit" class="btn"><i class="icon-paper-plane"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <!-- Copyright Area -->
+                        <div class="copyright-area d-flex flex-wrap justify-content-center justify-content-sm-between text-center py-4">
+                            <!-- Copyright Left -->
+                            <div class="copyright-left">&copy;{{ "now"|date("Y") }} NetStorm, All Rights Reserved.</div>
+                            <!-- Copyright Right -->
+                            <div class="copyright-right">{{ 'footer.copyright.right'|trans }} <a href="#">ArtiTechs</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Modal Search Block -->
+    {% block modal_search %}
+    <!--====== Modal Search Area Start ======-->
+    <div id="search" class="modal fade p-0">
+        <div class="modal-dialog dialog-animated">
+            <div class="modal-content h-100">
+                <div class="modal-header" data-dismiss="modal">
+                    Search <i class="far fa-times-circle icon-close"></i>
+                </div>
+                <div class="modal-body">
+                    <form class="row">
+                        <div class="col-12 align-self-center">
+                            <div class="row">
+                                <div class="col-12 pb-3">
+                                    <h2 class="search-title mt-0 mb-3">What are you looking for?</h2>
+                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 input-group mt-4">
+                                    <input type="text" placeholder="Enter your keywords">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 input-group align-self-center">
+                                    <button class="btn btn-bordered-white mt-3">Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--====== Modal Search Area End ======-->
+    {% endblock %}
+    </div>
+
+    <!-- JavaScripts Block -->
+    {% block javascripts %}
+    <!-- ***** All jQuery Plugins ***** -->
+    <script src="{{ asset('front_office/js/jquery/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/bootstrap/popper.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/plugins/plugins.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/active.js') }}"></script>
+    <script src="{{ asset('front_office/js/main.js') }}"></script>
+    <script src="{{ asset('front_office/js/vendor/jquery.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/vendor/popper.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/vendor/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/vendor/all.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/vendor/slider.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/vendor/countdown.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/vendor/shuffle.min.js') }}"></script>
+    <script src="{{ asset('front_office/js/main.js') }}"></script>
+    {% endblock %}
+</body>
 </html>
