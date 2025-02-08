@@ -16,3 +16,9 @@ symfony serve
 
 
 trade
+
+
+
+
+
+Inventory
