@@ -16,3 +16,10 @@ symfony serve
 
 
 Blog
+trade
+
+
+
+
+
+Inventory
