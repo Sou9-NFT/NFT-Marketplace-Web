@@ -15,17 +15,17 @@
 
 body {
   font-family: "Open Sans", sans-serif;
-  background: #f6f6f6; /* Light grey background */
-  color: #444444; /* Dark grey text */
+  background: #f6f9ff;
+  color: #444444;
 }
 
 a {
-  color: #888888; /* Medium grey links */
+  color: #4154f1;
   text-decoration: none;
 }
 
 a:hover {
-  color: #555555; /* Darker grey on hover */
+  color: #717ff5;
   text-decoration: none;
 }
 
@@ -33,10 +33,7 @@ h1,
 h2,
 h3,
 h4,
-h5 {
-  color: #333333; /* Dark grey headings */
-}
-
+h5,
 h6 {
   font-family: "Nunito", sans-serif;
 }
@@ -464,7 +461,7 @@ h6 {
   list-style: none;
 }
 
-.header-nav > ul {
+.header-nav>ul {
   margin: 0;
   padding: 0;
 }
@@ -633,6 +630,7 @@ h6 {
 }
 
 @media (min-width: 1200px) {
+
   #main,
   #footer {
     margin-left: 300px;
@@ -646,6 +644,7 @@ h6 {
 }
 
 @media (min-width: 1200px) {
+
   .toggle-sidebar #main,
   .toggle-sidebar #footer {
     margin-left: 0;
@@ -884,7 +883,7 @@ h6 {
 }
 
 /* News & Updates */
-.dashboard .news .post-item + .post-item {
+.dashboard .news .post-item+.post-item {
   margin-top: 15px;
 }
 
@@ -1150,7 +1149,7 @@ h6 {
   padding: 12px 15px;
 }
 
-.contact .php-email-form button[type="submit"] {
+.contact .php-email-form button[type=submit] {
   background: #4154f1;
   border: 0;
   padding: 10px 30px;
@@ -1159,7 +1158,7 @@ h6 {
   border-radius: 4px;
 }
 
-.contact .php-email-form button[type="submit"]:hover {
+.contact .php-email-form button[type=submit]:hover {
   background: #5969f3;
 }
 
