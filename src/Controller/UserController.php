@@ -8,10 +8,18 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class UserController extends AbstractController
 {
-    #[Route('/user', name: 'app_user')]
+    #[Route('/user', name: 'singup')]
     public function index(): Response
     {
-        return $this->render('user/index.html.twig', [
+        return $this->render('user/signup.html.twig', [
+            'controller_name' => 'UserController',
+        ]);
+    }
+
+    #[Route('/user/login', name: 'login')]
+    public function login(): Response
+    {
+        return $this->render('user/login.html.twig', [
             'controller_name' => 'UserController',
         ]);
     }
