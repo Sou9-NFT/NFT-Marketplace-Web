@@ -26,30 +26,30 @@
         <!-- Preloader Animation -->
         <div class="preloader-animation">
             <!-- Spinner -->
-            <div class="spinner"></div>
-            <p class="fw-5 text-center text-uppercase">Loading</p>
+            <div class="spinner" style="border-top-color: white;"></div>
+            <p class="fw-5 text-center text-uppercase" style="color: white;">Loading</p>
         </div>
         <!-- Loader Animation -->
+        
         <div class="loader-animation">
             <div class="row h-100">
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
+            <!-- Single Loader -->
+            <div class="col-12 single-loader p-0">
+                <div class="loader-bg" style="width: 100%; height: 100vh; background-color: black; animation: fadeOut 1s forwards;"></div>
             </div>
+            </div>
+            <style>
+            @keyframes fadeOut {
+                from {
+                opacity: 1;
+                }
+                to {
+                opacity: 0;
+                }
+            }
+            </style>
         </div>
+        
     </div>
     <!--====== Preloader Area End ======-->
     {% endblock %}
