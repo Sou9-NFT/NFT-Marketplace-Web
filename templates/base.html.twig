@@ -156,7 +156,7 @@
                         <div class="footer-items">
                             <!-- Logo -->
                             <a class="navbar-brand" href="">
-                                <img src="img/logo/logo.png" alt="">
+                                <img src="{{asset('front_office/img/logo/logo.png')}} " alt="">
                             </a>
                             <p>{{ 'footer.description'|trans }}</p>
                             <!-- Social Icons -->
@@ -283,11 +283,11 @@
     <!-- JavaScripts Block -->
     {% block javascripts %}
     <!-- ***** All jQuery Plugins ***** -->
-    <script src="{{ asset('front_office/js/jquery/jquery-3.3.1.min.js') }}"></script>
+    {#<script src="{{ asset('front_office/js/jquery/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ asset('front_office/js/bootstrap/popper.min.js') }}"></script>
     <script src="{{ asset('front_office/js/bootstrap/bootstrap.min.js') }}"></script>
     <script src="{{ asset('front_office/js/plugins/plugins.min.js') }}"></script>
-    <script src="{{ asset('front_office/js/active.js') }}"></script>
+    <script src="{{ asset('front_office/js/active.js') }}"></script> #}
     <script src="{{ asset('front_office/js/main.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/jquery.min.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/popper.min.js') }}"></script>
