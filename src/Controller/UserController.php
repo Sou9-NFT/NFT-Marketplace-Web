@@ -8,8 +8,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class UserController extends AbstractController
 {
-    #[Route('/user', name: 'singup')]
-    public function index(): Response
+    #[Route('/user/signup', name: 'singup')]
+    public function signup(): Response
     {
         return $this->render('user/signup.html.twig', [
             'controller_name' => 'UserController',
@@ -20,6 +20,14 @@ final class UserController extends AbstractController
     public function login(): Response
     {
         return $this->render('user/login.html.twig', [
+            'controller_name' => 'UserController',
+        ]);
+    }
+
+    #[Route('/user/profile', name: 'profile')]
+    public function profile(): Response
+    {
+        return $this->render('user/profile.html.twig', [
             'controller_name' => 'UserController',
         ]);
     }
