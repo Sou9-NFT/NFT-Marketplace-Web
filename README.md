@@ -13,13 +13,3 @@ symfony serve
 > change the path of the assets in the twig files example:
 > 
 > `css/style.css` -> `front_office/css/style.css` OR `back_office/css/style.css`.
-
-
-Blog
-trade
-
-
-
-
-
-Inventory
