@@ -17,10 +17,10 @@ class Artwork
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'text', length: 255)]
     #[Assert\NotBlank(message: 'Title is required')]
     #[Assert\Length(
-        min: 2,
+        min: 3,
         max: 255,
         minMessage: 'Title must be at least {{ limit }} characters long',
         maxMessage: 'Title cannot be longer than {{ limit }} characters'
@@ -29,21 +29,36 @@ class Artwork
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'Description is required')]
+    #[Assert\Length(
+        min: 10,
+        max: 1000,
+        minMessage: 'Description must be at least {{ limit }} characters long',
+        maxMessage: 'Description cannot be longer than {{ limit }} characters'
+    )]
     private ?string $description = null;
 
     #[ORM\Column]
     #[Assert\NotBlank(message: 'Price is required')]
     #[Assert\Positive(message: 'Price must be greater than zero')]
+    #[Assert\Range(
+        min: 0.01,
+        max: 999999.99,
+        notInRangeMessage: 'Price must be between {{ min }} and {{ max }}'
+    )]
     private ?float $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageName = null;
 
-    #[Assert\Image(
-        maxSize: '5M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-        maxSizeMessage: 'The image file is too large ({{ size }} {{ suffix }}). Maximum allowed size is {{ limit }} {{ suffix }}',
-        mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, WEBP)'
+    #[Assert\NotNull(message: 'Please upload a file')]
+    #[Assert\File(
+        maxSize: '100M',
+        mimeTypes: [
+            'image/*',
+            'video/*',
+            'audio/*'
+        ],
+        mimeTypesMessage: 'Please upload a valid file (image, video, or audio)'
     )]
     private ?File $imageFile = null;
 
@@ -52,6 +67,11 @@ class Artwork
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'artworks')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Category is required')]
+    private ?Category $category = null;
 
     public function __construct()
     {
@@ -146,6 +166,17 @@ class Artwork
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
         return $this;
     }
 }
