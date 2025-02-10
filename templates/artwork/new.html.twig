@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Artwork{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="h3 mb-0">Create New Artwork</h1>
+                    </div>
+                    <div class="card-body">
+                        {% set errorMessages = [] %}
+                        {% for label, messages in app.flashes %}
+                            {% if label == 'error' %}
+                                {% for message in messages %}
+                                    {% set errorMessages = errorMessages|merge([message]) %}
+                                {% endfor %}
+                            {% else %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label }} alert-dismissible fade show">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if errorMessages|length > 0 %}
+                            <div class="alert alert-danger">
+                                <ul class="mb-0 ps-3">
+                                    {% for message in errorMessages %}
+                                        <li>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                            <div class="mb-3">
+                                {{ form_label(form.title) }}
+                                {{ form_widget(form.title) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.description) }}
+                                {{ form_widget(form.description) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.price) }}
+                                {{ form_widget(form.price) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.imageFile) }}
+                                {{ form_widget(form.imageFile) }}
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ path('app_artwork_index') }}" class="btn btn-secondary me-md-2">Back to List</a>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
