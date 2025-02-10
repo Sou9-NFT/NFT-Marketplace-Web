@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>{% block title %}NetStorm - NFT Marketplace{% endblock %}</title>
+    <title>{% block title %}Sou9 EL NFTs{% endblock %}</title>
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('front_office/img/favicon.png') }}">
@@ -26,30 +26,30 @@
         <!-- Preloader Animation -->
         <div class="preloader-animation">
             <!-- Spinner -->
-            <div class="spinner"></div>
-            <p class="fw-5 text-center text-uppercase">Loading</p>
+            <div class="spinner" style="border-top-color: white;"></div>
+            <p class="fw-5 text-center text-uppercase" style="color: white;">Loading</p>
         </div>
         <!-- Loader Animation -->
+        
         <div class="loader-animation">
             <div class="row h-100">
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
-                <!-- Single Loader -->
-                <div class="col-3 single-loader p-0">
-                    <div class="loader-bg"></div>
-                </div>
+            <!-- Single Loader -->
+            <div class="col-12 single-loader p-0">
+                <div class="loader-bg" style="width: 100%; height: 100vh; background-color: black; animation: fadeOut 1s forwards;"></div>
             </div>
+            </div>
+            <style>
+            @keyframes fadeOut {
+                from {
+                opacity: 1;
+                }
+                to {
+                opacity: 0;
+                }
+            }
+            </style>
         </div>
+        
     </div>
     <!--====== Preloader Area End ======-->
     {% endblock %}
@@ -156,9 +156,9 @@
                         <div class="footer-items">
                             <!-- Logo -->
                             <a class="navbar-brand" href="">
-                                <img src="img/logo/logo.png" alt="">
+                                <img src="{{ asset('front_office/img/logo/logo.png') }}" alt="">
                             </a>
-                            <p>{{ 'footer.description'|trans }}</p>
+                            <p>Discover, collect, and sell extraordinary NFTs.</p>
                             <!-- Social Icons -->
                             <div class="social-icons d-flex">
                                 <a class="facebook" href="#">
@@ -184,13 +184,13 @@
                         <!-- Footer Items -->
                         <div class="footer-items">
                             <!-- Footer Title -->
-                            <h4 class="footer-title">{{ 'footer.links.title'|trans }}</h4>
+                            <h4 class="footer-title">Links</h4>
                             <ul>
-                                <li><a href="">{{ 'footer.links.all_nfts'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.links.how_it_works'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.links.create'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.links.explore'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.links.privacy_terms'|trans }}</a></li>
+                                <li><a href="#">All NFTs</a></li>
+                                <li><a href="#">How It Works</a></li>
+                                <li><a href="#">Create</a></li>
+                                <li><a href="#">Explore</a></li>
+                                <li><a href="#">Privacy & Terms</a></li>
                             </ul>
                         </div>
                     </div>
@@ -198,13 +198,13 @@
                         <!-- Footer Items -->
                         <div class="footer-items">
                             <!-- Footer Title -->
-                            <h4 class="footer-title">{{ 'footer.community.title'|trans }}</h4>
+                            <h4 class="footer-title">Community</h4>
                             <ul>
-                                <li><a href="">{{ 'footer.community.help_center'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.community.partners'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.community.suggestions'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.community.blog'|trans }}</a></li>
-                                <li><a href="">{{ 'footer.community.newsletter'|trans }}</a></li>
+                                <li><a href="#">Help Center</a></li>
+                                <li><a href="#">Partners</a></li>
+                                <li><a href="#">Suggestions</a></li>
+                                <li><a href="#">Blog</a></li>
+                                <li><a href="#">Newsletter</a></li>
                             </ul>
                         </div>
                     </div>
@@ -212,10 +212,10 @@
                         <!-- Footer Items -->
                         <div class="footer-items">
                             <!-- Footer Title -->
-                            <h4 class="footer-title">{{ 'footer.subscribe.title'|trans }}</h4>
+                            <h4 class="footer-title">Subscribe</h4>
                             <!-- Subscribe Form -->
                             <form action="" method="POST" class="subscribe-form d-flex align-items-center">
-                                <input type="email" name="email" class="form-control" placeholder="{{ 'footer.subscribe.placeholder'|trans }}" required>
+                                <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
                                 <button type="submit" class="btn"><i class="icon-paper-plane"></i></button>
                             </form>
                         </div>
@@ -231,9 +231,9 @@
                         <!-- Copyright Area -->
                         <div class="copyright-area d-flex flex-wrap justify-content-center justify-content-sm-between text-center py-4">
                             <!-- Copyright Left -->
-                            <div class="copyright-left">&copy;{{ "now"|date("Y") }} NetStorm, All Rights Reserved.</div>
+                            <div class="copyright-left">&copy;{{ "now"|date("Y") }} Sou9 El NFTs, All Rights Reserved.</div>
                             <!-- Copyright Right -->
-                            <div class="copyright-right">{{ 'footer.copyright.right'|trans }} <a href="#">ArtiTechs</a></div>
+                            <div class="copyright-right"><a href="#"> Made with 🤍 by ArtiTechs</a></div>
                         </div>
                     </div>
                 </div>
@@ -283,11 +283,11 @@
     <!-- JavaScripts Block -->
     {% block javascripts %}
     <!-- ***** All jQuery Plugins ***** -->
-    <script src="{{ asset('front_office/js/jquery/jquery-3.3.1.min.js') }}"></script>
+    {#<script src="{{ asset('front_office/js/jquery/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ asset('front_office/js/bootstrap/popper.min.js') }}"></script>
     <script src="{{ asset('front_office/js/bootstrap/bootstrap.min.js') }}"></script>
     <script src="{{ asset('front_office/js/plugins/plugins.min.js') }}"></script>
-    <script src="{{ asset('front_office/js/active.js') }}"></script>
+    <script src="{{ asset('front_office/js/active.js') }}"></script> #}
     <script src="{{ asset('front_office/js/main.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/jquery.min.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/popper.min.js') }}"></script>
