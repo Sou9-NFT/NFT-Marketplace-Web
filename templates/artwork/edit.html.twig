@@ -4,72 +4,125 @@
 
 {% block body %}
     <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Edit Artwork</h1>
+            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">Manage Categories</a>
+        </div>
+
+        {{ form_start(form) }}
         <div class="row">
-            <div class="col-md-8 offset-md-2">
+            <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">
-                        <h1 class="h3 mb-0">Edit Artwork</h1>
-                    </div>
                     <div class="card-body">
-                        {% if artwork.imageName %}
-                            <div class="mb-3">
-                                <label class="form-label">Current Image</label>
-                                <div>
-                                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}" class="img-thumbnail" style="max-width: 200px;">
+                        <div class="mb-3">
+                            {{ form_label(form.category) }}
+                            {{ form_widget(form.category) }}
+                            {{ form_errors(form.category) }}
+                            <div class="form-text" id="categoryHelp"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.title) }}
+                            {{ form_widget(form.title) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.description) }}
+                            {{ form_widget(form.description) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.price) }}
+                            {{ form_widget(form.price) }}
+                            {{ form_errors(form.price) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {% if artwork.imageName %}
+                                <div class="mb-3">
+                                    <label class="form-label">Current Media</label>
+                                    <div class="border rounded p-2">
+                                        {% if artwork.category.type == 'image' %}
+                                            <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
+                                                 alt="{{ artwork.title }}"
+                                                 class="img-fluid"
+                                                 style="max-height: 200px;">
+                                        {% elseif artwork.category.type == 'video' %}
+                                            <video controls class="w-100" style="max-height: 200px;">
+                                                <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        {% elseif artwork.category.type == 'audio' %}
+                                            <audio controls class="w-100">
+                                                <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="audio/mpeg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                        {% endif %}
+                            {% endif %}
 
-                        {{ form_start(form) }}
-                            <div class="mb-3">
-                                {{ form_label(form.title) }}
-                                {{ form_widget(form.title) }}
-                                {% if form_errors(form.title) %}
-                                    <div class="text-danger">
-                                        {{ form_errors(form.title) }}
-                                    </div>
-                                {% endif %}
+                            {{ form_label(form.imageFile) }}
+                            {{ form_widget(form.imageFile) }}
+                            {{ form_errors(form.imageFile) }}
+                            <div class="form-text" id="fileHelp">
+                                Select a file based on the chosen category
                             </div>
+                        </div>
 
-                            <div class="mb-3">
-                                {{ form_label(form.description) }}
-                                {{ form_widget(form.description) }}
-                                {% if form_errors(form.description) %}
-                                    <div class="text-danger">
-                                        {{ form_errors(form.description) }}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="mb-3">
-                                {{ form_label(form.price) }}
-                                {{ form_widget(form.price) }}
-                                {% if form_errors(form.price) %}
-                                    <div class="text-danger">
-                                        {{ form_errors(form.price) }}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="mb-3">
-                                {{ form_label(form.imageFile) }}
-                                {{ form_widget(form.imageFile) }}
-                                {% if form_errors(form.imageFile) %}
-                                    <div class="text-danger">
-                                        {{ form_errors(form.imageFile) }}
-                                    </div>
-                                {% endif %}
-                                <small class="form-text text-muted">Leave empty to keep the current image</small>
-                            </div>
-
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <a href="{{ path('app_artwork_index') }}" class="btn btn-secondary me-md-2">Back to List</a>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </div>
-                        {{ form_end(form) }}
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{{ path('app_artwork_index') }}" class="btn btn-secondary">Back to list</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        {{ form_end(form) }}
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.querySelector('#artwork_category');
+            const fileHelp = document.querySelector('#fileHelp');
+            const categoryHelp = document.querySelector('#categoryHelp');
+
+            function updateFileHelp() {
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                if (selectedOption.value) {
+                    fetch(`/category/${selectedOption.value}`, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(category => {
+                        let helpText = 'Allowed file types: ';
+                        helpText += category.allowedMimeTypes.join(', ');
+                        fileHelp.textContent = helpText;
+                        
+                        let categoryText = `This is a ${category.type} NFT category. `;
+                        categoryText += category.description;
+                        categoryHelp.textContent = categoryText;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching category info:', error);
+                        fileHelp.textContent = 'Error loading category information';
+                        categoryHelp.textContent = '';
+                    });
+                } else {
+                    fileHelp.textContent = 'Select a category first';
+                    categoryHelp.textContent = '';
+                }
+            }
+
+            categorySelect.addEventListener('change', updateFileHelp);
+            updateFileHelp(); // Initial update
+        });
+    </script>
 {% endblock %}

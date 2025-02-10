@@ -3,6 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Artwork;
+use App\Entity\Category;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -16,32 +18,17 @@ class ArtworkType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('title', TextType::class, [
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control'
-                ]
+            ->add('category', EntityType::class, [
+                'class' => Category::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Select a category'
             ])
-            ->add('description', TextareaType::class, [
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'rows' => 5
-                ]
-            ])
-            ->add('price', NumberType::class, [
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control'
-                ]
-            ])
+            ->add('title', TextType::class)
+            ->add('description', TextareaType::class)
+            ->add('price', NumberType::class)
             ->add('imageFile', FileType::class, [
                 'label' => 'Artwork Image',
-                'mapped' => true,
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control'
-                ]
+                'mapped' => true
             ])
         ;
     }
@@ -49,10 +36,7 @@ class ArtworkType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Artwork::class,
-            'attr' => [
-                'novalidate' => 'novalidate'
-            ],
+            'data_class' => Artwork::class
         ]);
     }
 }

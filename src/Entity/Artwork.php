@@ -50,11 +50,15 @@ class Artwork
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageName = null;
 
-    #[Assert\Image(
-        maxSize: '5M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-        maxSizeMessage: 'The file is too large ({{ size }} {{ suffix }}). Maximum allowed size is {{ limit }} {{ suffix }}',
-        mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, WEBP)'
+    #[Assert\NotNull(message: 'Please upload a file')]
+    #[Assert\File(
+        maxSize: '100M',
+        mimeTypes: [
+            'image/*',
+            'video/*',
+            'audio/*'
+        ],
+        mimeTypesMessage: 'Please upload a valid file (image, video, or audio)'
     )]
     private ?File $imageFile = null;
 
@@ -63,6 +67,11 @@ class Artwork
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'artworks')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Category is required')]
+    private ?Category $category = null;
 
     public function __construct()
     {
@@ -157,6 +166,17 @@ class Artwork
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
         return $this;
     }
 }
