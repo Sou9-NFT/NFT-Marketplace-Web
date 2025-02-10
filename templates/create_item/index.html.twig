@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New Item{% endblock %}
+
+{% block body %}
+<section class="author-area">
+    <div class="container">
+        <div class="row justify-content-between">
+            <!-- Form Header -->
+            <div class="col-12 text-center mb-4">
+                <h2>Create Item Here</h2>
+                <p class="text-muted">Fill out the form below to add your new item to your inventory.</p>
+            </div>
+
+            <!-- Item Form and Preview Section -->
+            <div class="col-12 col-md-8">
+                <form class="item-form card no-hover p-3">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="input-group form-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="inputGroupFile01" onchange="previewImage(event)">
+                                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group mt-3">
+                                <input type="text" class="form-control" name="name" id="itemName" placeholder="Item Name" required="required" oninput="updatePreview()">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <textarea class="form-control" name="textarea" id="itemDescription" placeholder="Description" cols="30" rows="3" oninput="updatePreview()"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="price" id="itemPrice" placeholder="Item Price" required="required" oninput="updatePreview()">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="copies" placeholder="No of Copies" required="required">
+                            </div>
+                        </div>
+
+                        <!-- New Category Dropdown with enhanced styling -->
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="itemCategory">Category</label>
+                                <select class="form-control form-control-lg" name="category" id="itemCategory" required="required" onchange="updatePreview()" style="font-size: 1.2em; height: 55px; padding: 10px;">
+                                    <option value="">Select Category</option>
+                                    <option value="Art">Art</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Animals">Animals</option>
+                                    <option value="Collectibles">Collectibles</option>
+                                    <option value="Music">Music</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <button class="btn btn-primary w-100 mt-3" type="submit">Create Item</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="col-12 col-md-4">
+                <div class="card no-hover p-3">
+                    <!-- Preview Title -->
+                    <h3 class="text-center mb-3">Item Preview</h3>
+                    <div class="text-center">
+                        <!-- Image Preview -->
+                        <img id="previewImage" src="https://via.placeholder.com/150" alt="Item Image" class="img-fluid mb-3" style="max-width: 100%; height: auto;">
+                        <!-- Title -->
+                        <h4 id="previewName">Item Name</h4>
+                        <!-- Price -->
+                        <p id="previewPrice" class="text-muted">$0.00</p>
+                        <!-- Description -->
+                        <p id="previewDescription">Item Description</p>
+                        <!-- Category Preview -->
+                        <p id="previewCategory" class="text-muted">Category: None</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

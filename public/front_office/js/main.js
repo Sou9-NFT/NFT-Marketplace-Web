@@ -464,3 +464,21 @@
     });
 
 }(jQuery));
+
+function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        const output = document.getElementById('previewImage');
+        output.src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+function updatePreview() {
+    document.getElementById('previewName').textContent = document.getElementById('itemName').value || 'Item Name';
+    document.getElementById('previewDescription').textContent = document.getElementById('itemDescription').value || 'Item Description';
+    document.getElementById('previewPrice').textContent = document.getElementById('itemPrice').value ? '$' + document.getElementById('itemPrice').value : '$0.00';
+    
+    const category = document.getElementById('itemCategory').value;
+    document.getElementById('previewCategory').textContent = category ? 'Category: ' + category : 'Category: None';
+}
