@@ -11,61 +11,54 @@
                         <h1 class="h3 mb-0">Edit Artwork</h1>
                     </div>
                     <div class="card-body">
-                        {% set errorMessages = [] %}
-                        {% for label, messages in app.flashes %}
-                            {% if label == 'error' %}
-                                {% for message in messages %}
-                                    {% set errorMessages = errorMessages|merge([message]) %}
-                                {% endfor %}
-                            {% else %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ label }} alert-dismissible fade show">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endfor %}
-
-                        {% if errorMessages|length > 0 %}
-                            <div class="alert alert-danger">
-                                <ul class="mb-0 ps-3">
-                                    {% for message in errorMessages %}
-                                        <li>{{ message }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        {% endif %}
-
                         {% if artwork.imageName %}
                             <div class="mb-3">
                                 <label class="form-label">Current Image</label>
-                                <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
-                                     class="img-thumbnail" 
-                                     alt="{{ artwork.title }}"
-                                     style="max-height: 200px;">
+                                <div>
+                                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}" class="img-thumbnail" style="max-width: 200px;">
+                                </div>
                             </div>
                         {% endif %}
 
-                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                        {{ form_start(form) }}
                             <div class="mb-3">
                                 {{ form_label(form.title) }}
                                 {{ form_widget(form.title) }}
+                                {% if form_errors(form.title) %}
+                                    <div class="text-danger">
+                                        {{ form_errors(form.title) }}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="mb-3">
                                 {{ form_label(form.description) }}
                                 {{ form_widget(form.description) }}
+                                {% if form_errors(form.description) %}
+                                    <div class="text-danger">
+                                        {{ form_errors(form.description) }}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="mb-3">
                                 {{ form_label(form.price) }}
                                 {{ form_widget(form.price) }}
+                                {% if form_errors(form.price) %}
+                                    <div class="text-danger">
+                                        {{ form_errors(form.price) }}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="mb-3">
                                 {{ form_label(form.imageFile) }}
                                 {{ form_widget(form.imageFile) }}
+                                {% if form_errors(form.imageFile) %}
+                                    <div class="text-danger">
+                                        {{ form_errors(form.imageFile) }}
+                                    </div>
+                                {% endif %}
                                 <small class="form-text text-muted">Leave empty to keep the current image</small>
                             </div>
 
