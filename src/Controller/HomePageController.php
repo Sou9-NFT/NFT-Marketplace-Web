@@ -19,7 +19,7 @@ final class HomePageController extends AbstractController
     #[Route('/back', name: 'app_home_page_back')]
     public function indexBack(): Response
     {
-        return $this->render('back_office/back.html.twig', [
+        return $this->render('base_back.html.twig', [
             'controller_name' => 'HomePageController',
         ]);
     }
