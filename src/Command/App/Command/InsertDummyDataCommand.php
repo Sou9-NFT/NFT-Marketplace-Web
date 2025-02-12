@@ -1,48 +1,82 @@
 <?php
 
-namespace App\Command\App\Command;
+namespace App\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
+use App\Entity\Artwork;
+use App\Entity\BetSession;
+use App\Entity\Category;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'App\Command\InsertDummyDataCommand',
-    description: 'Add a short description for your command',
-)]
 class InsertDummyDataCommand extends Command
 {
-    public function __construct()
+    protected static $defaultName = 'app:insert-dummy-data';
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct();
+        $this->entityManager = $entityManager;
     }
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
-        ;
+            ->setDescription('Insert dummy data into the database');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
 
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
+        // Insert Category
+        $category = new Category();
+        $category->setName('Example Category');
+        $category->setType('image');
+        $category->setDescription('This is an example category description.');
+        $category->setAllowedMimeTypes(['image/jpeg', 'image/png']);
+        $this->entityManager->persist($category);
+
+        // Insert User
+        $user = new User();
+        $user->setEmail('nessimbns2@gmail.com');
+        $user->setRoles([]);
+        $user->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2'); // hashed password
+        $user->setName('John Doe');
+        $user->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
+        $this->entityManager->persist($user);
+
+        // Insert Artwork
+        $artwork = new Artwork();
+        $artwork->setCategory($category);
+        $artwork->setTitle('Example Artwork');
+        $artwork->setDescription('This is an example description for the artwork.');
+        $artwork->setPrice(100);
+        $artwork->setImageName('example.jpg');
+        $artwork->setUpdatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
+        $artwork->setCreatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
+        $this->entityManager->persist($artwork);
+
+        // Insert BetSession
+        for ($i = 2; $i <= 9; $i++) {
+            $betSession = new BetSession();
+            $betSession->setAuthor($user);
+            $betSession->setArtwork($artwork);
+            $betSession->setCreatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
+            $betSession->setEndTime(new \DateTimeImmutable('2025-02-15 10:00:00'));
+            $betSession->setStartTime(new \DateTimeImmutable('2025-02-13 10:00:00'));
+            $betSession->setInitialPrice(100.00 * $i);
+            $betSession->setCurrentPrice(100.00 * $i);
+            $this->entityManager->persist($betSession);
         }
 
-        if ($input->getOption('option1')) {
-            // ...
-        }
+        $this->entityManager->flush();
 
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        $io->success('Dummy data has been inserted successfully.');
 
         return Command::SUCCESS;
     }
