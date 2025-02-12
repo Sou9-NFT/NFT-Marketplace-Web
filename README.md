@@ -1,3 +1,5 @@
+# PULL FROM `beta2` BRANCH TO YOUR PRIVATE BRANCH BEFORE PUSHING
+
 Download dependencies
 ```
 composer install
@@ -7,6 +9,17 @@ How to start a server with Symfony
 ```
 symfony server:start 
 symfony serve
+```
+
+migration
+```
+symfony console make:migration
+symfony console doctrine:migrations:migrate
+```
+
+clear cache
+```
+symfony console cache:clear
 ```
 
 > [!WARNING]
