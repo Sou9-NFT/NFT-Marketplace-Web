@@ -1,0 +1,31 @@
+{{ form_start(form, {'attr': {'class': 'item-form card no-hover p-3'}}) }}
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                {{ form_label(form.startTime, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.startTime, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-group">
+                {{ form_label(form.endTime, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="form-group">
+                {{ form_label(form.initialPrice, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.initialPrice, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="form-group">
+                {{ form_label(form.artwork, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.artwork, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary w-100 mt-3">{{ button_label|default('Save') }}</button>
+        </div>
+    </div>
+{{ form_end(form) }}
