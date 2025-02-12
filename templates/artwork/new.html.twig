@@ -4,68 +4,102 @@
 
 {% block body %}
     <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Create New Artwork</h1>
+            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">Manage Categories</a>
+        </div>
+
+        {{ form_start(form) }}
         <div class="row">
-            <div class="col-md-8 offset-md-2">
+            <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">
-                        <h1 class="h3 mb-0">Create New Artwork</h1>
-                    </div>
                     <div class="card-body">
-                        {% set errorMessages = [] %}
-                        {% for label, messages in app.flashes %}
-                            {% if label == 'error' %}
-                                {% for message in messages %}
-                                    {% set errorMessages = errorMessages|merge([message]) %}
-                                {% endfor %}
-                            {% else %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ label }} alert-dismissible fade show">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endfor %}
+                        <div class="mb-3">
+                            {{ form_label(form.category) }}
+                            {{ form_widget(form.category) }}
+                            {{ form_errors(form.category) }}
+                            <div class="form-text" id="categoryHelp"></div>
+                        </div>
 
-                        {% if errorMessages|length > 0 %}
-                            <div class="alert alert-danger">
-                                <ul class="mb-0 ps-3">
-                                    {% for message in errorMessages %}
-                                        <li>{{ message }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        {% endif %}
+                        <div class="mb-3">
+                            {{ form_label(form.title) }}
+                            {{ form_widget(form.title) }}
+                            {{ form_errors(form.title) }}
+                        </div>
 
-                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                            <div class="mb-3">
-                                {{ form_label(form.title) }}
-                                {{ form_widget(form.title) }}
-                            </div>
+                        <div class="mb-3">
+                            {{ form_label(form.description) }}
+                            {{ form_widget(form.description) }}
+                            {{ form_errors(form.description) }}
+                        </div>
 
-                            <div class="mb-3">
-                                {{ form_label(form.description) }}
-                                {{ form_widget(form.description) }}
-                            </div>
+                        <div class="mb-3">
+                            {{ form_label(form.price) }}
+                            {{ form_widget(form.price) }}
+                            {{ form_errors(form.price) }}
+                        </div>
 
-                            <div class="mb-3">
-                                {{ form_label(form.price) }}
-                                {{ form_widget(form.price) }}
+                        <div class="mb-3">
+                            {{ form_label(form.imageFile) }}
+                            {{ form_widget(form.imageFile) }}
+                            {{ form_errors(form.imageFile) }}
+                            <div class="form-text" id="fileHelp">
+                                Select a file based on the chosen category
                             </div>
+                        </div>
 
-                            <div class="mb-3">
-                                {{ form_label(form.imageFile) }}
-                                {{ form_widget(form.imageFile) }}
-                            </div>
-
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <a href="{{ path('app_artwork_index') }}" class="btn btn-secondary me-md-2">Back to List</a>
-                                <button type="submit" class="btn btn-primary">Create</button>
-                            </div>
-                        {{ form_end(form) }}
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Create</button>
+                            <a href="{{ path('app_artwork_index') }}" class="btn btn-secondary">Back to list</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        {{ form_end(form) }}
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.querySelector('#artwork_category');
+            const fileHelp = document.querySelector('#fileHelp');
+            const categoryHelp = document.querySelector('#categoryHelp');
+
+            function updateFileHelp() {
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                if (selectedOption.value) {
+                    // Get category type from the data attribute
+                    fetch(`/category/${selectedOption.value}`, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(category => {
+                        let helpText = 'Allowed file types: ';
+                        helpText += category.allowedMimeTypes.join(', ');
+                        fileHelp.textContent = helpText;
+                        
+                        let categoryText = `This is a ${category.type} NFT category. `;
+                        categoryText += category.description;
+                        categoryHelp.textContent = categoryText;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching category info:', error);
+                        fileHelp.textContent = 'Error loading category information';
+                        categoryHelp.textContent = '';
+                    });
+                } else {
+                    fileHelp.textContent = 'Select a category first';
+                    categoryHelp.textContent = '';
+                }
+            }
+
+            categorySelect.addEventListener('change', updateFileHelp);
+            updateFileHelp(); // Initial update
+        });
+    </script>
 {% endblock %}

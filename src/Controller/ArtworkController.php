@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Form\FormError;
 
 #[Route('/artwork')]
 class ArtworkController extends AbstractController
@@ -24,45 +23,25 @@ class ArtworkController extends AbstractController
         ]);
     }
 
-    private function getFormErrors($form): array
-    {
-        $errors = [];
-        foreach ($form->all() as $child) {
-            if (!$child->isValid()) {
-                $fieldName = ucfirst($child->getName());
-                $errors[] = "Please enter a $fieldName";
-            }
-        }
-        return array_unique($errors);
-    }
-
     #[Route('/new', name: 'app_artwork_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
         $artwork = new Artwork();
-        $form = $this->createForm(ArtworkType::class, $artwork, [
-            'attr' => ['novalidate' => 'novalidate']
-        ]);
+        $form = $this->createForm(ArtworkType::class, $artwork);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $imageFile = $form->get('imageFile')->getData();
-                if ($imageFile) {
-                    $imageFileName = $fileUploader->upload($imageFile);
-                    $artwork->setImageName($imageFileName);
-                }
-
-                $entityManager->persist($artwork);
-                $entityManager->flush();
-
-                $this->addFlash('success', 'Artwork created successfully');
-                return $this->redirectToRoute('app_artwork_index');
-            } else {
-                foreach ($this->getFormErrors($form) as $error) {
-                    $this->addFlash('error', $error);
-                }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $imageFileName = $fileUploader->upload($imageFile);
+                $artwork->setImageName($imageFileName);
             }
+
+            $entityManager->persist($artwork);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Artwork created successfully');
+            return $this->redirectToRoute('app_artwork_index');
         }
 
         return $this->render('artwork/new.html.twig', [
@@ -82,28 +61,20 @@ class ArtworkController extends AbstractController
     #[Route('/{id}/edit', name: 'app_artwork_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Artwork $artwork, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
-        $form = $this->createForm(ArtworkType::class, $artwork, [
-            'attr' => ['novalidate' => 'novalidate']
-        ]);
+        $form = $this->createForm(ArtworkType::class, $artwork);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $imageFile = $form->get('imageFile')->getData();
-                if ($imageFile) {
-                    $imageFileName = $fileUploader->upload($imageFile);
-                    $artwork->setImageName($imageFileName);
-                }
-
-                $entityManager->flush();
-
-                $this->addFlash('success', 'Artwork updated successfully');
-                return $this->redirectToRoute('app_artwork_index');
-            } else {
-                foreach ($this->getFormErrors($form) as $error) {
-                    $this->addFlash('error', $error);
-                }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $imageFileName = $fileUploader->upload($imageFile);
+                $artwork->setImageName($imageFileName);
             }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Artwork updated successfully');
+            return $this->redirectToRoute('app_artwork_index');
         }
 
         return $this->render('artwork/edit.html.twig', [
