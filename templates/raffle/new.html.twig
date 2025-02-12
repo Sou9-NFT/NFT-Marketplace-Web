@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Raffle{% endblock %}
+
+{% block body %}
+    <div class="container mt-5 py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="h3 mb-0">Create New Raffle</h1>
+                    </div>
+                    <div class="card-body">
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+
+                        <form method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="creator_name" class="form-label">Creator Name</label>
+                                <input type="text" class="form-control {% if form_errors is defined and form_errors.creator_name %}is-invalid{% endif %}" 
+                                       id="creator_name" name="creator_name" value="{{ old.creator_name|default('') }}">
+                                {% if form_errors is defined and form_errors.creator_name %}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors.creator_name }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text text-muted">
+                                    Name must be between 2 and 50 characters.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Image</label>
+                                <input type="file" class="form-control {% if form_errors is defined and form_errors.image %}is-invalid{% endif %}" 
+                                       id="image" name="image" accept="image/*">
+                                {% if form_errors is defined and form_errors.image %}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors.image }}
+                                    </div>
+                                {% endif %}
+                                {% if old.image_name is defined %}
+                                    <div class="form-text">
+                                        Current file: {{ old.image_name }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="start_time" class="form-label">Start Time</label>
+                                <input type="datetime-local" class="form-control {% if form_errors is defined and form_errors.start_time %}is-invalid{% endif %}" 
+                                       id="start_time" name="start_time" value="{{ old.start_time|default('') }}">
+                                {% if form_errors is defined and form_errors.start_time %}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors.start_time }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text text-muted">
+                                    Start time must be in the future and at least 1 minute before end time.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="end_time" class="form-label">End Time</label>
+                                <input type="datetime-local" class="form-control {% if form_errors is defined and form_errors.end_time %}is-invalid{% endif %}" 
+                                       id="end_time" name="end_time" value="{{ old.end_time|default('') }}">
+                                {% if form_errors is defined and form_errors.end_time %}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors.end_time }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text text-muted">
+                                    End time must be at least 1 minute after start time.
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_raffle_index') }}" class="btn btn-secondary px-4">Back to list</a>
+                                <button type="submit" class="btn btn-primary px-4">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
