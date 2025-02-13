@@ -55,7 +55,7 @@
                                 <div class="card-body">
                                     <div class="countdown-times mb-3">
                                         <div class="text-center mb-2 ">Time Remaining</div>
-                                        <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d') }}" data-format="datetime"></div>
+                                        <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d H:i:s') }}" data-format="datetime"></div>
                                         <script>
                                             console.log("Countdown date: {{ bet_session.endTime|date('Y-m-s') }}");
                                         </script>

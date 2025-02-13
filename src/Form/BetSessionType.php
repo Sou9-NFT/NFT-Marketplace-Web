@@ -28,8 +28,7 @@ class BetSessionType extends AbstractType
             ->add('artwork', EntityType::class, [
                 'class' => Artwork::class,
                 'choice_label' => 'id',
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
