@@ -27,8 +27,9 @@ class Raffle
     #[ORM\Column(length: 255)]
     private string $status = 'active';
 
-    #[ORM\Column]
-    private ?int $created_by = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdRaffles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $creator = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $created_at;
@@ -97,14 +98,17 @@ class Raffle
         return $this;
     }
 
-    public function getCreatedBy(): ?int
+    public function getCreator(): ?User
     {
-        return $this->created_by;
+        return $this->creator;
     }
 
-    public function setCreatedBy(int $created_by): self
+    public function setCreator(?User $creator): self
     {
-        $this->created_by = $created_by;
+        $this->creator = $creator;
+        if ($creator) {
+            $this->creator_name = $creator->getName() ?? $creator->getEmail();
+        }
         return $this;
     }
 
@@ -130,6 +134,9 @@ class Raffle
         return $this;
     }
 
+    /**
+     * @return Collection<int, Participant>
+     */
     public function getParticipants(): Collection
     {
         return $this->participants;
@@ -148,6 +155,7 @@ class Raffle
     public function removeParticipant(Participant $participant): self
     {
         if ($this->participants->removeElement($participant)) {
+            // set the owning side to null (unless already changed)
             if ($participant->getRaffle() === $this) {
                 $participant->setRaffle(null);
             }

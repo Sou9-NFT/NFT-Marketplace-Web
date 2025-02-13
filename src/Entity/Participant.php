@@ -17,8 +17,9 @@ class Participant
     #[ORM\JoinColumn(nullable: false)]
     private ?Raffle $raffle = null;
 
-    #[ORM\Column]
-    private ?int $user_id = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'participations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -47,14 +48,17 @@ class Participant
         return $this;
     }
 
-    public function getUserId(): ?int
+    public function getUser(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(int $user_id): self
+    public function setUser(?User $user): self
     {
-        $this->user_id = $user_id;
+        $this->user = $user;
+        if ($user) {
+            $this->name = $user->getName() ?? $user->getEmail();
+        }
         return $this;
     }
 

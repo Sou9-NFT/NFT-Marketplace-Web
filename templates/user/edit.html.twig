@@ -3,11 +3,61 @@
 {% block title %}Edit User{% endblock %}
 
 {% block body %}
-    <h1>Edit User</h1>
+    <!-- ***** Profile Area Start ***** -->
+    <section class="author-area">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-12 col-md-4">
+                    <div class="author-profile">
+                        <img src="{{ user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="img-fluid rounded-circle">
+                        <button class="btn btn-primary mt-3" id="uploadButton">Upload New Picture</button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-7">
+                    <!-- Intro -->
+                    <div class="intro mt-5 mt-lg-0 mb-4 mb-lg-5">
+                        <div class="intro-content">
+                            <span>Edit User Details</span>
+                            <h3 class="mt-3 mb-0">Update User Information</h3>
+                        </div>
+                    </div>
+                    <!-- User Details Form -->
+                    {{ form_start(form) }}
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>{{ form_label(form.name) }}</th>
+                                <td>{{ form_widget(form.name) }}</td>
+                            </tr>
+                            <tr>
+                                <th>{{ form_label(form.email) }}</th>
+                                <td>{{ form_widget(form.email) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Created At</th>
+                                <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {{ form_widget(form.profilePicture, {'attr': {'class': 'd-none', 'id': 'profilePictureInput'}}) }}
+                    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ***** Profile Area End ***** -->
+{% endblock %}
 
-    {{ include('user/_form.html.twig', {'button_label': 'Update'}) }}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.getElementById('uploadButton').addEventListener('click', function() {
+            document.getElementById('profilePictureInput').click();
+        });
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
-
-    {{ include('user/_delete_form.html.twig') }}
+        document.getElementById('profilePictureInput').addEventListener('change', function() {
+            document.querySelector('form').submit();
+        });
+    </script>
 {% endblock %}

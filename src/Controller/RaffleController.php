@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Raffle;
 use App\Entity\Participant;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,6 +58,13 @@ class RaffleController extends AbstractController
     #[Route('/new', name: 'app_raffle_new', methods: ['GET', 'POST'])]
     public function new(Request $request, SluggerInterface $slugger): Response
     {
+        // Check if user is authenticated
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in to create a raffle');
+            return $this->redirectToRoute('app_login');
+        }
+
         $old = [
             'creator_name' => '',
             'start_time' => '',
@@ -157,7 +165,9 @@ class RaffleController extends AbstractController
                 $raffle = new Raffle();
                 $raffle->setStartTime($startTime);
                 $raffle->setEndTime($endTime);
-                $raffle->setCreatedBy(1);
+                
+                // Get the current user and set as creator
+                $raffle->setCreator($user);
                 $raffle->setCreatorName($old['creator_name']);
                 $raffle->setImage($newFilename);
                 
@@ -211,12 +221,27 @@ class RaffleController extends AbstractController
     #[Route('/{id}/join', name: 'app_raffle_join', methods: ['GET', 'POST'])]
     public function join(Request $request, Raffle $raffle): Response
     {
+        // Check if user is authenticated
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'You must be logged in to join a raffle');
+            return $this->redirectToRoute('app_login');
+        }
+
         // Check if raffle is still active
         $this->checkAndUpdateRaffleStatus($raffle);
         
         if ($raffle->getStatus() !== 'active') {
             $this->addFlash('error', 'This raffle is no longer active.');
             return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
+        }
+
+        // Check if user has already joined
+        foreach ($raffle->getParticipants() as $existingParticipant) {
+            if ($existingParticipant->getUser() === $user) {
+                $this->addFlash('error', 'You have already joined this raffle.');
+                return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
+            }
         }
 
         if ($request->isMethod('POST')) {
@@ -240,7 +265,7 @@ class RaffleController extends AbstractController
             if (!$hasErrors) {
                 $participant = new Participant();
                 $participant->setRaffle($raffle);
-                $participant->setUserId(1);
+                $participant->setUser($user);
                 $participant->setName($name);
                 
                 $this->entityManager->persist($participant);
