@@ -47,6 +47,16 @@ final class BetSessionController extends AbstractController
     #[Route('/List/{userId}', name: 'app_bet_session_mylist', methods: ['GET'])]
     public function mylist(int $userId, BetSessionRepository $betSessionRepository, Request $request): Response
     {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($user->getId() !== $userId) {
+            return $this->render('error/index.html.twig');
+        }
+
         $page = $request->query->getInt('page', 1);
         $limit = 4;
 
@@ -69,7 +79,6 @@ final class BetSessionController extends AbstractController
             'total_items' => $totalItems,
             'pages_count' => $pagesCount,
             'current_page' => $page,
-            
         ]);
     }
 

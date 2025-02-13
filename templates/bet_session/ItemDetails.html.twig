@@ -170,7 +170,7 @@
             </div>
         </section>
         <!-- ***** Item Details Area End ***** -->
-
+        {% if  live_bet_sessions|length==6  %}
         <!-- ***** Live Auctions Area Start ***** -->
         <section class="live-auctions-area pt-0">
             <div class="container">
@@ -192,7 +192,7 @@
             <div class="swiper-container slider-mid items">
             <div class="swiper-wrapper">
                 <script>
-                    console.log({{ live_bet_sessions|json_encode(constant('JSON_PRETTY_PRINT')) }});
+                    console.log({{ live_bet_sessions|length }});
                 </script>
                 {% for session in live_bet_sessions %}
             
@@ -236,7 +236,7 @@
             </div>
         </section>
         <!-- ***** Live Auctions Area End ***** -->
-
+{% endif %}
 
 {% endblock %}
 
