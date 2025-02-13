@@ -6,6 +6,7 @@
 parameters:
     artwork_images_directory: '%kernel.project_dir%/public/uploads/artworks'
     raffle_images_directory: '%kernel.project_dir%/public/uploads/raffle_images'
+    profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
 
 services:
     # default configuration for services in *this* file
