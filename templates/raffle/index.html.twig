@@ -13,7 +13,7 @@
             {% for raffle in raffles %}
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
-                        <img src="{{ asset('uploads/raffle/' ~ raffle.image) }}" class="card-img-top" alt="Raffle Image" style="height: 200px; object-fit: cover;">
+                        <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" class="card-img-top" alt="Raffle Image" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title">Raffle #{{ raffle.id }}</h5>
                             <p class="card-text">
