@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Participant Details{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">Participant Details</h1>
+
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="p-6 space-y-4">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Name</h3>
+                        <p class="mt-1 text-sm text-gray-500">{{ participant.name }}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Raffle</h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            <a href="{{ path('app_raffle_show', {'id': participant.raffle.id}) }}" class="text-indigo-600 hover:text-indigo-900">
+                                {{ participant.raffle.creatorName }}'s Raffle
+                            </a>
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">Joined At</h3>
+                        <p class="mt-1 text-sm text-gray-500">{{ participant.createdAt ? participant.createdAt|date('Y-m-d H:i:s') : '' }}</p>
+                    </div>
+
+                    {% if participant.raffle.winnerId == participant.id %}
+                        <div class="mt-4 p-4 bg-green-100 rounded-md">
+                            <p class="text-green-700">🎉 Winner of this raffle!</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="px-6 py-4 bg-gray-50">
+                    <a href="{{ path('app_participant_index') }}" class="text-indigo-600 hover:text-indigo-900">Back to Participants</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

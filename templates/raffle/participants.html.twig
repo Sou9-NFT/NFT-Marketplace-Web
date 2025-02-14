@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Raffle Participants{% endblock %}
+
+{% block body %}
+    <div class="container mt-5 py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-0 text-white">Raffle #{{ raffle.id }} Participants</h1>
+                        <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">Back to Raffle</a>
+                    </div>
+                    <div class="card-body">
+                        {% if raffle.participants|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Display Name</th>
+                                            <th>Join Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for participant in raffle.participants %}
+                                            <tr>
+                                                <td>{{ participant.name }}</td>
+                                                <td>{{ participant.joinedAt ? participant.joinedAt|date('Y-m-d H:i:s') : '' }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-center">No participants yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

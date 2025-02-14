@@ -3,14 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Raffle;
-use App\Entity\Participant;
 use App\Entity\User;
+use App\Entity\Participant;
+use App\Form\RaffleType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/raffle')]
 class RaffleController extends AbstractController
@@ -24,16 +26,16 @@ class RaffleController extends AbstractController
 
     private function checkAndUpdateRaffleStatus(Raffle $raffle): void
     {
-        if ($raffle->getStatus() === 'active' && $raffle->getEndTime() <= new \DateTime()) {
+        $now = new \DateTime();
+        
+        // If end time has passed, mark it as ended
+        if ($raffle->getEndTime() <= $now) {
             $raffle->setStatus('ended');
-            
-            // Select a random winner when the raffle ends
-            $participants = $raffle->getParticipants();
-            if (count($participants) > 0) {
-                $winner = $participants[array_rand($participants->toArray())];
-                $raffle->setWinnerId($winner->getId());
-            }
-            
+            $this->entityManager->flush();
+        }
+        // Otherwise, it's active
+        else {
+            $raffle->setStatus('active');
             $this->entityManager->flush();
         }
     }
@@ -58,140 +60,44 @@ class RaffleController extends AbstractController
     #[Route('/new', name: 'app_raffle_new', methods: ['GET', 'POST'])]
     public function new(Request $request, SluggerInterface $slugger): Response
     {
-        // Check if user is authenticated
-        $user = $this->getUser();
-        if (!$user) {
-            $this->addFlash('error', 'You must be logged in to create a raffle');
-            return $this->redirectToRoute('app_login');
-        }
+        $raffle = new Raffle();
+        $form = $this->createForm(RaffleType::class, $raffle);
+        $form->handleRequest($request);
 
-        $old = [
-            'creator_name' => '',
-            'start_time' => '',
-            'end_time' => '',
-            'image_name' => ''
-        ];
-
-        if ($request->isMethod('POST')) {
-            $errors = [
-                'creator_name' => null,
-                'image' => null,
-                'start_time' => null,
-                'end_time' => null
-            ];
-            $hasErrors = false;
-            
-            // Keep old values
-            $old['creator_name'] = $request->request->get('creator_name');
-            $old['start_time'] = $request->request->get('start_time');
-            $old['end_time'] = $request->request->get('end_time');
-            
-            // Validate creator name
-            if (empty($old['creator_name'])) {
-                $errors['creator_name'] = 'Creator name is required';
-                $hasErrors = true;
-            } elseif (strlen($old['creator_name']) < 2 || strlen($old['creator_name']) > 50) {
-                $errors['creator_name'] = 'Creator name must be between 2 and 50 characters';
-                $hasErrors = true;
-            }
-            
-            // Validate start and end times
-            $startTime = null;
-            $endTime = null;
-            $now = new \DateTime();
-            
-            // Check if dates are provided
-            if (empty($old['start_time'])) {
-                $errors['start_time'] = 'Start time is required';
-                $hasErrors = true;
-            }
-            
-            if (empty($old['end_time'])) {
-                $errors['end_time'] = 'End time is required';
-                $hasErrors = true;
-            }
-
-            if (!empty($old['start_time']) && !empty($old['end_time'])) {
-                try {
-                    $startTime = new \DateTime($old['start_time']);
-                    $endTime = new \DateTime($old['end_time']);
-                    
-                    // Validate start time is in the future
-                    if ($startTime <= $now) {
-                        $errors['start_time'] = 'Start time must be in the future';
-                        $hasErrors = true;
-                    }
-                    
-                    // Calculate time difference in minutes
-                    $timeDiff = $startTime->diff($endTime);
-                    $minutesDiff = ($timeDiff->days * 24 * 60) + ($timeDiff->h * 60) + $timeDiff->i;
-                    
-                    // Validate end time is at least 1 minute after start time
-                    if ($startTime >= $endTime || $minutesDiff < 1) {
-                        $errors['start_time'] = 'Start time must be at least 1 minute before end time';
-                        $errors['end_time'] = 'End time must be at least 1 minute after start time';
-                        $hasErrors = true;
-                    }
-                } catch (\Exception $e) {
-                    $errors['start_time'] = 'Invalid date format';
-                    $errors['end_time'] = 'Invalid date format';
-                    $hasErrors = true;
-                }
-            }
-            
-            // Handle file upload
-            $imageFile = $request->files->get('image');
-            if (!$imageFile) {
-                $errors['image'] = 'Please upload an image';
-                $hasErrors = true;
-            } else {
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Handle image upload
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-                $old['image_name'] = $imageFile->getClientOriginalName();
 
                 try {
                     $imageFile->move(
                         $this->getParameter('raffle_images_directory'),
                         $newFilename
                     );
-                } catch (\Exception $e) {
-                    $errors['image'] = 'Error uploading image';
-                    $hasErrors = true;
+                    $raffle->setImage($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
+                    return $this->redirectToRoute('app_raffle_new');
                 }
             }
 
-            if (!$hasErrors) {
-                $raffle = new Raffle();
-                $raffle->setStartTime($startTime);
-                $raffle->setEndTime($endTime);
-                
-                // Get the current user and set as creator
-                $raffle->setCreator($user);
-                $raffle->setCreatorName($old['creator_name']);
-                $raffle->setImage($newFilename);
-                
-                $this->entityManager->persist($raffle);
-                $this->entityManager->flush();
+            // Set the start time to now
+            $raffle->setStartTime(new \DateTime('now'));
+            
+            $raffle->setCreator($this->getUser());
+            $raffle->setStatus('active');
+            $this->entityManager->persist($raffle);
+            $this->entityManager->flush();
 
-                return $this->redirectToRoute('app_raffle_index');
-            }
-
-            // If there are errors, render the form again with error messages and old values
-            return $this->render('raffle/new.html.twig', [
-                'form_errors' => $errors,
-                'old' => $old
-            ]);
+            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('raffle/new.html.twig', [
-            'form_errors' => [
-                'creator_name' => null,
-                'image' => null,
-                'start_time' => null,
-                'end_time' => null
-            ],
-            'old' => $old
+            'raffle' => $raffle,
+            'form' => $form,
         ]);
     }
 
@@ -201,26 +107,26 @@ class RaffleController extends AbstractController
         // Check and update raffle status
         $this->checkAndUpdateRaffleStatus($raffle);
 
-        // Get winner name if exists
-        $winner_name = null;
-        if ($raffle->getWinnerId()) {
-            foreach ($raffle->getParticipants() as $participant) {
-                if ($participant->getId() === $raffle->getWinnerId()) {
-                    $winner_name = $participant->getName();
-                    break;
-                }
-            }
+        // If raffle has ended, select a winner if not already selected
+        $winner = null;
+        if ($raffle->getStatus() === 'ended' && count($raffle->getParticipants()) > 0) {
+            // Get a random participant as winner
+            $participants = $raffle->getParticipants()->toArray();
+            $winner = $participants[array_rand($participants)];
         }
 
         return $this->render('raffle/show.html.twig', [
             'raffle' => $raffle,
-            'winner_name' => $winner_name,
+            'winner' => $winner,
         ]);
     }
 
     #[Route('/{id}/join', name: 'app_raffle_join', methods: ['GET', 'POST'])]
     public function join(Request $request, Raffle $raffle): Response
     {
+        // Check and update raffle status first
+        $this->checkAndUpdateRaffleStatus($raffle);
+
         // Check if user is authenticated
         $user = $this->getUser();
         if (!$user) {
@@ -229,8 +135,6 @@ class RaffleController extends AbstractController
         }
 
         // Check if raffle is still active
-        $this->checkAndUpdateRaffleStatus($raffle);
-        
         if ($raffle->getStatus() !== 'active') {
             $this->addFlash('error', 'This raffle is no longer active.');
             return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
@@ -238,7 +142,7 @@ class RaffleController extends AbstractController
 
         // Check if user has already joined
         foreach ($raffle->getParticipants() as $existingParticipant) {
-            if ($existingParticipant->getUser() === $user) {
+            if ($existingParticipant->getUser() === $user && $existingParticipant->getUser() !== $raffle->getCreator()) {
                 $this->addFlash('error', 'You have already joined this raffle.');
                 return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
             }
@@ -276,13 +180,13 @@ class RaffleController extends AbstractController
             }
 
             // If there are errors, render the form again with error messages
-            return $this->render('raffle/join.html.twig', [
+            return $this->render('participant/join.html.twig', [
                 'raffle' => $raffle,
                 'form_errors' => $errors
             ]);
         }
 
-        return $this->render('raffle/join.html.twig', [
+        return $this->render('participant/join.html.twig', [
             'raffle' => $raffle,
             'form_errors' => ['name' => null]
         ]);
@@ -291,132 +195,117 @@ class RaffleController extends AbstractController
     #[Route('/{id}/edit', name: 'app_raffle_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Raffle $raffle, SluggerInterface $slugger): Response
     {
-        // Check and update raffle status
-        $this->checkAndUpdateRaffleStatus($raffle);
+        // Check if user is the creator
+        if ($this->getUser() !== $raffle->getCreator()) {
+            return $this->render('error/access_denied.html.twig', [
+                'raffle' => $raffle
+            ], new Response('', Response::HTTP_FORBIDDEN));
+        }
 
-        $old = [
-            'creator_name' => $raffle->getCreatorName(),
-            'start_time' => $raffle->getStartTime()->format('Y-m-d\TH:i'),
-            'end_time' => $raffle->getEndTime()->format('Y-m-d\TH:i'),
-            'image_name' => $raffle->getImage()
-        ];
+        // Store the original start time
+        $originalStartTime = $raffle->getStartTime();
+        
+        $form = $this->createForm(RaffleType::class, $raffle, [
+            'require_image' => false,
+        ]);
+        $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            $errors = [
-                'creator_name' => null,
-                'image' => null,
-                'start_time' => null,
-                'end_time' => null
-            ];
-            $hasErrors = false;
-            
-            // Keep old values
-            $old['creator_name'] = $request->request->get('creator_name');
-            $old['start_time'] = $request->request->get('start_time');
-            $old['end_time'] = $request->request->get('end_time');
-            
-            // Validate creator name
-            if (empty($old['creator_name'])) {
-                $errors['creator_name'] = 'Creator name is required';
-                $hasErrors = true;
-            } elseif (strlen($old['creator_name']) < 2 || strlen($old['creator_name']) > 50) {
-                $errors['creator_name'] = 'Creator name must be between 2 and 50 characters';
-                $hasErrors = true;
-            }
-            
-            // Validate start and end times
-            $startTime = null;
-            $endTime = null;
-            $now = new \DateTime();
-            
-            // Check if dates are provided
-            if (empty($old['start_time'])) {
-                $errors['start_time'] = 'Start time is required';
-                $hasErrors = true;
-            }
-            
-            if (empty($old['end_time'])) {
-                $errors['end_time'] = 'End time is required';
-                $hasErrors = true;
-            }
-
-            if (!empty($old['start_time']) && !empty($old['end_time'])) {
-                try {
-                    $startTime = new \DateTime($old['start_time']);
-                    $endTime = new \DateTime($old['end_time']);
-                    
-                    // Calculate time difference in minutes
-                    $timeDiff = $startTime->diff($endTime);
-                    $minutesDiff = ($timeDiff->days * 24 * 60) + ($timeDiff->h * 60) + $timeDiff->i;
-                    
-                    // Validate end time is at least 1 minute after start time
-                    if ($startTime >= $endTime || $minutesDiff < 1) {
-                        $errors['start_time'] = 'Start time must be at least 1 minute before end time';
-                        $errors['end_time'] = 'End time must be at least 1 minute after start time';
-                        $hasErrors = true;
-                    }
-                } catch (\Exception $e) {
-                    $errors['start_time'] = 'Invalid date format';
-                    $errors['end_time'] = 'Invalid date format';
-                    $hasErrors = true;
-                }
-            }
-            
-            // Handle file upload if provided
-            $imageFile = $request->files->get('image');
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Handle image upload
+            $imageFile = $form->get('image')->getData();
             if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-                $old['image_name'] = $imageFile->getClientOriginalName();
 
                 try {
+                    // Delete old image if it exists
+                    $oldImagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
+                    if ($raffle->getImage() && file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
+
                     $imageFile->move(
                         $this->getParameter('raffle_images_directory'),
                         $newFilename
                     );
-                    // Delete old image if exists
-                    if ($raffle->getImage()) {
-                        $oldImagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
-                        if (file_exists($oldImagePath)) {
-                            unlink($oldImagePath);
-                        }
-                    }
                     $raffle->setImage($newFilename);
-                } catch (\Exception $e) {
-                    $errors['image'] = 'Error uploading image';
-                    $hasErrors = true;
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
+                    return $this->redirectToRoute('app_raffle_edit', ['id' => $raffle->getId()]);
                 }
             }
 
-            if (!$hasErrors) {
-                $raffle->setStartTime($startTime);
-                $raffle->setEndTime($endTime);
-                $raffle->setCreatorName($old['creator_name']);
-                
-                $this->entityManager->flush();
-
-                return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
-            }
-
-            // If there are errors, render the form again with error messages and old values
-            return $this->render('raffle/edit.html.twig', [
-                'raffle' => $raffle,
-                'form_errors' => $errors,
-                'old' => $old
-            ]);
+            // Restore the original start time
+            $raffle->setStartTime($originalStartTime);
+            
+            $this->entityManager->flush();
+            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('raffle/edit.html.twig', [
             'raffle' => $raffle,
-            'form_errors' => [
-                'creator_name' => null,
-                'image' => null,
-                'start_time' => null,
-                'end_time' => null
-            ],
-            'old' => $old
+            'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}/participants', name: 'app_raffle_participants', methods: ['GET'])]
+    public function participants(Raffle $raffle): Response
+    {
+        // Check and update raffle status
+        $this->checkAndUpdateRaffleStatus($raffle);
+
+        return $this->render('raffle/participants.html.twig', [
+            'raffle' => $raffle
+        ]);
+    }
+
+    #[Route('/participant/{id}/edit', name: 'app_participant_edit', methods: ['GET', 'POST'])]
+    public function editParticipant(Request $request, Participant $participant): Response
+    {
+        // Check if user is the raffle creator
+        if ($this->getUser() !== $participant->getRaffle()->getCreator()) {
+            throw $this->createAccessDeniedException('Only the raffle creator can edit participants.');
+        }
+
+        if ($request->isMethod('POST')) {
+            $name = $request->request->get('name');
+            
+            // Validate name
+            if (!empty($name) && strlen($name) >= 2 && strlen($name) <= 50 && preg_match('/^[a-zA-Z0-9\s\-]+$/', $name)) {
+                $participant->setName($name);
+                $this->entityManager->flush();
+
+                $this->addFlash('success', 'Participant name updated successfully!');
+                return $this->redirectToRoute('app_raffle_participants', ['id' => $participant->getRaffle()->getId()]);
+            }
+
+            $this->addFlash('error', 'Invalid name format.');
+        }
+
+        return $this->render('participant/edit.html.twig', [
+            'participant' => $participant
+        ]);
+    }
+
+    #[Route('/participant/{id}/delete', name: 'app_participant_delete', methods: ['POST'])]
+    public function deleteParticipant(Request $request, Participant $participant): Response
+    {
+        // Check if user is the raffle creator
+        if ($this->getUser() !== $participant->getRaffle()->getCreator()) {
+            throw $this->createAccessDeniedException('Only the raffle creator can remove participants.');
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$participant->getId(), $request->request->get('_token'))) {
+            $raffleId = $participant->getRaffle()->getId();
+            $this->entityManager->remove($participant);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Participant removed successfully!');
+            return $this->redirectToRoute('app_raffle_participants', ['id' => $raffleId]);
+        }
+
+        return $this->redirectToRoute('app_raffle_participants', ['id' => $participant->getRaffle()->getId()]);
     }
 
     #[Route('/{id}', name: 'app_raffle_delete', methods: ['POST'])]
