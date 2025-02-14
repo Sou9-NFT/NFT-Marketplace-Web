@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}BetSession{% endblock %}
+
+{% block body %}
+    <h1>BetSession</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ bet_session.id }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ bet_session.createdAt ? bet_session.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_bet_session_index') }}">back to list</a>
+
+    <a href="{{ path('app_bet_session_edit', {'id': bet_session.id}) }}">edit</a>
+
+    {{ include('bet_session/_delete_form.html.twig') }}
+{% endblock %}

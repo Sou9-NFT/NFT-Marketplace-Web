@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit BetSession{% endblock %}
+
+{% block body %}
+<section class="author-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Form Header -->
+            <div class="col-12 text-center mb-4">
+                <h2>Edit BetSession</h2>
+                <p class="text-muted">Update the form below to edit the bet session.</p>
+            </div>
+
+            <!-- BetSession Form Section -->
+            <div class="col-12 col-md-8">
+                <form class="bet-session-form card no-hover p-3" method="post">
+                    {{ include('bet_session/_form.html.twig', {'button_label': 'Update'}) }}
+                </form>
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{{ path('app_bet_session_mylist', {'userId': 1}) }}" class="btn btn-secondary">Back to list</a>
+                    {{ include('bet_session/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
