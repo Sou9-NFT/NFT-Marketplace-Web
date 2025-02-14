@@ -1,24 +1,81 @@
-{% extends "base_back.html.twig" %}
+{% extends 'base_back.html.twig' %}
 
-{% block title %}Posts{% endblock %}
+{% block title %}Posts Management{% endblock %}
 
 {% block body %}
 <main id="main" class="main">
     <div class="pagetitle">
-        <h1>Blog Posts</h1>
+        <h1>Posts Management</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Home</a></li>
+                <li class="breadcrumb-item">Tables</li>
+                <li class="breadcrumb-item active">Posts</li>
+            </ol>
+        </nav>
     </div>
+
     <section class="section">
         <div class="row">
-            {% for blog in blogs %}
-            <div class="col-12">
+            <!-- Default Table -->
+            <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{{ blog.title }}</h5>
-                        <p>{{ blog.content }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">Posts List</h5>
+                            <a href="{{ path('app_blog_new') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> New Post
+                            </a>
+                        </div>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Content</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Comments</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for blog in blogs %}
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}</th>
+                                        <td>{{ blog.title }}</td>
+                                        <td>{{ blog.content|slice(0, 50) }}...</td>
+                                        <td>{{ blog.date|date('Y-m-d') }}</td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ blog.comments|length }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="btn btn-info btn-sm" title="View">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_blog_edit', {'id': blog.id}) }}" class="btn btn-primary btn-sm" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form method="post" action="{{ path('app_blog_delete', {'id': blog.id}) }}" style="display: inline-block" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ blog.id) }}">
+                                                    <button class="btn btn-danger btn-sm" title="Delete">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No posts found</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
     </section>
 </main>

@@ -137,4 +137,34 @@ class BlogController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    #[Route('/admin/posts', name: 'app_blog_posts_back', methods: ['GET'])]
+    public function postsBack(EntityManagerInterface $entityManager): Response
+    {
+        $blogs = $entityManager->getRepository(Blog::class)
+            ->createQueryBuilder('b')
+            ->orderBy('b.date', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('blog_back/posts.html.twig', [
+            'blogs' => $blogs,
+        ]);
+    }
+
+    #[Route('/admin/comments', name: 'app_blog_comments_back', methods: ['GET'])]
+    public function commentsBack(EntityManagerInterface $entityManager): Response
+    {
+        $comments = $entityManager->getRepository(Comment::class)
+            ->createQueryBuilder('c')
+            ->leftJoin('c.blog', 'b')
+            ->addSelect('b')
+            ->orderBy('c.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('blog_back/comments.html.twig', [
+            'comments' => $comments,
+        ]);
+    }
 }
