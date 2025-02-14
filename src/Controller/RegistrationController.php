@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 class RegistrationController extends AbstractController
 {
@@ -33,6 +33,9 @@ class RegistrationController extends AbstractController
 
             // set the name
             $user->setName($form->get('name')->getData());
+
+            // set the initial balance to 0
+            $user->setBalance(0);
 
             $entityManager->persist($user);
             $entityManager->flush();
