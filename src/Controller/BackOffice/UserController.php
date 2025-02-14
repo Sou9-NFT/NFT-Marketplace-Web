@@ -26,7 +26,7 @@ class UserController extends AbstractController
     #[Route('/', name: 'app_back_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
-        return $this->render('back_office/user/index.html.twig', [
+        return $this->render('back_user/index.html.twig', [
             'users' => $userRepository->findAll(),
         ]);
     }
@@ -46,7 +46,7 @@ class UserController extends AbstractController
             return $this->redirectToRoute('app_back_user_index');
         }
 
-        return $this->render('back_office/user/new.html.twig', [
+        return $this->render('back_user/new.html.twig', [
             'user' => $user,
             'form' => $form,
         ]);
@@ -55,7 +55,7 @@ class UserController extends AbstractController
     #[Route('/{id}', name: 'app_back_user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
-        return $this->render('back_office/user/show.html.twig', [
+        return $this->render('back_user/show.html.twig', [
             'user' => $user,
         ]);
     }
@@ -73,7 +73,7 @@ class UserController extends AbstractController
             return $this->redirectToRoute('app_back_user_index');
         }
 
-        return $this->render('back_office/user/edit.html.twig', [
+        return $this->render('back_user/edit.html.twig', [
             'user' => $user,
             'form' => $form,
         ]);
@@ -93,7 +93,7 @@ class UserController extends AbstractController
             return $this->redirectToRoute('app_back_user_index');
         }
 
-        return $this->render('back_office/user/roles.html.twig', [
+        return $this->render('back_user/roles.html.twig', [
             'user' => $user,
             'available_roles' => $availableRoles,
         ]);
