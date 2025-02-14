@@ -6,6 +6,7 @@ use App\Entity\Raffle;
 use App\Entity\User;
 use App\Entity\Participant;
 use App\Form\RaffleType;
+use App\Repository\RaffleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,10 +19,12 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 class RaffleController extends AbstractController
 {
     private $entityManager;
+    private $raffleRepository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, RaffleRepository $raffleRepository)
     {
         $this->entityManager = $entityManager;
+        $this->raffleRepository = $raffleRepository;
     }
 
     private function checkAndUpdateRaffleStatus(Raffle $raffle): void
@@ -43,9 +46,7 @@ class RaffleController extends AbstractController
     #[Route('/', name: 'app_raffle_index', methods: ['GET'])]
     public function index(): Response
     {
-        $raffles = $this->entityManager
-            ->getRepository(Raffle::class)
-            ->findAll();
+        $raffles = $this->raffleRepository->findAll();
 
         // Check and update status for all raffles
         foreach ($raffles as $raffle) {
@@ -101,6 +102,37 @@ class RaffleController extends AbstractController
         ]);
     }
 
+    #[Route('/admin', name: 'app_raffle_admin', methods: ['GET'])]
+    public function adminIndex(): Response
+    {
+        // Get all raffles
+        $raffles = $this->raffleRepository->findAll();
+        
+        // Debug information
+        foreach ($raffles as $raffle) {
+            dump([
+                'id' => $raffle->getId(),
+                'description' => $raffle->getRaffleDescription(),
+                'startTime' => $raffle->getStartTime(),
+                'endTime' => $raffle->getEndTime(),
+                'status' => $raffle->getStatus()
+            ]);
+        }
+        
+        // Check and update status for all raffles
+        foreach ($raffles as $raffle) {
+            $this->checkAndUpdateRaffleStatus($raffle);
+        }
+
+        return $this->render('raffle/raffleback.html.twig', [
+            'raffles' => $raffles,
+            'debug' => [
+                'count' => count($raffles),
+                'empty' => empty($raffles),
+            ],
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_raffle_show', methods: ['GET'])]
     public function show(Raffle $raffle): Response
     {
@@ -121,15 +153,16 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/join', name: 'app_raffle_join', methods: ['GET', 'POST'])]
+    #[Route('/{id}/join', name: 'app_raffle_join', methods: ['GET'])]
     public function join(Request $request, Raffle $raffle): Response
     {
         // Check and update raffle status first
         $this->checkAndUpdateRaffleStatus($raffle);
 
         // Check if user is authenticated
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             $this->addFlash('error', 'You must be logged in to join a raffle');
             return $this->redirectToRoute('app_login');
         }
@@ -142,54 +175,29 @@ class RaffleController extends AbstractController
 
         // Check if user has already joined
         foreach ($raffle->getParticipants() as $existingParticipant) {
-            if ($existingParticipant->getUser() === $user && $existingParticipant->getUser() !== $raffle->getCreator()) {
+            if ($existingParticipant->getUser() === $user) {
                 $this->addFlash('error', 'You have already joined this raffle.');
                 return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
             }
         }
 
-        if ($request->isMethod('POST')) {
-            $errors = ['name' => null];
-            $hasErrors = false;
-            
-            $name = $request->request->get('name');
-            
-            // Validate name
-            if (empty($name)) {
-                $errors['name'] = 'Name is required';
-                $hasErrors = true;
-            } elseif (strlen($name) < 2 || strlen($name) > 50) {
-                $errors['name'] = 'Name must be between 2 and 50 characters';
-                $hasErrors = true;
-            } elseif (!preg_match('/^[a-zA-Z0-9\s\-]+$/', $name)) {
-                $errors['name'] = 'Name can only contain letters, numbers, spaces, and hyphens';
-                $hasErrors = true;
-            }
-
-            if (!$hasErrors) {
-                $participant = new Participant();
-                $participant->setRaffle($raffle);
-                $participant->setUser($user);
-                $participant->setName($name);
-                
-                $this->entityManager->persist($participant);
-                $this->entityManager->flush();
-
-                $this->addFlash('success', 'You have successfully joined the raffle!');
-                return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
-            }
-
-            // If there are errors, render the form again with error messages
-            return $this->render('participant/join.html.twig', [
-                'raffle' => $raffle,
-                'form_errors' => $errors
-            ]);
+        // Automatically create participant with user's name
+        $participant = new Participant();
+        $participant->setRaffle($raffle);
+        $participant->setUser($user);
+        // Get user's name or fallback to email username
+        $name = $user->getName();
+        if (!$name) {
+            $name = explode('@', $user->getEmail())[0];
         }
+        $participant->setName($name);
+        $participant->setJoinedAt(new \DateTime());
+        
+        $this->entityManager->persist($participant);
+        $this->entityManager->flush();
 
-        return $this->render('participant/join.html.twig', [
-            'raffle' => $raffle,
-            'form_errors' => ['name' => null]
-        ]);
+        $this->addFlash('success', 'You have successfully joined the raffle!');
+        return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
     }
 
     #[Route('/{id}/edit', name: 'app_raffle_edit', methods: ['GET', 'POST'])]
@@ -260,6 +268,25 @@ class RaffleController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}', name: 'app_raffle_delete', methods: ['POST'])]
+    public function delete(Request $request, Raffle $raffle): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$raffle->getId(), $request->request->get('_token'))) {
+            // Delete image file if exists
+            if ($raffle->getImage()) {
+                $imagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+            
+            $this->entityManager->remove($raffle);
+            $this->entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_raffle_index');
+    }
+
     #[Route('/participant/{id}/edit', name: 'app_participant_edit', methods: ['GET', 'POST'])]
     public function editParticipant(Request $request, Participant $participant): Response
     {
@@ -306,24 +333,5 @@ class RaffleController extends AbstractController
         }
 
         return $this->redirectToRoute('app_raffle_participants', ['id' => $participant->getRaffle()->getId()]);
-    }
-
-    #[Route('/{id}', name: 'app_raffle_delete', methods: ['POST'])]
-    public function delete(Request $request, Raffle $raffle): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$raffle->getId(), $request->request->get('_token'))) {
-            // Delete image file if exists
-            if ($raffle->getImage()) {
-                $imagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
-            }
-            
-            $this->entityManager->remove($raffle);
-            $this->entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_raffle_index');
     }
 }
