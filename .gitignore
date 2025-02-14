@@ -1,6 +1,6 @@
 #custom
 migrations/*
-/public/uploads/
+/public/uploads/artworks
 
 ###> symfony/framework-bundle ###
 /.env.local
