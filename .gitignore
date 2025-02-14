@@ -1,5 +1,6 @@
 #custom
 migrations/*
+/public/uploads/
 
 ###> symfony/framework-bundle ###
 /.env.local
