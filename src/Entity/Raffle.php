@@ -43,6 +43,9 @@ class Raffle
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $creator_name = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $raffle_description = null;
+
     public function __construct()
     {
         $this->created_at = new \DateTime();
@@ -172,6 +175,17 @@ class Raffle
     public function setCreatorName(?string $creator_name): self
     {
         $this->creator_name = $creator_name;
+        return $this;
+    }
+
+    public function getRaffleDescription(): ?string
+    {
+        return $this->raffle_description;
+    }
+
+    public function setRaffleDescription(?string $raffle_description): self
+    {
+        $this->raffle_description = $raffle_description;
         return $this;
     }
 }
