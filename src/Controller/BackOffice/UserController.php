@@ -82,10 +82,19 @@ class UserController extends AbstractController
     #[Route('/{id}/roles', name: 'app_back_user_roles', methods: ['GET', 'POST'])]
     public function roles(Request $request, User $user): Response
     {
-        $availableRoles = ['ROLE_USER', 'ROLE_ADMIN'];
+        $availableRoles = [
+            'ROLE_USER',
+            'ROLE_ADMIN',
+            'ROLE_SELLER',
+            'ROLE_AUTHOR'
+        ];
         
         if ($request->isMethod('POST')) {
             $roles = $request->request->all()['roles'] ?? [];
+            // Ensure ROLE_USER is always present
+            if (!in_array('ROLE_USER', $roles)) {
+                $roles[] = 'ROLE_USER';
+            }
             $user->setRoles($roles);
             $this->entityManager->flush();
             
