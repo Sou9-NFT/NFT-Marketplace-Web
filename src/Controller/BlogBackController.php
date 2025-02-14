@@ -8,15 +8,22 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/blog_back')]
+#[Route('/blog/admin')]
 class BlogBackController extends AbstractController
 {
     #[Route('/', name: 'app_blog_back', methods: ['GET'])]
     public function index(BlogRepository $blogRepository, CommentRepository $commentRepository): Response
     {
-        return $this->render('blog_back/blog_back_new.html.twig', [
-            'blogs' => $blogRepository->findAll(),
-            'comments' => $commentRepository->findAll(),
+        $blogs = $blogRepository->findAll();
+        $comments = $commentRepository->findAll();
+
+        // Debug information
+        dump($blogs);
+        dump($comments);
+
+        return $this->render('blog_back/blog_back.html.twig', [
+            'blogs' => $blogs,
+            'comments' => $comments,
         ]);
     }
 
