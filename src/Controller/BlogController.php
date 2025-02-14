@@ -11,10 +11,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/blog')]
-final class BlogController extends AbstractController
+class BlogController extends AbstractController
 {
     #[Route(name: 'app_blog_index', methods: ['GET', 'POST'])]
     public function index(Request $request, BlogRepository $blogRepository, EntityManagerInterface $entityManager): Response
@@ -60,6 +60,8 @@ final class BlogController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $blog = new Blog();
+        $blog->setDate(new \DateTime()); // Set current date automatically
+        
         $form = $this->createForm(BlogType::class, $blog);
         $form->handleRequest($request);
 

@@ -1,0 +1,25 @@
+{% extends "base_back.html.twig" %}
+
+{% block title %}Posts{% endblock %}
+
+{% block body %}
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Blog Posts</h1>
+    </div>
+    <section class="section">
+        <div class="row">
+            {% for blog in blogs %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ blog.title }}</h5>
+                        <p>{{ blog.content }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

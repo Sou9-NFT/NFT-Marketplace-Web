@@ -1,0 +1,89 @@
+{% extends "base_back.html.twig" %}
+
+{% block title %}Blog Management{% endblock %}
+
+{% block sidebar %}
+    <ul class="sidebar-nav" id="sidebar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('app_blog_back') }}">
+                <i class="bi bi-grid"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <!-- Blog Nav -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-target="#blog-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-journal-text"></i>
+                <span>Blog</span>
+                <i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="blog-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{{ path('app_posts_index') }}">
+                        <i class="bi bi-circle"></i><span>Posts</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ path('app_comment_index') }}">
+                        <i class="bi bi-circle"></i><span>Comments</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block body %}
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Blog Management</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_blog_back') }}">Home</a></li>
+                <li class="breadcrumb-item active">Blog Management</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <!-- Blog Posts Card -->
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Blog Posts</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+                            <div class="ps-3">
+                                <h6>{{ blogs|length }}</h6>
+                                <span class="text-muted small pt-2">Total Posts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Card -->
+            <div class="col-xxl-4 col-md-6">
+                <div class="card info-card customers-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Comments</h5>
+                        <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-chat-dots"></i>
+                            </div>
+                            <div class="ps-3">
+                                <h6>{{ comments|length }}</h6>
+                                <span class="text-muted small pt-2">Total Comments</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
