@@ -11,10 +11,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/blog')]
-final class BlogController extends AbstractController
+class BlogController extends AbstractController
 {
     #[Route(name: 'app_blog_index', methods: ['GET', 'POST'])]
     public function index(Request $request, BlogRepository $blogRepository, EntityManagerInterface $entityManager): Response
@@ -60,6 +60,8 @@ final class BlogController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $blog = new Blog();
+        $blog->setDate(new \DateTime()); // Set current date automatically
+        
         $form = $this->createForm(BlogType::class, $blog);
         $form->handleRequest($request);
 
@@ -134,5 +136,35 @@ final class BlogController extends AbstractController
         }
 
         return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/admin/posts', name: 'app_blog_posts_back', methods: ['GET'])]
+    public function postsBack(EntityManagerInterface $entityManager): Response
+    {
+        $blogs = $entityManager->getRepository(Blog::class)
+            ->createQueryBuilder('b')
+            ->orderBy('b.date', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('blog_back/posts.html.twig', [
+            'blogs' => $blogs,
+        ]);
+    }
+
+    #[Route('/admin/comments', name: 'app_blog_comments_back', methods: ['GET'])]
+    public function commentsBack(EntityManagerInterface $entityManager): Response
+    {
+        $comments = $entityManager->getRepository(Comment::class)
+            ->createQueryBuilder('c')
+            ->leftJoin('c.blog', 'b')
+            ->addSelect('b')
+            ->orderBy('c.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('blog_back/comments.html.twig', [
+            'comments' => $comments,
+        ]);
     }
 }
