@@ -107,7 +107,7 @@
                             <h6 class="ml-2">Themeland</h6>
                         </a>
                         </div>
-                        <p class="mt-2">Created : {{ bet_session.createdat|date('d M Y') }}</p>
+                        <p class="mt-2">Created : {{ bet_session.createdat|date('Y-m-d H:i:s') }}</p>
                     </div>
                     </div>
                 </div>
@@ -170,7 +170,7 @@
             </div>
         </section>
         <!-- ***** Item Details Area End ***** -->
-
+        {% if  live_bet_sessions|length==6  %}
         <!-- ***** Live Auctions Area Start ***** -->
         <section class="live-auctions-area pt-0">
             <div class="container">
@@ -191,7 +191,11 @@
             <div class="auctions-slides">
             <div class="swiper-container slider-mid items">
             <div class="swiper-wrapper">
+                <script>
+                    console.log({{ live_bet_sessions|length }});
+                </script>
                 {% for session in live_bet_sessions %}
+            
                 <!-- Single Slide -->
                 <div class="swiper-slide item">
                 <div class="card">
@@ -206,15 +210,15 @@
                 <div class="card-body">
                 <div class="countdown-times mb-3">
                      <div class="text-center mb-2">Time Remaining</div>
-                    <div class='countdown d-flex justify-content-center' data-date="{{ session.endTime|date('Y-m-d') }}"></div>
+                    <div class='countdown d-flex justify-content-center' data-date="{{ session.endTime|date('Y-m-d H:i:s') }}"></div>
                  </div>
-    
+                
                     <a href="/item_details/{{ session.id }}">
                     <h5 class="mb-0">{{ session.artwork.title }}</h5>
                     </a>
                     <a class="seller d-flex align-items-center my-3" href="">
                     <img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
-                    <span class="ml-2">@Nessim{#{{ session.seller_name }}#}</span>
+                    <span class="ml-2">@Nessim</span>
                     </a>
                     <div class="card-bottom d-flex justify-content-between">
                     <span>{{ session.currentPrice }} Dannous</span>
@@ -232,7 +236,7 @@
             </div>
         </section>
         <!-- ***** Live Auctions Area End ***** -->
-
+{% endif %}
 
 {% endblock %}
 

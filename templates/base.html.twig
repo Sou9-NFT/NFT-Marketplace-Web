@@ -62,7 +62,7 @@
             <nav data-aos="zoom-out" data-aos-delay="800" class="navbar navbar-expand">
                 <div class="container header">
                     <!-- Navbar Brand-->
-                    <a class="navbar-brand" href="">
+                    <a class="navbar-brand" href="{{ path('app_home_page') }}">
                         <img class="navbar-brand-sticky" src="{{ asset('front_office/img/logo/logo.png') }}" alt="sticky brand-logo">
                     </a>
                     <div class="ml-auto"></div>
@@ -136,7 +136,9 @@
                                 <span class="navbar-text">{{ app.user.name ?: app.user.email }}</span>
                             </li>
                             <li class="nav-item ml-3">
-                                <img src="{{ app.user.profilePicture ? asset('uploads/profile_pictures/' ~ app.user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
+                                <a href="{{ path('app_user_show', {'id': app.user.id}) }}">
+                                    <img src="{{ app.user.profilePicture ? asset('uploads/profile_pictures/' ~ app.user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
+                                </a>
                             </li>
                         {% else %}
                             <li class="nav-item ml-3">
