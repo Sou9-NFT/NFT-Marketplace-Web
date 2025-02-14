@@ -9,7 +9,7 @@
             <div class="col-12">
                 <!-- Breadcrumb Content -->
                 <div class="breadcrumb-content text-center">
-                    <h2 class="m-0"> USER's Bet Sessions</h2>
+                    <h2 class="m-0">{{ app.user.name }}'s Bet Sessions</h2>
                     <ol class="breadcrumb d-flex justify-content-center">
                         <li class="breadcrumb-item"><a href="{{ path('app_home_page') }}">Home</a></li>
                         <li class="breadcrumb-item"><a href="#">Profile</a></li>
@@ -56,12 +56,12 @@
                                     {% if bet_session.status == 'active' %}
                                         <div class="countdown-times mb-3">
                                             <div class="text-center mb-2">Time Remaining</div>
-                                    <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d') }}"></div>
+                                    <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d H:i:s') }}"></div>
                                         </div>
                                     {% elseif bet_session.status == 'pending' %}
                                         <div class="countdown-times mb-3">
                                             <div class="text-center mb-2">Starts In</div>
-                                      <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.startTime|date('Y-m-d') }}"></div>
+                                      <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.startTime|date('Y-m-d H:i:s') }}"></div>
                                         </div>
                                     {% elseif bet_session.status == 'ended' %}
                                         <div class="session-status mb-3">
