@@ -84,4 +84,43 @@ final class CommentController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index');
     }
+
+    #[Route('/back/comments', name: 'app_comment_back_index', methods: ['GET'])]
+    public function backendIndex(CommentRepository $commentRepository): Response
+    {
+        return $this->render('blog_back/comments.html.twig', [
+            'comments' => $commentRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/back/comments/{id}/edit', name: 'app_comment_back_edit', methods: ['GET', 'POST'])]
+    public function backendEdit(Request $request, Comment $comment, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash('success', 'Comment updated successfully');
+            return $this->redirectToRoute('app_comment_back_index');
+        }
+
+        return $this->render('blog_back/comment_edit.html.twig', [
+            'comment' => $comment,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/back/comments/{id}/delete', name: 'app_comment_back_delete', methods: ['POST'])]
+    public function backendDelete(Request $request, Comment $comment, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$comment->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($comment);
+            $entityManager->flush();
+            $this->addFlash('success', 'Comment deleted successfully');
+            return $this->redirectToRoute('app_comment_back_index');
+        }
+
+        return $this->redirectToRoute('app_comment_back_index');
+    }
 }

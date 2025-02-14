@@ -137,63 +137,13 @@ class BlogController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
     }
-<<<<<<< HEAD
 
-    #[Route('/admin/posts', name: 'app_blog_posts_back', methods: ['GET'])]
-    public function postsBack(EntityManagerInterface $entityManager): Response
+    #[Route('/back/posts', name: 'app_blog_back_posts', methods: ['GET'])]
+    public function backendPosts(BlogRepository $blogRepository): Response
     {
-        $blogs = $entityManager->getRepository(Blog::class)
-            ->createQueryBuilder('b')
-            ->orderBy('b.date', 'DESC')
-            ->getQuery()
-            ->getResult();
-
+        $blogs = $blogRepository->findAll();
         return $this->render('blog_back/posts.html.twig', [
             'blogs' => $blogs,
         ]);
     }
-
-    #[Route('/admin/comments', name: 'app_blog_comments_back', methods: ['GET'])]
-    public function commentsBack(EntityManagerInterface $entityManager): Response
-    {
-        $comments = $entityManager->getRepository(Comment::class)
-            ->createQueryBuilder('c')
-            ->leftJoin('c.blog', 'b')
-            ->addSelect('b')
-            ->orderBy('c.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-
-        return $this->render('blog_back/comments.html.twig', [
-            'comments' => $comments,
-        ]);
-    }
-<<<<<<< HEAD
-
-    #[Route('/admin/blog', name: 'app_blog_back', methods: ['GET'])]
-    public function blogBack(EntityManagerInterface $entityManager): Response
-    {
-        $blogs = $entityManager->getRepository(Blog::class)
-            ->createQueryBuilder('b')
-            ->orderBy('b.date', 'DESC')
-            ->getQuery()
-            ->getResult();
-
-        $comments = $entityManager->getRepository(Comment::class)
-            ->createQueryBuilder('c')
-            ->leftJoin('c.blog', 'b')
-            ->addSelect('b')
-            ->orderBy('c.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-
-        return $this->render('blog_back/blog_back.html.twig', [
-            'blogs' => $blogs,
-            'comments' => $comments,
-        ]);
-    }
-=======
->>>>>>> parent of 888a02d (BACK)
-=======
->>>>>>> parent of 5bd2044 (moslialouch)
 }
