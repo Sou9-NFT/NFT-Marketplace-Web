@@ -31,16 +31,4 @@ Database Name : `Sou9_NFT`
 
 `DATABASE_URL="mysql://root:@127.0.0.1:3306/Sou9_NFT"`
 
-Insert dummy data
-```
-php bin/console app:insert-dummy-data
-```
-
-> **Note:** This could cause errors if there are modifications in the entities. Ensure to update the files in the commands accordingly.
-
-
-Update bet session status
-```
-php bin/console app:update-bet-session-status
-```
-This command updates the status of bet sessions.
+## To check commands, see [Commands.md](./Commands.md)
