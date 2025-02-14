@@ -185,7 +185,23 @@
                     </li>
                 </ul>
             </li>
-
+            <li class="nav-item">
+              <a class="nav-link collapsed" data-bs-target="#bets-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-trophy"></i><span>Bet Sessions</span><i class="bi bi-chevron-down ms-auto"></i>
+              </a>
+              <ul id="bets-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{{ path('app_bet_session_index') }}">
+                    <i class="bi bi-circle"></i><span>All Bets</span>
+                    </a>
+                </li>
+                <li>
+                  <a href="#">
+                    <i class="bi bi-circle"></i><span>Create Bet</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
             <li class="nav-heading">Settings</li>
 
             <li class="nav-item">

@@ -46,6 +46,7 @@ class InsertDummyDataCommand extends Command
         $user->setEmail('nessimbns2@gmail.com');
         $user->setRoles([]);
         $user->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2'); // hashed password
+        // password 123456789
         $user->setName('John Doe');
         $user->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
         $this->entityManager->persist($user);
@@ -74,6 +75,7 @@ class InsertDummyDataCommand extends Command
             $this->entityManager->persist($betSession);
         }
 
+        
         $this->entityManager->flush();
 
         $io->success('Dummy data has been inserted successfully.');

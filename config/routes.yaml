@@ -3,9 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
-
-fallback_route:
-    path: /{url}
-    controller: App\Controller\ErrorController::routeNotFound
-    requirements:
-        url: ".+"
+    # Fallback route to handle undefined routes
+    #fallback_route:
+    #   path: /{url}
+    #   controller: App\Controller\ErrorController::routeNotFound
+    #   requirements:
+    #       url: ".+"

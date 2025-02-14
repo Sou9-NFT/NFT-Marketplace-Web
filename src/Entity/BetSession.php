@@ -139,6 +139,11 @@ class BetSession
         return $this->status;
     }
 
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+        return $this;
+    }
     public function updateStatus(): void
     {
         if ($this->endTime !== null && $this->endTime < new \DateTimeImmutable()) {
