@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Item Detail{% endblock %}
+
+{% block body %}
+
+ <div class="main">
+    <!-- ***** Breadcrumb Area Start ***** -->
+    <section class="breadcrumb-area overlay-dark d-flex align-items-center">
+        <div class="container">
+        <div class="row">
+            <div class="col-12">
+            <!-- Breamcrumb Content -->
+            <div class="breadcrumb-content text-center">
+                <h2 class="m-0">Item Details</h2>
+                <ol class="breadcrumb d-flex justify-content-center">
+                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Explore</a></li>
+                <li class="breadcrumb-item active">Item Details</li>
+                </ol>
+            </div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <!-- ***** Breadcrumb Area End ***** -->
+    <!-- ***** Item Details Area Start ***** -->
+    <section class="item-details-area">
+        <div class="container">
+        <div class="row justify-content-between">
+        <div class="col-12 col-lg-5">
+        <div class="item-info">
+            <div class="item-thumb text-center">
+            <img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+            </div>
+            {% if bet_session.status != 'ended' %}
+            <div class="card no-hover countdown-times my-4">
+                {% if bet_session.status == 'active' %}
+                    <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d H:i:s') }}"></div>
+                {% elseif bet_session.status == 'pending' %}
+                    <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.startTime|date('Y-m-d H:i:s') }}"></div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="my-4"></div>
+            {% endif %}
+            <!-- Netstorm Tab -->
+            <ul class="netstorm-tab nav nav-tabs" id="nav-tab">
+            <li>
+            <a class="active" id="nav-home-tab" data-toggle="pill" href="#nav-home">
+            <h5 class="m-0">Bids</h5>
+            </a>
+            </li>
+            <li>
+            <a id="nav-profile-tab" data-toggle="pill" href="#nav-profile">
+            <h5 class="m-0">History</h5>
+            </a>
+            </li>
+            <li>
+            <a id="nav-contact-tab" data-toggle="pill" href="#nav-contact">
+            <h5 class="m-0">Details</h5>
+            </a>
+            </li>
+            </ul>
+            <!-- Tab Content -->
+            <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-home">
+            <ul class="list-unstyled">
+            <!-- Single Tab List -->
+            <li class="single-tab-list d-flex align-items-center">
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+                <p class="m-0">Bid listed for <strong>14 ETH</strong> 4 hours ago <br>by <a href="author.html">@arham</a></p>
+            </li>
+            <!-- Single Tab List -->
+            <li class="single-tab-list d-flex align-items-center">
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_2.jpg') }}" alt="">
+                <p class="m-0">Bid listed for <strong>10 ETH</strong> 8 hours ago <br>by <a href="author.html">@junaid</a></p>
+            </li>
+            <!-- Single Tab List -->
+            <li class="single-tab-list d-flex align-items-center">
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_3.jpg') }}" alt="">
+                <p class="m-0">Bid listed for <strong>12 ETH</strong> 3 hours ago <br>by <a href="author.html">@yasmin</a></p>
+            </li>
+            </ul>
+            </div>
+            <div class="tab-pane fade" id="nav-profile">
+            <ul class="list-unstyled">
+            <!-- Single Tab List -->
+            <li class="single-tab-list d-flex align-items-center">
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_6.jpg') }}" alt="">
+                <p class="m-0">Bid listed for <strong>32 ETH</strong> 10 hours ago <br>by <a href="author.html">@hasan</a></p>
+            </li>
+            <!-- Single Tab List -->
+            <li class="single-tab-list d-flex align-items-center">
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_7.jpg') }}" alt="">
+                <p class="m-0">Bid listed for <strong>24 ETH</strong> 6 hours ago <br>by <a href="author.html">@artnox</a></p>
+            </li>
+            <!-- Single Tab List -->
+            <li class="single-tab-list d-flex align-items-center">
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_8.jpg') }}" alt="">
+                <p class="m-0">Bid listed for <strong>29 ETH</strong> 12 hours ago <br>by <a href="author.html">@meez</a></p>
+            </li>
+            </ul>
+            </div>
+            <div class="tab-pane fade" id="nav-contact">
+            <!-- Single Tab List -->
+            <div class="owner-meta d-flex align-items-center mt-3">
+            <span>Owner</span>
+            <a class="owner d-flex align-items-center ml-2" href="author.html">
+                <img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+                <h6 class="ml-2">Themeland</h6>
+            </a>
+            </div>
+            <p class="mt-2">Created : {{ bet_session.createdat|date('Y-m-d H:i:s') }}</p>
+            </div>
+            </div>
+        </div>
+        </div>
+        <div class="col-12 col-lg-6">
+        <!-- Content -->
+        <div class="content mt-5 mt-lg-0">
+            <div class="d-flex align-items-center">
+                <h3 class="m-0">{{bet_session.artwork.title}}</h3>
+                <div class="badge badge-{{ bet_session.status == 'active' ? 'success' : (bet_session.status == 'pending' ? 'warning' : 'danger') }} ml-3">
+                    {{ bet_session.status|capitalize }}
+                </div>
+                {% if bet_session.status == 'pending' %}
+
+                <a class="btn btn-bordered-white btn-icon ml-5" href="{{ path('app_bet_session_edit', {'id':bet_session.id}) }}">
+                <i class="fas fa-pen"></i>
+                </a>
+                {% endif %}
+            </div>
+            <p>{{bet_session.artwork.description}}</p>
+            <!-- Owner -->
+            <div class="owner d-flex align-items-center mt-3">
+            <span>Owned By</span>
+            <a class="owner-meta d-flex align-items-center ml-3" href="author.html">
+            <img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+            <h6 class="ml-2">Themeland</h6>
+            </a>
+            </div>
+            <!-- Item Info List -->
+            <div class="item-info-list mt-4">
+            <ul class="list-unstyled">
+            <li class="price d-flex justify-content-between">
+            <span>Current Price      {{bet_session.currentPrice}} Danous</span>
+            <span>1 of 5</span>
+            </li>
+            <li>
+            <span>Size</span>
+            <span>14000 x 14000 px</span>
+            </li>
+            </ul>
+            </div>
+            <div class="row items">
+            <div class="col-12 col-md-6 item px-lg-2">
+            <div class="card no-hover">
+            <div class="single-seller d-flex align-items-center">
+                <a href="author.html">
+                <img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+                </a>
+                <!-- Seller Info -->
+                <div class="seller-info ml-3">
+                <a class="seller mb-2" href="author.html">@ArtNoxStudio</a>
+                <span>Creator</span>
+                </div>
+            </div>
+            </div>
+            </div>
+    
+            <div class="col-12 item px-lg-2">
+            <div class="card no-hover">
+            <h4 class="mt-0 mb-2">Highest Bid</h4>
+            <div class="price d-flex justify-content-between align-items-center">
+                <span>{{bet_session.currentPrice}} Dannous</span>
+            </div>
+            </div>
+            </div>
+            </div>
+            {% if bet_session.status == 'pending' %}
+                        <div>
+                        <form method="post" action="{{ path('app_bet_session_withdraw', {'id':bet_session.id}) }}">
+                            <button type="submit" class="d-block btn btn-bordered-white mt-4">Withdraw</button>
+                        </form>
+                        </div>
+            {% endif %}
+        </div>
+        </div>
+        </div>
+        </div>
+    </section>
+    <!-- ***** Item Details Area End ***** -->
+
+{% endblock %}

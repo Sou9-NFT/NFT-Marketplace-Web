@@ -9,7 +9,7 @@
             <div class="col-12">
                 <!-- Breadcrumb Content -->
                 <div class="breadcrumb-content text-center">
-                    <h2 class="m-0">{{ app.user.name }}'s Bet Sessions</h2>
+                    <h2 class="m-0">{{ app.user.name|capitalize }}'s Bet Sessions</h2>
                     <ol class="breadcrumb d-flex justify-content-center">
                         <li class="breadcrumb-item"><a href="{{ path('app_home_page') }}">Home</a></li>
                         <li class="breadcrumb-item"><a href="#">Profile</a></li>
@@ -44,10 +44,13 @@
                 {% for bet_session in bet_sessions %}
                     <div class="col-12 col-sm-6 col-lg-3 item">
                         <div class="card">
-                            <div class="image-over">
+                            <div class="image-over position-relative">
                                 <a href="{{ path('app_item_details', {'id': bet_session.id}) }}">
                                     <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
                                 </a>
+                                <span class="badge badge-{{ bet_session.status == 'active' ? 'success' : (bet_session.status == 'pending' ? 'warning' : 'danger') }} position-absolute" style="top: 10px; left: 10px;">
+                                    {{ bet_session.status|capitalize }}
+                                </span>
                             </div>
                             <!-- Card Caption -->
                             <div class="card-caption col-12 p-0">
@@ -56,12 +59,12 @@
                                     {% if bet_session.status == 'active' %}
                                         <div class="countdown-times mb-3">
                                             <div class="text-center mb-2">Time Remaining</div>
-                                    <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d H:i:s') }}"></div>
+                                            <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d H:i:s') }}"></div>
                                         </div>
                                     {% elseif bet_session.status == 'pending' %}
                                         <div class="countdown-times mb-3">
                                             <div class="text-center mb-2">Starts In</div>
-                                      <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.startTime|date('Y-m-d H:i:s') }}"></div>
+                                            <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.startTime|date('Y-m-d H:i:s') }}"></div>
                                         </div>
                                     {% elseif bet_session.status == 'ended' %}
                                         <div class="session-status mb-3">
