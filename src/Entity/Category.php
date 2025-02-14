@@ -7,17 +7,31 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[UniqueEntity(fields: ['name'], message: 'This category already exists')]
+#[ORM\HasLifecycleCallbacks]
 class Category
 {
-    private const MIME_TYPE_PATTERNS = [
-        'image' => '/^image\//',
-        'video' => '/^video\//',
-        'audio' => '/^audio\//'
+    private const DEFAULT_MIME_TYPES = [
+        'image' => [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp'
+        ],
+        'video' => [
+            'video/mp4',
+            'video/webm',
+            'video/ogg'
+        ],
+        'audio' => [
+            'audio/mpeg',
+            'audio/ogg',
+            'audio/wav',
+            'audio/webm'
+        ]
     ];
 
     #[ORM\Id]
@@ -53,19 +67,7 @@ class Category
     )]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'json')]
-    #[Assert\NotBlank(message: 'Allowed MIME types are required')]
-    #[Assert\Count(
-        min: 1,
-        minMessage: 'At least one MIME type must be specified'
-    )]
-    #[Assert\All([
-        new Assert\Type('string'),
-        new Assert\Regex([
-            'pattern' => '/^(image|video|audio)\/[\w\-\+\.]+$/',
-            'message' => 'Invalid MIME type format. Must be like "image/jpeg", "video/mp4", etc.'
-        ])
-    ])]
+    #[ORM\Column(type: 'json', options: ['jsonb' => true])]
     private array $allowedMimeTypes = [];
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Artwork::class)]
@@ -76,28 +78,12 @@ class Category
         $this->artworks = new ArrayCollection();
     }
 
-    #[Assert\Callback]
-    public function validateMimeTypes(ExecutionContextInterface $context): void
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateAllowedMimeTypes(): void
     {
-        if (empty($this->type) || empty($this->allowedMimeTypes)) {
-            return;
-        }
-
-        $pattern = self::MIME_TYPE_PATTERNS[$this->type] ?? null;
-        if ($pattern === null) {
-            return;
-        }
-
-        foreach ($this->allowedMimeTypes as $mimeType) {
-            if (!preg_match($pattern, $mimeType)) {
-                $context->buildViolation('MIME type "{{ mime_type }}" does not match the selected category type "{{ type }}"')
-                    ->setParameters([
-                        '{{ mime_type }}' => $mimeType,
-                        '{{ type }}' => $this->type
-                    ])
-                    ->atPath('allowedMimeTypes')
-                    ->addViolation();
-            }
+        if ($this->type) {
+            $this->allowedMimeTypes = self::DEFAULT_MIME_TYPES[$this->type];
         }
     }
 
@@ -125,6 +111,7 @@ class Category
     public function setType(string $type): static
     {
         $this->type = $type;
+        $this->updateAllowedMimeTypes();
         return $this;
     }
 
@@ -141,13 +128,10 @@ class Category
 
     public function getAllowedMimeTypes(): array
     {
+        if (!isset($this->allowedMimeTypes) || empty($this->allowedMimeTypes)) {
+            return $this->type ? self::DEFAULT_MIME_TYPES[$this->type] : [];
+        }
         return $this->allowedMimeTypes;
-    }
-
-    public function setAllowedMimeTypes(array $allowedMimeTypes): static
-    {
-        $this->allowedMimeTypes = $allowedMimeTypes;
-        return $this;
     }
 
     /**
