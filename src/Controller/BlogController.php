@@ -137,6 +137,7 @@ class BlogController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
     }
+<<<<<<< HEAD
 
     #[Route('/admin/posts', name: 'app_blog_posts_back', methods: ['GET'])]
     public function postsBack(EntityManagerInterface $entityManager): Response
@@ -190,4 +191,6 @@ class BlogController extends AbstractController
             'comments' => $comments,
         ]);
     }
+=======
+>>>>>>> parent of 888a02d (BACK)
 }
