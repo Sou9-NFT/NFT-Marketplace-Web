@@ -38,11 +38,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(length: 32, nullable: true)]
+    #[ORM\Column(length: 32, nullable: false)]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $profilePicture = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
+    private ?float $balance = 0;
 
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
@@ -56,6 +59,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdRaffles = new ArrayCollection();
         $this->participations = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
+        $this->balance = 0; // Initialize balance to 0
     }
 
     public function getId(): ?int
@@ -165,6 +169,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfilePicture(?string $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
+
+        return $this;
+    }
+
+    public function getBalance(): ?float
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(float $balance): static
+    {
+        $this->balance = $balance;
 
         return $this;
     }
