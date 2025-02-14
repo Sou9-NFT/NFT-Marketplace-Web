@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Raffles{% endblock %}
+
+{% block body %}
+    <div class="container mt-5 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h1>Raffles</h1>
+            <a href="{{ path('app_raffle_new') }}" class="btn btn-primary px-4">Create New Raffle</a>
+        </div>
+
+        <div class="row">
+            {% for raffle in raffles %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" class="card-img-top" alt="Raffle Image" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">Raffle #{{ raffle.id }}</h5>
+                            <p class="card-text">
+                                {% if raffle.creatorName %}
+                                    <strong>Created by:</strong> {{ raffle.creatorName }}<br>
+                                {% endif %}
+                                <strong>Status:</strong> 
+                                <span class="badge {% if raffle.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ raffle.status }}
+                                </span><br>
+                                <strong>Start:</strong> {{ raffle.startTime|date('Y-m-d H:i') }}<br>
+                                <strong>End:</strong> {{ raffle.endTime|date('Y-m-d H:i') }}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-info px-3">View</a>
+                                <a href="{{ path('app_raffle_edit', {'id': raffle.id}) }}" class="btn btn-warning px-3">Edit</a>
+                                <form method="post" action="{{ path('app_raffle_delete', {'id': raffle.id}) }}" onsubmit="return confirm('Are you sure you want to delete this raffle?');" style="display: inline-block;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
+                                    <button class="btn btn-danger px-3">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No raffles found. Create your first raffle!
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

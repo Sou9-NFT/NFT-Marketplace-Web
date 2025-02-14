@@ -4,6 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    artwork_images_directory: '%kernel.project_dir%/public/uploads/artworks'
+    raffle_images_directory: '%kernel.project_dir%/public/uploads/raffle_images'
+    profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
 
 services:
     # default configuration for services in *this* file
@@ -19,6 +22,14 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    App\Service\FileUploader:
+        arguments:
+            $targetDirectory: '%artwork_images_directory%'
+    # Explicitly configure the RaffleController
+    App\Controller\RaffleController:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

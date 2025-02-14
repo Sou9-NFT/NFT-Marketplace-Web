@@ -1,0 +1,47 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}All BetSessions{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>All BetSessions</h1>
+                <a href="{{ path('app_bet_session_new') }}" class="btn btn-primary">Create new</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Item</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bet_session in bet_sessions %}
+                            <tr>
+                                <td>{{ bet_session.id }}</td>
+                                <td>{{ bet_session.startTime ? bet_session.startTime|date('Y-m-d H:i:s') : '' }}</td>
+                                <td>{{ bet_session.endTime ? bet_session.endTime|date('Y-m-d H:i:s') : '' }}</td>
+                                <td>{{ bet_session.artwork ? bet_session.artwork.title : '' }}</td>
+                                <td>
+                                    <a href="{{ path('app_item_details', {'id': bet_session.id}) }}" class="btn btn-primary">show</a>
+                                    <a href="{{ path('app_bet_session_edit', {'id': bet_session.id}) }}" class="btn btn-secondary">edit</a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5">no records found</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
