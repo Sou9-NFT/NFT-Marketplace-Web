@@ -168,6 +168,7 @@ class BlogController extends AbstractController
             'comments' => $comments,
         ]);
     }
+<<<<<<< HEAD
 
     #[Route('/admin/blog', name: 'app_blog_back', methods: ['GET'])]
     public function blogBack(EntityManagerInterface $entityManager): Response
@@ -193,4 +194,6 @@ class BlogController extends AbstractController
     }
 =======
 >>>>>>> parent of 888a02d (BACK)
+=======
+>>>>>>> parent of 5bd2044 (moslialouch)
 }
