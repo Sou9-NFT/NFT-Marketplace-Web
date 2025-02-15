@@ -16,6 +16,7 @@ class RegistrationController extends AbstractController
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
+        // Redirect if already logged in
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home_page');
         }
@@ -24,29 +25,44 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $plainPassword = $form->get('plainPassword')->getData();
+                
+                if (!$plainPassword) {
+                    $form->get('plainPassword')->addError(new \Symfony\Component\Form\FormError('Please enter a password'));
+                    return $this->render('registration/register.html.twig', [
+                        'registrationForm' => $form->createView(),
+                    ]);
+                }
 
-            // encode the plain password
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+                // encode the plain password
+                $user->setPassword(
+                    $userPasswordHasher->hashPassword(
+                        $user,
+                        $plainPassword
+                    )
+                );
 
-            // set the name
-            $user->setName($form->get('name')->getData());
+                // set the name and initial balance
+                $user->setName($form->get('name')->getData());
+                $user->setBalance(0);
 
-            // set the initial balance to 0
-            $user->setBalance(0);
+                $entityManager->persist($user);
+                $entityManager->flush();
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+                // Add flash message for success
+                $this->addFlash('success', 'Your account has been created successfully!');
 
-            // do anything else you need here, like send an email
-
-            return $this->redirectToRoute('app_home_page');
+                return $this->redirectToRoute('app_login');
+            } else {
+                // Add flash message for error
+                $this->addFlash('error', 'There were problems with your registration. Please check the form errors below.');
+            }
         }
 
         return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form,
+            'registrationForm' => $form->createView(),
         ]);
     }
 }

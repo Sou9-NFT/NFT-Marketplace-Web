@@ -13,19 +13,6 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        back_office:
-            pattern: ^/back
-            lazy: true
-            provider: app_user_provider
-            custom_authenticator: App\Security\UserAuthAuthenticator
-            entry_point: App\Security\UserAuthAuthenticator
-            logout:
-                path: app_logout
-                target: app_home_page
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800
-                path: /
         main:
             lazy: true
             provider: app_user_provider
@@ -37,15 +24,39 @@ security:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
+        back_office:
+            pattern: ^/(admin|back)
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\UserAuthAuthenticator
+            entry_point: App\Security\UserAuthAuthenticator
+            access_denied_handler: App\Security\AccessDeniedHandler
+            logout:
+                path: app_logout
+                target: app_home_page
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/back/login, roles: PUBLIC_ACCESS }
-        - { path: ^/back, roles: [IS_AUTHENTICATED_FULLY, ROLE_ADMIN] }
-        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
-        - { path: ^/admin, roles: [IS_AUTHENTICATED_FULLY, ROLE_ADMIN] }
+        # Allow access to login pages and registration
+        - { path: ^/register$, roles: PUBLIC_ACCESS }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/back/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
+        
+        # Protect admin/back office routes
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/back, roles: ROLE_ADMIN }
+        
+        # Protect user profile routes
         - { path: ^/profile, roles: ROLE_USER }
+        
+        # Allow public access to front office routes
         - { path: ^/, roles: PUBLIC_ACCESS }
 
 when@test:

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,6 +14,11 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
+            // If user is already logged in and has admin role, allow access to back office
+            if ($this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('app_home_page_back');
+            }
+            // Otherwise redirect to front office
             return $this->redirectToRoute('app_home_page');
         }
 
@@ -26,16 +32,15 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/admin/login', name: 'admin_login')]
-    public function adminLogin(AuthenticationUtils $authenticationUtils): Response
+    public function backLogin(AuthenticationUtils $authenticationUtils): Response
     {
-        // If already logged in as admin, redirect to admin dashboard
-        if ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
-            return $this->redirectToRoute('app_home_page_back');
-        }
-        
-        // If logged in as regular user, show access denied
         if ($this->getUser()) {
-            return $this->render('security/access_denied.html.twig');
+            // If user is already logged in and has admin role, allow access to back office
+            if ($this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('app_home_page_back');
+            }
+            // If user is logged in but doesn't have admin role, show access denied
+            return $this->redirectToRoute('app_access_denied');
         }
 
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -47,37 +52,15 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/back/login', name: 'back_login')]
-    public function backLogin(AuthenticationUtils $authenticationUtils): Response
+    #[Route('/access-denied', name: 'app_access_denied')]
+    public function accessDenied(): Response
     {
-        // If already logged in as admin, redirect to back dashboard
-        if ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
-            return $this->redirectToRoute('app_home_page_back');
-        }
-        
-        // If logged in as regular user, show access denied
-        if ($this->getUser()) {
-            return $this->render('security/access_denied.html.twig');
-        }
-
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        return $this->render('security/admin_login.html.twig', [
-            'last_username' => $lastUsername,
-            'error' => $error,
-        ]);
+        return $this->render('security/access_denied.html.twig');
     }
 
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
-    }
-
-    #[Route('/access-denied', name: 'access_denied')]
-    public function accessDenied(): Response
-    {
-        return $this->render('security/access_denied.html.twig');
     }
 }
