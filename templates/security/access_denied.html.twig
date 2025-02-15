@@ -1,0 +1,21 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block body %}
+<!-- ***** Access Denied Area Start ***** -->
+<section class="author-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <div class="intro text-center">
+                    <span>Access Denied</span>
+                    <h3 class="mt-3 mb-0">Only Admins Can Access This Area</h3>
+                    <p>You don't have the required permissions to access the admin area.</p>
+                    <a href="{{ path('app_home_page') }}" class="btn mt-3">Return to Homepage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

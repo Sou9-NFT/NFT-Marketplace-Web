@@ -21,13 +21,14 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'app_login';
+    public const ADMIN_LOGIN_ROUTE = 'admin_login';
+    public const BACK_LOGIN_ROUTE = 'back_login';
 
     public function __construct(private UrlGeneratorInterface $urlGenerator) {}
 
     public function authenticate(Request $request): Passport
     {
         $email = $request->getPayload()->getString('email');
-
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         return new Passport(
@@ -46,12 +47,38 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // Redirect to the home page after successful authentication
+        $route = $request->attributes->get('_route');
+        $user = $token->getUser();
+        
+        // Check if this is a back office or admin login attempt
+        if ($route === self::BACK_LOGIN_ROUTE || $route === self::ADMIN_LOGIN_ROUTE || $firewallName === 'back_office') {
+            if (in_array('ROLE_ADMIN', $user->getRoles())) {
+                // If the request started with /back, redirect to back dashboard
+                if (str_starts_with($request->getPathInfo(), '/back')) {
+                    return new RedirectResponse($this->urlGenerator->generate('app_home_page_back'));
+                }
+                // Otherwise redirect to admin dashboard
+                return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+            } else {
+                // If not admin, redirect to access denied
+                return new RedirectResponse($this->urlGenerator->generate('access_denied'));
+            }
+        }
+
+        // For regular login, redirect to homepage
         return new RedirectResponse($this->urlGenerator->generate('app_home_page'));
     }
 
     protected function getLoginUrl(Request $request): string
     {
+        // If trying to access /back, redirect to back office login
+        if (str_starts_with($request->getPathInfo(), '/back')) {
+            return $this->urlGenerator->generate(self::BACK_LOGIN_ROUTE);
+        }
+        // If trying to access /admin, redirect to admin login
+        if (str_starts_with($request->getPathInfo(), '/admin')) {
+            return $this->urlGenerator->generate(self::ADMIN_LOGIN_ROUTE);
+        }
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }
 }
