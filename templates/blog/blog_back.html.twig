@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Blog Back Office{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="text-purple mb-4">Blog Back Office</h1>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <h2 class="text-purple mb-3">Welcome to the Blog Management</h2>
+                    <p class="text-light">This is your blog back office where you can manage all blog-related content.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .text-purple {
+        color: #6f42c1 !important;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 12px;
+        background-color: #1a1a1a !important;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
