@@ -17,21 +17,41 @@
                         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum obcaecati dignissimos quae quo ad iste ipsum officiis deleniti asperiores sit.</p>
                     </div>
                     <!-- Item Form -->
-                    {{ form_start(registrationForm, {'attr': {'class': 'item-form card no-hover'}}) }}
+                    {{ form_start(registrationForm, {
+                        'attr': {
+                            'class': 'item-form card no-hover',
+                            'novalidate': 'novalidate'
+                        }
+                    }) }}
                     <div class="row">
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                {{ form_row(registrationForm.name, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Name', 'required': 'required'}}) }}
+                                {{ form_row(registrationForm.name, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Enter your Name'
+                                    }
+                                }) }}
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                {{ form_row(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Email'}}) }}
+                                {{ form_row(registrationForm.email, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Enter your Email'
+                                    }
+                                }) }}
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                {{ form_row(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Password'}}) }}
+                                {{ form_row(registrationForm.plainPassword, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Enter your Password'
+                                    }
+                                }) }}
                             </div>
                         </div>
                         <div class="col-12">
