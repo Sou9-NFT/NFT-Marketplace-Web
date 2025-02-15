@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -37,82 +36,12 @@
     <header id="header" class="header fixed-top d-flex align-items-center">
         {% block header %}
         <div class="d-flex align-items-center justify-content-between">
-            <a href="" class="logo d-flex align-items-center">
+            <a href="{{ path('app_home_page_back') }}" class="logo d-flex align-items-center">
                 <img src="{{ asset('back_office/img/logo.png') }}" alt="Logo">
                 <span class="d-none d-lg-block">ArtiTechs Admin</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div>
-
-        <div class="search-bar">
-            <form class="search-form d-flex align-items-center" method="POST" action="#">
-                <input type="text" name="query" placeholder="Search" title="Enter search keyword">
-                <button type="submit" title="Search"><i class="bi bi-search"></i></button>
-            </form>
-        </div>
-
-        <nav class="header-nav ms-auto">
-            <ul class="d-flex align-items-center">
-                <li class="nav-item d-block d-lg-none">
-                    <a class="nav-link nav-icon search-bar-toggle" href="#">
-                        <i class="bi bi-search"></i>
-                    </a>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell"></i>
-                        <span class="badge bg-primary badge-number">4</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-                        <li class="dropdown-header">
-                            You have 4 new notifications
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        {% block notifications %}{% endblock %}
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown pe-3">
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="{{ asset('back_office/img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
-                        <span class="d-none d-md-block dropdown-toggle ps-2">Admin</span>
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6>Administrator</h6>
-                            <span>Admin</span>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <i class="bi bi-person"></i>
-                                <span>My Profile</span>
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <i class="bi bi-gear"></i>
-                                <span>Account Settings</span>
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </nav>
         {% endblock %}
     </header>
 
@@ -121,10 +50,28 @@
         {% block sidebar %}
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{ path('app_home_page_back') }}">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-people"></i><span>User Management</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="users-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ path('app_user_index') }}">
+                            <i class="bi bi-circle"></i><span>All Users</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_user_new') }}">
+                            <i class="bi bi-circle"></i><span>Create User</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <li class="nav-item">
@@ -151,18 +98,18 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-people"></i><span>User Management</span><i class="bi bi-chevron-down ms-auto"></i>
+                <a class="nav-link collapsed" data-bs-target="#blog-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-journal-text"></i><span>Blogs</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <ul id="users-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <ul id="blog-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="#">
-                            <i class="bi bi-circle"></i><span>All Users</span>
+                        <a href="{{ path('app_blog_back_posts') }}">
+                            <i class="bi bi-circle"></i><span>Posts</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="bi bi-circle"></i><span>Roles</span>
+                        <a href="{{ path('app_comment_back_index') }}">
+                            <i class="bi bi-circle"></i><span>Comments</span>
                         </a>
                     </li>
                 </ul>
@@ -220,23 +167,9 @@
         </ul>
         {% endblock %}
     </aside>
-
+    
     <main id="main" class="main">
-        {% block page_title %}
-        <div class="pagetitle">
-            <h1>{% block page_heading %}{% endblock %}</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    {% block breadcrumbs %}{% endblock %}
-                </ol>
-            </nav>
-        </div>
-        {% endblock %}
-
-        <section class="section">
-            {% block content %}{% endblock %}
-        </section>
-
+        {% block body %}{% endblock %}
     </main>
 
     <!-- ======= Footer ======= -->
@@ -265,5 +198,4 @@
 
     {% block javascripts %}{% endblock %}
 </body>
-
 </html>

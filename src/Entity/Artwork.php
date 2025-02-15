@@ -5,8 +5,8 @@ namespace App\Entity;
 use App\Repository\ArtworkRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[ORM\Entity(repositoryClass: ArtworkRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -17,7 +17,7 @@ class Artwork
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'text', length: 255)]
+    #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Title is required')]
     #[Assert\Length(
         min: 3,
@@ -53,6 +53,7 @@ class Artwork
     #[Assert\NotNull(message: 'Please upload a file')]
     #[Assert\File(
         maxSize: '100M',
+        maxSizeMessage: 'The file is too large ({{ size }} {{ suffix }}). Maximum allowed size is {{ limit }} {{ suffix }}.',
         mimeTypes: [
             'image/*',
             'video/*',
@@ -82,6 +83,27 @@ class Artwork
     public function setUpdatedAtValue(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    #[Assert\Callback]
+    public function validateFileType(ExecutionContextInterface $context): void
+    {
+        if (!$this->imageFile || !$this->category) {
+            return;
+        }
+
+        $mimeType = $this->imageFile->getMimeType();
+        $allowedMimeTypes = $this->category->getAllowedMimeTypes();
+
+        if (!in_array($mimeType, $allowedMimeTypes)) {
+            $context->buildViolation('The file type "{{ mime_type }}" is not allowed for this category. Allowed types are: {{ allowed_types }}')
+                ->setParameters([
+                    '{{ mime_type }}' => $mimeType,
+                    '{{ allowed_types }}' => implode(', ', $allowedMimeTypes)
+                ])
+                ->atPath('imageFile')
+                ->addViolation();
+        }
     }
 
     public function getId(): ?int
@@ -141,31 +163,9 @@ class Artwork
     public function setImageFile(?File $imageFile): static
     {
         $this->imageFile = $imageFile;
-        if ($imageFile instanceof UploadedFile) {
+        if ($imageFile) {
             $this->updatedAt = new \DateTimeImmutable();
         }
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
         return $this;
     }
 
@@ -178,5 +178,15 @@ class Artwork
     {
         $this->category = $category;
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
     }
 }

@@ -21,22 +21,46 @@ class ArtworkType extends AbstractType
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
-                'placeholder' => 'Select a category'
+                'placeholder' => 'Select a category',
+                'label' => 'Category',
+                'attr' => ['class' => 'form-control'],
+                'help' => 'Choose the category that best fits your NFT'
             ])
-            ->add('title', TextType::class)
-            ->add('description', TextareaType::class)
-            ->add('price', NumberType::class)
+            ->add('title', TextType::class, [
+                'label' => 'Title',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter the title of your NFT'
+                ]
+            ])
+            ->add('description', TextareaType::class, [
+                'label' => 'Description',
+                'attr' => [
+                    'class' => 'form-control',
+                    'rows' => 4,
+                    'placeholder' => 'Describe your NFT'
+                ]
+            ])
+            ->add('price', NumberType::class, [
+                'label' => 'Price',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Set your NFT price'
+                ]
+            ])
             ->add('imageFile', FileType::class, [
-                'label' => 'Artwork Image',
-                'mapped' => true
-            ])
-        ;
+                'label' => 'Upload File',
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'help' => 'Upload your NFT file (image, video, or audio)'
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Artwork::class
+            'data_class' => Artwork::class,
         ]);
     }
 }

@@ -57,13 +57,9 @@ class UserController extends AbstractController
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function show(User $user): Response
     {
-        $currentUser = $this->getUser();
-        if (!$currentUser instanceof User || ($currentUser->getId() !== $user->getId() && !$this->isGranted('ROLE_ADMIN'))) {
-            throw new AccessDeniedException('You can only view your own profile unless you are an admin.');
-        }
-
         return $this->render('user/show.html.twig', [
             'user' => $user,
+            'canEdit' => $this->isGranted('ROLE_ADMIN') || $this->getUser()->getId() === $user->getId(),
         ]);
     }
 
