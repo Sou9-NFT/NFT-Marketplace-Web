@@ -36,7 +36,7 @@
     <header id="header" class="header fixed-top d-flex align-items-center">
         {% block header %}
         <div class="d-flex align-items-center justify-content-between">
-            <a href="" class="logo d-flex align-items-center">
+            <a href="{{ path('app_home_page_back') }}" class="logo d-flex align-items-center">
                 <img src="{{ asset('back_office/img/logo.png') }}" alt="Logo">
                 <span class="d-none d-lg-block">ArtiTechs Admin</span>
             </a>
@@ -50,7 +50,7 @@
         {% block sidebar %}
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{ path('app_home_page_back') }}">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
@@ -62,12 +62,12 @@
                 </a>
                 <ul id="users-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_back_user_index') }}">
+                        <a href="{{ path('app_user_index') }}">
                             <i class="bi bi-circle"></i><span>All Users</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_back_user_new') }}">
+                        <a href="{{ path('app_user_new') }}">
                             <i class="bi bi-circle"></i><span>Create User</span>
                         </a>
                     </li>
@@ -98,18 +98,18 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-people"></i><span>User Management</span><i class="bi bi-chevron-down ms-auto"></i>
+                <a class="nav-link collapsed" data-bs-target="#blog-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-journal-text"></i><span>Blogs</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <ul id="users-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <ul id="blog-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_back_user_index') }}">
-                            <i class="bi bi-circle"></i><span>All Users</span>
+                        <a href="{{ path('app_blog_back_posts') }}">
+                            <i class="bi bi-circle"></i><span>Posts</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_back_user_new') }}">
-                            <i class="bi bi-circle"></i><span>Create User</span>
+                        <a href="{{ path('app_comment_back_index') }}">
+                            <i class="bi bi-circle"></i><span>Comments</span>
                         </a>
                     </li>
                 </ul>
