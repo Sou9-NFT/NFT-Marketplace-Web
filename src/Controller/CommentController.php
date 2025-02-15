@@ -117,7 +117,7 @@ final class CommentController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$comment->getId(), $request->request->get('_token'))) {
             $entityManager->remove($comment);
             $entityManager->flush();
-            $this->addFlash('success', 'Comment deleted successfully');
+           /*  $this->addFlash('success', 'Comment deleted successfully'); */
             return $this->redirectToRoute('app_comment_back_index');
         }
 

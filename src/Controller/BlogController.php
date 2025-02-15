@@ -141,9 +141,26 @@ class BlogController extends AbstractController
     #[Route('/back/posts', name: 'app_blog_back_posts', methods: ['GET'])]
     public function backendPosts(BlogRepository $blogRepository): Response
     {
-        $blogs = $blogRepository->findAll();
+        $blogs = $blogRepository->findBy([], ['date' => 'DESC']);
         return $this->render('blog_back/posts.html.twig', [
             'blogs' => $blogs,
+        ]);
+    }
+
+    #[Route('/back/posts/{id}/edit', name: 'app_blog_back_edit', methods: ['GET', 'POST'])]
+    public function backendEdit(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(BlogType::class, $blog);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            return $this->redirectToRoute('app_blog_back_posts');
+        }
+
+        return $this->render('blog_back/post_edit.html.twig', [
+            'blog' => $blog,
+            'form' => $form,
         ]);
     }
 }
