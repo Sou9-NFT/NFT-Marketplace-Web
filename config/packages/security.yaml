@@ -45,19 +45,15 @@ security:
         # Allow access to login pages and registration
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/back/login$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
         
-        # Protect admin/back office routes
-        - { path: ^/admin, roles: ROLE_ADMIN }
+        # Back office requires admin role
         - { path: ^/back, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         
-        # Protect user profile routes
-        - { path: ^/profile, roles: ROLE_USER }
-        
-        # Allow public access to front office routes
-        - { path: ^/, roles: PUBLIC_ACCESS }
+        # Front office is accessible to all authenticated users
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
