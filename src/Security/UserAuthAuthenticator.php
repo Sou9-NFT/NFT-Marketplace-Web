@@ -58,7 +58,7 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
                     return new RedirectResponse($this->urlGenerator->generate('app_home_page_back'));
                 }
                 // Otherwise redirect to admin dashboard
-                return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+                return new RedirectResponse($this->urlGenerator->generate('app_home_page_back'));
             } else {
                 // If not admin, redirect to access denied
                 return new RedirectResponse($this->urlGenerator->generate('access_denied'));

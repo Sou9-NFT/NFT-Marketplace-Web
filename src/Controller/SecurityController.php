@@ -30,7 +30,7 @@ class SecurityController extends AbstractController
     {
         // If already logged in as admin, redirect to admin dashboard
         if ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
-            return $this->redirectToRoute('admin_dashboard');
+            return $this->redirectToRoute('app_home_page_back');
         }
         
         // If logged in as regular user, show access denied
@@ -63,7 +63,7 @@ class SecurityController extends AbstractController
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('back_office_html/pages-login.html.twig', [
+        return $this->render('security/admin_login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
