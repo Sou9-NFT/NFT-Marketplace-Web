@@ -1,0 +1,32 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Create BetSession{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Create BetSession</h1>
+                {{ form_start(form) }}
+                    <div class="form-group">
+                        {{ form_label(form.startTime) }}
+                        {{ form_widget(form.startTime, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.endTime) }}
+                        {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.initialPrice) }}
+                        {{ form_widget(form.initialPrice, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.artwork) }}
+                        {{ form_widget(form.artwork, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
