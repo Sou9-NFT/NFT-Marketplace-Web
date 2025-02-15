@@ -15,48 +15,104 @@
             </div>
         {% endfor %}
 
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>Allowed Types</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for category in categories %}
-                    <tr>
-                        <td>{{ category.name }}</td>
-                        <td>{{ category.type|capitalize }}</td>
-                        <td>{{ category.description|slice(0, 100) }}{% if category.description|length > 100 %}...{% endif %}</td>
-                        <td>
-                            <small>{{ category.allowedMimeTypes|join(', ') }}</small>
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="{{ path('app_category_show', {'id': category.id}) }}" class="btn btn-sm btn-info">Show</a>
-                                <a href="{{ path('app_category_edit', {'id': category.id}) }}" class="btn btn-sm btn-primary">Edit</a>
-                                <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}" onsubmit="return confirm('Are you sure you want to delete this category?');" style="display: inline-block;">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-                                    <button class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="5">No categories found</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="px-4">Name</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Allowed Types</th>
+                                <th scope="col" class="px-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for category in categories %}
+                            <tr>
+                                <td class="align-middle px-4">{{ category.name }}</td>
+                                <td class="align-middle">
+                                    <span class="badge bg-{{ category.type == 'image' ? 'info' : (category.type == 'video' ? 'success' : 'warning') }} text-dark">
+                                        {{ category.type|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="align-middle">{{ category.description|slice(0, 100) }}{% if category.description|length > 100 %}...{% endif %}</td>
+                                <td class="align-middle">
+                                    <small class="text-secondary">{{ category.allowedMimeTypes|join(', ') }}</small>
+                                </td>
+                                <td class="align-middle px-4">
+                                    <div class="btn-group">
+                                        <a href="{{ path('app_category_show', {'id': category.id}) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="{{ path('app_category_edit', {'id': category.id}) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                        <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}" onsubmit="return confirm('Are you sure you want to delete this category?');" style="display: inline-block;">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    <div class="alert alert-info m-3">
+                                        No categories found. <a href="{{ path('app_category_new') }}">Create your first category</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-{% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
+    <style>
+        .card {
+            background-color: #2d3748;
+            border: none;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table-dark {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        .table th {
+            background-color: #1a202c;
+            border-bottom: 2px solid #4a5568;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+        .table td {
+            border-color: #4a5568;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #4a5568 !important;
+        }
+        .text-secondary {
+            color: #a0aec0 !important;
+        }
+        .btn-group .btn {
+            margin: 0 2px;
+            border-color: #4a5568;
+        }
+        .badge {
+            padding: 0.5em 0.8em;
+            font-weight: 500;
+        }
+        .alert-info {
+            background-color: #2b6cb0;
+            border-color: #2c5282;
+            color: #ebf8ff;
+        }
+        .alert-info a {
+            color: #fff;
+            text-decoration: underline;
+        }
+    </style>
 {% endblock %}

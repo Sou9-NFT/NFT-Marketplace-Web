@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Participant{% endblock %}
+
+{% block body %}
+    <div class="container mt-5 py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="h3 mb-0 text-white">Edit Participant</h1>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <div class="mb-4">
+                                <label for="name" class="form-label">Display Name</label>
+                                <input type="text" id="name" name="name" class="form-control" value="{{ participant.name }}" required>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="{{ path('app_raffle_participants', {'id': participant.raffle.id}) }}" class="btn btn-secondary">Back to Participants</a>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

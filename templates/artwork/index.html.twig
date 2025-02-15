@@ -34,8 +34,8 @@
                                     Your browser does not support the video tag.
                                 </video>
                             {% elseif artwork.category.type == 'audio' %}
-                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                                     style="height: 200px;">
+                                <div class="card-img-top d-flex align-items-center justify-content-center" 
+                                     style="height: 200px; background-color: #1a202c;">
                                     <audio controls class="w-100 px-3">
                                         <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="audio/mpeg">
                                         Your browser does not support the audio element.
@@ -43,18 +43,18 @@
                                 </div>
                             {% endif %}
                         {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                                 style="height: 200px;">
-                                <span class="text-muted">No Media</span>
+                            <div class="card-img-top d-flex align-items-center justify-content-center" 
+                                 style="height: 200px; background-color: #1a202c;">
+                                <span class="text-secondary">No Media</span>
                             </div>
                         {% endif %}
                         <div class="card-body">
-                            <h5 class="card-title">{{ artwork.title }}</h5>
-                            <span class="badge bg-info mb-2">{{ artwork.category.name }}</span>
-                            <p class="card-text">{{ artwork.description|slice(0, 100) }}...</p>
-                            <p class="card-text"><strong>Price: </strong>${{ artwork.price|number_format(2) }}</p>
+                            <h5 class="card-title text-light">{{ artwork.title }}</h5>
+                            <span class="badge bg-info text-dark mb-2">{{ artwork.category.name }}</span>
+                            <p class="card-text text-secondary">{{ artwork.description|slice(0, 100) }}...</p>
+                            <p class="card-text text-light"><strong>Price: </strong>${{ artwork.price|number_format(2) }}</p>
                         </div>
-                        <div class="card-footer bg-transparent">
+                        <div class="card-footer">
                             <div class="btn-group w-100">
                                 <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}" 
                                    class="btn btn-outline-primary">View</a>
@@ -79,4 +79,46 @@
             {% endfor %}
         </div>
     </div>
+
+    <style>
+        .card {
+            background-color: #2d3748;
+            border: none;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .card-body {
+            background-color: #2d3748;
+        }
+        .card-footer {
+            background-color: #1a202c;
+            border-top: 1px solid #4a5568;
+        }
+        .text-secondary {
+            color: #a0aec0 !important;
+        }
+        .btn-group .btn {
+            margin: 0 2px;
+            border-color: #4a5568;
+        }
+        .badge {
+            padding: 0.5em 0.8em;
+            font-weight: 500;
+        }
+        .alert-info {
+            background-color: #2b6cb0;
+            border-color: #2c5282;
+            color: #ebf8ff;
+        }
+        .alert-info a {
+            color: #fff;
+            text-decoration: underline;
+        }
+        audio {
+            filter: invert(100%) hue-rotate(180deg);
+        }
+        audio::-webkit-media-controls-panel {
+            background-color: #4a5568;
+        }
+    </style>
 {% endblock %}
