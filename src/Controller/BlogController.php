@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/blog')]
 class BlogController extends AbstractController
@@ -38,10 +39,12 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{id}/comment', name: 'app_blog_add_comment', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function addComment(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
     {
         $comment = new Comment();
         $comment->setBlog($blog);
+        $comment->setAuthor($this->getUser());
 
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
@@ -87,10 +90,12 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{id}/comment', name: 'app_blog_add_comment_to_blog', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function addCommentToBlog(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
     {
         $comment = new Comment();
         $comment->setBlog($blog);
+        $comment->setAuthor($this->getUser());
         
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
