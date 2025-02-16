@@ -25,12 +25,14 @@ class UserType extends AbstractType
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter your name',
+                        'groups' => ['user'],
                     ]),
                     new Length([
                         'min' => 2,
                         'max' => 32,
                         'minMessage' => 'Your name must be at least {{ limit }} characters long',
                         'maxMessage' => 'Your name cannot be longer than {{ limit }} characters',
+                        'groups' => ['user'],
                     ]),
                 ],
             ])
@@ -46,6 +48,7 @@ class UserType extends AbstractType
                 ],
                 'constraints' => [
                     new File([
+                        'groups' => ['profile_picture'],
                         'maxSize' => '5M',
                         'mimeTypes' => [
                             'image/jpeg',
@@ -75,6 +78,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'validation_groups' => ['user', 'profile_picture'],
         ]);
     }
 }
