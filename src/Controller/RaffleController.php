@@ -110,37 +110,6 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/admin', name: 'app_raffle_admin', methods: ['GET'])]
-    public function adminIndex(): Response
-    {
-        // Get all raffles
-        $raffles = $this->raffleRepository->findAll();
-        
-        // Debug information
-        foreach ($raffles as $raffle) {
-            dump([
-                'id' => $raffle->getId(),
-                'description' => $raffle->getRaffleDescription(),
-                'startTime' => $raffle->getStartTime(),
-                'endTime' => $raffle->getEndTime(),
-                'status' => $raffle->getStatus()
-            ]);
-        }
-        
-        // Check and update status for all raffles
-        foreach ($raffles as $raffle) {
-            $this->checkAndUpdateRaffleStatus($raffle);
-        }
-
-        return $this->render('raffle/raffleback.html.twig', [
-            'raffles' => $raffles,
-            'debug' => [
-                'count' => count($raffles),
-                'empty' => empty($raffles),
-            ],
-        ]);
-    }
-
     #[Route('/{id}', name: 'app_raffle_show', methods: ['GET'])]
     public function show(Raffle $raffle): Response
     {

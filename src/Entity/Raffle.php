@@ -49,8 +49,25 @@ class Raffle
     #[Assert\Length(max: 255, maxMessage: "The creator name cannot be longer than {{ limit }} characters.")]
     private ?string $creator_name = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $raffle_description = null;
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "The title cannot be blank.")]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "The title must be at least {{ limit }} characters long",
+        maxMessage: "The title cannot be longer than {{ limit }} characters"
+    )]
+    private ?string $title = null;
+
+    #[ORM\Column(type: "text")]
+    #[Assert\NotBlank(message: "The description cannot be blank.")]
+    #[Assert\Length(
+        min: 10,
+        max: 1000,
+        minMessage: "The description must be at least {{ limit }} characters long",
+        maxMessage: "The description cannot be longer than {{ limit }} characters"
+    )]
+    private ?string $raffleDescription = null;
 
 
 
@@ -188,14 +205,25 @@ class Raffle
         return $this;
     }
 
-    public function getRaffleDescription(): ?string
+    public function getTitle(): ?string
     {
-        return $this->raffle_description;
+        return $this->title;
     }
 
-    public function setRaffleDescription(?string $raffle_description): self
+    public function setTitle(string $title): self
     {
-        $this->raffle_description = $raffle_description;
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getRaffleDescription(): ?string
+    {
+        return $this->raffleDescription;
+    }
+
+    public function setRaffleDescription(string $raffleDescription): self
+    {
+        $this->raffleDescription = $raffleDescription;
         return $this;
     }
 }
