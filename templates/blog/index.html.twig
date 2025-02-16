@@ -92,7 +92,8 @@
                                 <div class="latest-comment mb-3 p-2 bg-light rounded">
                                     <small class="d-block text-muted">Latest comment:</small>
                                     <p class="mb-1"><small>"{{ blog.comments|last.content|slice(0, 50) }}{% if blog.comments|last.content|length > 50 %}...{% endif %}"</small></p>
-                                    <small class="text-primary">- {{ blog.comments|last.author ? blog.comments|last.author.name : 'Anonymous' }}</small>
+                                    <small class="text-primary">- {{ blog.comments|last.user ? blog.comments|last.user.name : 'Anonymous' }}</small>
+                                    <small class="text-muted d-block">at {{ blog.comments|last.createdAt|date('F d, Y H:i') }}</small>
                                 </div>
                             {% endif %}
 

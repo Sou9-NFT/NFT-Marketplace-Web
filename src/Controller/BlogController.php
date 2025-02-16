@@ -21,7 +21,7 @@ class BlogController extends AbstractController
     public function index(Request $request, BlogRepository $blogRepository, EntityManagerInterface $entityManager): Response
     {
         $blogs = $blogRepository->findAll();
-        $comment_forms = [];
+        $commentForms = [];
 
         foreach ($blogs as $blog) {
             $comment = new Comment();
@@ -29,12 +29,12 @@ class BlogController extends AbstractController
             $form = $this->createForm(CommentType::class, $comment, [
                 'action' => $this->generateUrl('app_blog_add_comment', ['id' => $blog->getId()])
             ]);
-            $comment_forms[$blog->getId()] = $form->createView();
+            $commentForms[$blog->getId()] = $form->createView();
         }
 
         return $this->render('blog/index.html.twig', [
             'blogs' => $blogs,
-            'comment_forms' => $comment_forms,
+            'commentForms' => $commentForms,
         ]);
     }
 
@@ -44,12 +44,15 @@ class BlogController extends AbstractController
     {
         $comment = new Comment();
         $comment->setBlog($blog);
-        $comment->setAuthor($this->getUser());
+        $comment->setUser($this->getUser());
+        $comment->setCreatedAt(new \DateTimeImmutable());
 
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Ensure user is set again after form submission
+            $comment->setUser($this->getUser());
             $entityManager->persist($comment);
             $entityManager->flush();
 
@@ -105,12 +108,15 @@ class BlogController extends AbstractController
     {
         $comment = new Comment();
         $comment->setBlog($blog);
-        $comment->setAuthor($this->getUser());
+        $comment->setUser($this->getUser());
+        $comment->setCreatedAt(new \DateTimeImmutable());
         
-        $form = $this->createForm(CommentType::class, $comment);
-        $form->handleRequest($request);
+        $commentForm = $this->createForm(CommentType::class, $comment);
+        $commentForm->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+            // Ensure user is set again after form submission
+            $comment->setUser($this->getUser());
             $entityManager->persist($comment);
             $entityManager->flush();
 
@@ -120,7 +126,7 @@ class BlogController extends AbstractController
 
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
-            'comment_form' => $form->createView(),
+            'commentForm' => $commentForm->createView(),
         ]);
     }
 

@@ -15,8 +15,8 @@ class Comment
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?User $author = null;
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'Comment cannot be empty')]
@@ -45,14 +45,14 @@ class Comment
         return $this->id;
     }
 
-    public function getAuthor(): ?User
+    public function getUser(): ?User
     {
-        return $this->author;
+        return $this->user;
     }
 
-    public function setAuthor(?User $author): static
+    public function setUser(?User $user): static
     {
-        $this->author = $author;
+        $this->user = $user;
 
         return $this;
     }
@@ -86,9 +86,9 @@ class Comment
         return $this->blog;
     }
 
-    public function setBlog(?Blog $Blog): static
+    public function setBlog(?Blog $blog): static
     {
-        $this->blog = $Blog;
+        $this->blog = $blog;
 
         return $this;
     }
