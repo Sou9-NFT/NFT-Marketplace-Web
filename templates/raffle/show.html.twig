@@ -5,91 +5,88 @@
 {% block body %}
     <div class="container mt-5 py-4">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header">
                         <h1 class="h3 mb-0 text-white">Raffle #{{ raffle.id }}</h1>
                     </div>
                     <div class="card-body">
-                        <div class="mb-4 text-center">
-                            <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" alt="Raffle Image" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
-                        </div>
+                        {% if raffle.image %}
+                            <div class="mb-4 text-center">
+                                <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" alt="Raffle Image" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
+                            </div>
+                        {% endif %}
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <tbody class="text-white">
-                                    <tr>
-                                        <th class="text-white" style="width: 150px; background-color: rgba(255, 255, 255, 0.1);">Created by</th>
-                                        <td class="text-white">{{ raffle.creatorName }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="text-white" style="background-color: rgba(255, 255, 255, 0.1);">Status</th>
-                                        <td class="text-white">
-                                            {% if raffle.status == 'active' %}
-                                                <span class="badge bg-success">Active</span>
-                                            {% else %}
-                                                <span class="badge bg-danger">Ended</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th class="text-white" style="background-color: rgba(255, 255, 255, 0.1);">Start Time</th>
-                                        <td class="text-white">{{ raffle.startTime|date('Y-m-d H:i:s') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="text-white" style="background-color: rgba(255, 255, 255, 0.1);">End Time</th>
-                                        <td class="text-white">{{ raffle.endTime|date('Y-m-d H:i:s') }}</td>
-                                    </tr>
-                                    {% if raffle.status == 'ended' and winner_name %}
-                                        <tr>
-                                            <th class="text-white" style="background-color: rgba(255, 255, 255, 0.1);">Winner</th>
-                                            <td class="text-white">{{ winner_name }}</td>
-                                        </tr>
+                        <div class="mb-4">
+                            {% set statusClass = raffle.status == 'active' ? 'success' : 'danger' %}
+                            <div class="alert alert-{{ statusClass }} mb-4">
+                                <strong>Status:</strong> {{ raffle.status|title }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Creator:</strong> {{ raffle.creator.email }}</p>
+                                    <p><strong>Start Time:</strong> {{ raffle.startTime ? raffle.startTime|date('Y-m-d H:i:s') : '' }}</p>
+                                    <p><strong>End Time:</strong> {{ raffle.endTime ? raffle.endTime|date('Y-m-d H:i:s') : '' }}</p>
+                                    <p><strong>Participants:</strong> {{ raffle.participants|length }}</p>
+                                    
+                                    {% if raffle.status == 'ended' and winner is defined and winner %}
+                                        <div class="alert alert-success mt-3">
+                                            <h5 class="alert-heading">🎉 Winner Announced!</h5>
+                                            <p class="mb-0">Congratulations to <strong>{{ winner.name }}</strong>!</p>
+                                        </div>
                                     {% endif %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="mt-4">
-                            <h5 class="text-white mb-3">Participants</h5>
-                            {% if raffle.participants|length > 0 %}
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-white" style="background-color: rgba(255, 255, 255, 0.1);">Name</th>
-                                                <th class="text-white" style="background-color: rgba(255, 255, 255, 0.1);">Joined At</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="text-white">
-                                            {% for participant in raffle.participants %}
-                                                <tr>
-                                                    <td class="text-white">{{ participant.name }}</td>
-                                                    <td class="text-white">{{ participant.joinedAt|date('Y-m-d H:i:s') }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
                                 </div>
-                            {% else %}
-                                <p class="text-white">No participants yet.</p>
-                            {% endif %}
+                                <div class="col-md-6">
+                                    <p><strong>Description:</strong></p>
+                                    <p>{{ raffle.raffleDescription }}</p>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{{ path('app_raffle_index') }}" class="btn btn-secondary">Back to list</a>
                             
                             <div class="d-flex gap-2">
-                                {% if raffle.status == 'active' %}
-                                    <a href="{{ path('app_raffle_join', {'id': raffle.id}) }}" class="btn btn-primary">Join Raffle</a>
+                                {% if app.user %}
+                                    <a href="{{ path('app_raffle_participants', {'id': raffle.id}) }}" class="btn btn-info">
+                                        View Participants ({{ raffle.participants|length }})
+                                    </a>
+                                    {% set hasJoined = false %}
+                                    {% for participant in raffle.participants %}
+                                        {% if participant.user == app.user %}
+                                            {% set hasJoined = true %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if raffle.status == 'active' %}
+                                        {% if not hasJoined %}
+                                            <a href="{{ path('app_raffle_join', {'id': raffle.id}) }}" class="btn btn-primary">
+                                                Join Raffle
+                                            </a>
+                                        {% else %}
+                                            <span class="btn btn-secondary disabled">
+                                                Already Joined
+                                            </span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="btn btn-secondary disabled">
+                                            Raffle Ended
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{{ path('app_login') }}" class="btn btn-primary">
+                                        Login to Join
+                                    </a>
                                 {% endif %}
-                                <a href="{{ path('app_raffle_edit', {'id': raffle.id}) }}" class="btn btn-warning">Edit</a>
-                                <form method="post" action="{{ path('app_raffle_delete', {'id': raffle.id}) }}" 
-                                      onsubmit="return confirm('Are you sure you want to delete this raffle?');" 
-                                      style="display: inline-block;">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
-                                    <button class="btn btn-danger">Delete</button>
-                                </form>
+
+                                {% if app.user == raffle.creator %}
+                                    <a href="{{ path('app_raffle_edit', {'id': raffle.id}) }}" class="btn btn-warning">Edit</a>
+                                    <form method="post" action="{{ path('app_raffle_delete', {'id': raffle.id}) }}" onsubmit="return confirm('Are you sure you want to delete this raffle?');" style="display: inline;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
+                                        <button class="btn btn-danger">Delete</button>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

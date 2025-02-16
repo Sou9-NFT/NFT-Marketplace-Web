@@ -1,82 +1,106 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Artwork List{% endblock %}
+{% block title %}Artwork Gallery{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Artwork List</h1>
-            <div>
-                <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary me-2">Manage Categories</a>
-                <a href="{{ path('app_artwork_new') }}" class="btn btn-primary">Create New Artwork</a>
-            </div>
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Artwork Gallery</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active">Artworks</li>
+                </ol>
+            </nav>
         </div>
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success">
-                {{ message }}
-            </div>
-        {% endfor %}
-
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            {% for artwork in artworks %}
-                <div class="col">
-                    <div class="card h-100">
-                        {% if artwork.imageName %}
-                            {% if artwork.category.type == 'image' %}
-                                <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
-                                     class="card-img-top" 
-                                     alt="{{ artwork.title }}"
-                                     style="height: 200px; object-fit: cover;">
-                            {% elseif artwork.category.type == 'video' %}
-                                <video class="card-img-top" style="height: 200px; object-fit: cover;" controls>
-                                    <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                            {% elseif artwork.category.type == 'audio' %}
-                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                                     style="height: 200px;">
-                                    <audio controls class="w-100 px-3">
-                                        <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="audio/mpeg">
-                                        Your browser does not support the audio element.
-                                    </audio>
-                                </div>
-                            {% endif %}
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                                 style="height: 200px;">
-                                <span class="text-muted">No Media</span>
-                            </div>
-                        {% endif %}
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">{{ artwork.title }}</h5>
-                            <span class="badge bg-info mb-2">{{ artwork.category.name }}</span>
-                            <p class="card-text">{{ artwork.description|slice(0, 100) }}...</p>
-                            <p class="card-text"><strong>Price: </strong>${{ artwork.price|number_format(2) }}</p>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <div class="btn-group w-100">
-                                <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}" 
-                                   class="btn btn-outline-primary">View</a>
-                                <a href="{{ path('app_artwork_edit', {'id': artwork.id}) }}" 
-                                   class="btn btn-outline-secondary">Edit</a>
-                                <form method="post" action="{{ path('app_artwork_delete', {'id': artwork.id}) }}" 
-                                      onsubmit="return confirm('Are you sure you want to delete this artwork?');" 
-                                      style="display: inline-block;">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ artwork.id) }}">
-                                    <button class="btn btn-outline-danger">Delete</button>
-                                </form>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title">Browse Artworks</h5>
+                                <a href="{{ path('app_artwork_new') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Create New Artwork
+                                </a>
+                            </div>
+
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+
+                            <div class="row">
+                                {% for artwork in artworks %}
+                                    <div class="col-md-4 col-lg-3 mb-4">
+                                        <div class="card h-100">
+                                            <div class="position-relative artwork-media">
+                                                {% if artwork.category.type == 'image' %}
+                                                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
+                                                         class="card-img-top" 
+                                                         alt="{{ artwork.title }}"
+                                                         style="height: 200px; object-fit: cover;">
+                                                {% elseif artwork.category.type == 'video' %}
+                                                    <video class="card-img-top" controls style="height: 200px; object-fit: cover;">
+                                                        <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="video/mp4">
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                {% elseif artwork.category.type == 'audio' %}
+                                                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                                        <i class="bi bi-music-note-beamed" style="font-size: 3rem;"></i>
+                                                    </div>
+                                                    <audio controls class="w-100 mt-2">
+                                                        <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="audio/mpeg">
+                                                        Your browser does not support the audio element.
+                                                    </audio>
+                                                {% endif %}
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ artwork.title }}</h5>
+                                                <p class="card-text text-muted">
+                                                    {{ artwork.description|length > 100 ? artwork.description|slice(0, 100) ~ '...' : artwork.description }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge bg-primary">{{ artwork.category.name }}</span>
+                                                    <span class="text-primary fw-bold">{{ artwork.price }} ETH</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-transparent">
+                                                <div class="btn-group w-100" role="group">
+                                                    <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}" class="btn btn-outline-primary">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('app_artwork_edit', {'id': artwork.id}) }}" class="btn btn-outline-primary">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <form method="post" action="{{ path('app_artwork_delete', {'id': artwork.id}) }}" 
+                                                          onsubmit="return confirm('Are you sure you want to delete this artwork?');" 
+                                                          style="display: inline-block;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ artwork.id) }}">
+                                                        <button class="btn btn-outline-danger">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="col-12">
+                                        <div class="alert alert-info" role="alert">
+                                            No artworks found. <a href="{{ path('app_artwork_new') }}" class="alert-link">Create your first artwork</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
-            {% else %}
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        No artworks found. <a href="{{ path('app_artwork_new') }}">Create your first artwork</a>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
+            </div>
+        </section>
+    </main>
 {% endblock %}

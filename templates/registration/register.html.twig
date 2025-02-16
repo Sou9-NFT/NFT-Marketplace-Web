@@ -14,27 +14,67 @@
                     <div class="intro text-center">
                         <span>Signup</span>
                         <h3 class="mt-3 mb-0">Create an Account</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum obcaecati dignissimos quae quo ad iste ipsum officiis deleniti asperiores sit.</p>
+                        <p>Create your account to start exploring and trading NFTs.</p>
                     </div>
                     <!-- Item Form -->
-                    {{ form_start(registrationForm, {'attr': {'class': 'item-form card no-hover'}}) }}
+                    {{ form_start(registrationForm, {
+                        'attr': {
+                            'class': 'item-form card no-hover'
+                        }
+                    }) }}
+                    {{ form_errors(registrationForm) }}
                     <div class="row">
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                {{ form_row(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Email'}}) }}
+                                {{ form_label(registrationForm.name) }}
+                                {{ form_widget(registrationForm.name, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Enter your Name'
+                                    }
+                                }) }}
+                                {{ form_errors(registrationForm.name) }}
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                {{ form_row(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Password'}}) }}
+                                {{ form_label(registrationForm.email) }}
+                                {{ form_widget(registrationForm.email, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Enter your Email'
+                                    }
+                                }) }}
+                                {{ form_errors(registrationForm.email) }}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group mt-3">
+                                {{ form_label(registrationForm.plainPassword) }}
+                                {{ form_widget(registrationForm.plainPassword, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Enter your Password'
+                                    }
+                                }) }}
+                                {{ form_errors(registrationForm.plainPassword) }}
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group mt-3">
                                 <div class="form-check form-check-inline">
-                                    {{ form_row(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
-                                    <label class="form-check-label" for="registrationForm_agreeTerms">I agree to <a href="#">Privacy Policy</a></label>
+                                    {{ form_widget(registrationForm.agreeTerms, {
+                                        'attr': {
+                                            'class': 'form-check-input'
+                                        }
+                                    }) }}
+                                    {{ form_label(registrationForm.agreeTerms, 'I agree to Privacy Policy', {
+                                        'label_attr': {
+                                            'class': 'form-check-label'
+                                        }
+                                    }) }}
                                 </div>
+                                {{ form_errors(registrationForm.agreeTerms) }}
                             </div>
                         </div>
                         <div class="col-12">
@@ -71,5 +111,5 @@
         </div>
     </section>
     <!-- ***** Signup Area End ***** -->
-
+</div>
 {% endblock %}
