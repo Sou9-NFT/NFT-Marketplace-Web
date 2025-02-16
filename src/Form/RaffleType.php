@@ -38,6 +38,9 @@ class RaffleType extends AbstractType
             ->add('raffleDescription', TextareaType::class, [
                 'label' => 'Description',
                 'required' => true,
+                'attr' => [
+                    'rows' => 5,
+                ],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter a description',

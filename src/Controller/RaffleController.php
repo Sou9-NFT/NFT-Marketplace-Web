@@ -191,7 +191,7 @@ class RaffleController extends AbstractController
         $originalStartTime = $raffle->getStartTime();
         
         $form = $this->createForm(RaffleType::class, $raffle, [
-            'require_image' => false,
+            'is_edit' => true,
         ]);
         $form->handleRequest($request);
 
@@ -204,12 +204,6 @@ class RaffleController extends AbstractController
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
                 try {
-                    // Delete old image if it exists
-                    $oldImagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
-                    if ($raffle->getImage() && file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
-                    }
-
                     $imageFile->move(
                         $this->getParameter('raffle_images_directory'),
                         $newFilename
@@ -221,16 +215,18 @@ class RaffleController extends AbstractController
                 }
             }
 
-            // Restore the original start time
+            // Keep the original start time
             $raffle->setStartTime($originalStartTime);
             
             $this->entityManager->flush();
-            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Raffle updated successfully.');
+            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
         }
 
         return $this->render('raffle/edit.html.twig', [
             'raffle' => $raffle,
             'form' => $form,
+            'is_edit' => true,
         ]);
     }
 

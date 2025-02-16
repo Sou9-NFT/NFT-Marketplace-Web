@@ -111,7 +111,9 @@ class RaffleController extends AbstractController
     #[Route('/{id}/edit', name: 'app_back_raffle_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Raffle $raffle, SluggerInterface $slugger): Response
     {
-        $form = $this->createForm(RaffleType::class, $raffle);
+        $form = $this->createForm(RaffleType::class, $raffle, [
+            'is_edit' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -141,6 +143,7 @@ class RaffleController extends AbstractController
         return $this->render('raffle/raffle_form_back.html.twig', [
             'raffle' => $raffle,
             'form' => $form,
+            'is_edit' => true,
         ]);
     }
 
