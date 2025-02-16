@@ -14,15 +14,9 @@ class Comment
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Author name cannot be empty')]
-    #[Assert\Length(
-        min: 2,
-        max: 255,
-        minMessage: 'Author name must be at least {{ limit }} characters long',
-        maxMessage: 'Author name cannot exceed {{ limit }} characters'
-    )]
-    private ?string $author = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'Comment cannot be empty')]
@@ -46,21 +40,19 @@ class Comment
         $this->createdAt = new \DateTimeImmutable();
     }
 
-
-
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAuthor(): ?string
+    public function getUser(): ?User
     {
-        return $this->author;
+        return $this->user;
     }
 
-    public function setAuthor(string $author): static
+    public function setUser(?User $user): static
     {
-        $this->author = $author;
+        $this->user = $user;
 
         return $this;
     }
@@ -94,9 +86,9 @@ class Comment
         return $this->blog;
     }
 
-    public function setBlog(?Blog $Blog): static
+    public function setBlog(?Blog $blog): static
     {
-        $this->blog = $Blog;
+        $this->blog = $blog;
 
         return $this;
     }

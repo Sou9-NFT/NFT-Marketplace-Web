@@ -36,7 +36,7 @@
     <header id="header" class="header fixed-top d-flex align-items-center">
         {% block header %}
         <div class="d-flex align-items-center justify-content-between">
-            <a href="{{ path('app_home_page_back') }}" class="logo d-flex align-items-center">
+            <a href="" class="logo d-flex align-items-center">
                 <img src="{{ asset('back_office/img/logo.png') }}" alt="Logo">
                 <span class="d-none d-lg-block">ArtiTechs Admin</span>
             </a>
@@ -78,7 +78,7 @@
         {% block sidebar %}
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{ path('app_home_page_back') }}">
+                <a class="nav-link" href="">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
@@ -131,8 +131,13 @@
                 </a>
                 <ul id="blog-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_blog_back_posts') }}">
+                        <a href="{{ path('app_back_blog_index') }}">
                             <i class="bi bi-circle"></i><span>Posts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_back_blog_new') }}">
+                            <i class="bi bi-circle"></i><span>New Post</span>
                         </a>
                     </li>
                     <li>
