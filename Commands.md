@@ -20,12 +20,20 @@ php bin/console app:add-balance <email> <amount>
 php bin/console app:update-bet-session-status
 ```
 
-## Make User Admin
+## Make User Role
 
-To give a user admin role, use the following command:
+To assign a specific role to a user, use the following command:
 
 ```sh
-php bin/console app:make-admin <email>
+php bin/console app:make-user-role <email> --role=<role>
 ```
 
-This command will add the ROLE_ADMIN role to the specified user. If the user already has the admin role, it will show a warning message.
+This command will add the specified role (admin, seller, author) to the user. If the user already has the role, it will show a warning message.
+
+### Example
+
+To assign the admin role to a user with email `admin@admin.com`, use:
+
+```sh
+php bin/console app:make-user-role admin@admin.com --role=admin
+```

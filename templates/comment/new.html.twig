@@ -14,11 +14,6 @@
                 <div class="card-body">
                     {{ form_start(form) }}
                         <div class="mb-3">
-                            {{ form_label(form.author) }}
-                            {{ form_widget(form.author, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.author) }}
-                        </div>
-                        <div class="mb-3">
                             {{ form_label(form.content) }}
                             {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': 4}}) }}
                             {{ form_errors(form.content) }}
