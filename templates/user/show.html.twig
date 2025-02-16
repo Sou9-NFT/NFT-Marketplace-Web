@@ -24,20 +24,20 @@
                     <table class="table">
                         <tbody>
                             <tr>
-                                <th>Name</th>
-                                <td>{{ user.name }}</td>
+                                <th class="text-white">Name</th>
+                                <td class="text-white">{{ user.name }}</td>
                             </tr>
                             <tr>
-                                <th>Email</th>
-                                <td>{{ user.email }}</td>
+                                <th class="text-white">Email</th>
+                                <td class="text-white">{{ user.email }}</td>
                             </tr>
+                            {#<tr>
+                                <th class="text-white">Roles</th>
+                                <td class="text-white">{{ user.roles ? user.roles|json_encode : '' }}</td>
+                            </tr>#}
                             <tr>
-                                <th>Roles</th>
-                                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Created At</th>
-                                <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                                <th class="text-white">Created At</th>
+                                <td class="text-white">{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                             </tr>
                         </tbody>
                     </table>
