@@ -23,7 +23,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank(message: 'Email cannot be blank')]
-    #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\Email(
+        message: 'The email {{ value }} is not a valid email.',
+        mode: 'strict'
+    )]
+    #[Assert\Contains(
+        needle: '@',
+        message: 'The email must contain @'
+    )]
     private ?string $email = null;
 
     /**

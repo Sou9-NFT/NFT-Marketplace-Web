@@ -10,6 +10,8 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
@@ -20,6 +22,17 @@ class UserType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your name',
+                    ]),
+                    new Length([
+                        'min' => 2,
+                        'max' => 32,
+                        'minMessage' => 'Your name must be at least {{ limit }} characters long',
+                        'maxMessage' => 'Your name cannot be longer than {{ limit }} characters',
+                    ]),
+                ],
             ])
             ->add('email', EmailType::class, [
                 'disabled' => true,
