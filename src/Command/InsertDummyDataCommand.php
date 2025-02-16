@@ -33,23 +33,19 @@ class InsertDummyDataCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        // Fetch User with ID 1
+        $user = $this->entityManager->getRepository(User::class)->find(1);
+        if (!$user) {
+            $io->error('User with ID 1 not found.');
+            return Command::FAILURE;
+        }
+
         // Insert Category
         $category = new Category();
         $category->setName('Example Category');
         $category->setType('image');
         $category->setDescription('This is an example category description.');
-        $category->setAllowedMimeTypes(['image/jpeg', 'image/png']);
         $this->entityManager->persist($category);
-
-        // Insert User
-        $user = new User();
-        $user->setEmail('nessimbns2@gmail.com');
-        $user->setRoles([]);
-        $user->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2'); // hashed password
-        // password 123456789
-        $user->setName('John Doe');
-        $user->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
-        $this->entityManager->persist($user);
 
         // Insert Artwork
         $artwork = new Artwork();
@@ -58,8 +54,6 @@ class InsertDummyDataCommand extends Command
         $artwork->setDescription('This is an example description for the artwork.');
         $artwork->setPrice(100);
         $artwork->setImageName('example.jpg');
-        $artwork->setUpdatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
-        $artwork->setCreatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
         $this->entityManager->persist($artwork);
 
         // Insert BetSession
@@ -75,7 +69,6 @@ class InsertDummyDataCommand extends Command
             $this->entityManager->persist($betSession);
         }
 
-        
         $this->entityManager->flush();
 
         $io->success('Dummy data has been inserted successfully.');
