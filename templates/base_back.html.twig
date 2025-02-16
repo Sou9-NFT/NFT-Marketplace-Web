@@ -164,6 +164,23 @@
                 </ul>
             </li>
             <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#raffles-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-ticket"></i><span>Raffles</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="raffles-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ path('app_back_raffle_index') }}">
+                            <i class="bi bi-circle"></i><span>All Raffles</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_back_raffle_new') }}">
+                            <i class="bi bi-circle"></i><span>Create Raffle</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
               <a class="nav-link collapsed" data-bs-target="#bets-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-trophy"></i><span>Bet Sessions</span><i class="bi bi-chevron-down ms-auto"></i>
               </a>
