@@ -38,7 +38,7 @@
                                 {% for comment in comments %}
                                 <tr>
                                     <th scope="row">{{ comment.id }}</th>
-                                    <td>{{ comment.author }}</td>
+                                    <td>{{ comment.user.name }}</td>
                                     <td>{{ comment.content|length > 50 ? comment.content|slice(0, 50) ~ '...' : comment.content }}</td>
                                     <td>
                                         <a href="{{ path('app_blog_show', {'id': comment.blog.id}) }}">
