@@ -60,10 +60,12 @@ class BlogController extends AbstractController
     }
 
     #[Route('/new', name: 'app_blog_new', methods: ['GET', 'POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $blog = new Blog();
-        $blog->setDate(new \DateTime()); // Set current date automatically
+        $blog->setDate(new \DateTime());
+        $blog->setUser($this->getUser()); // Set the current user as the blog author
         
         $form = $this->createForm(BlogType::class, $blog);
         $form->handleRequest($request);
@@ -72,6 +74,7 @@ class BlogController extends AbstractController
             $entityManager->persist($blog);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Blog post created successfully!');
             return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -84,8 +87,15 @@ class BlogController extends AbstractController
     #[Route('/{id}', name: 'app_blog_show', methods: ['GET'])]
     public function show(Blog $blog): Response
     {
+        $comment = new Comment();
+        $comment->setBlog($blog);
+        $commentForm = $this->createForm(CommentType::class, $comment, [
+            'action' => $this->generateUrl('app_blog_add_comment_to_blog', ['id' => $blog->getId()])
+        ]);
+
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
+            'commentForm' => $commentForm->createView(),
         ]);
     }
 
@@ -108,7 +118,7 @@ class BlogController extends AbstractController
             return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
         }
 
-        return $this->render('blog/readBlog.html.twig', [
+        return $this->render('blog/show.html.twig', [
             'blog' => $blog,
             'comment_form' => $form->createView(),
         ]);
