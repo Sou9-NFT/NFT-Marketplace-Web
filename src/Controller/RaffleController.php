@@ -64,38 +64,46 @@ class RaffleController extends AbstractController
         $raffle = new Raffle();
         $form = $this->createForm(RaffleType::class, $raffle);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Handle image upload
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-
-                try {
-                    $imageFile->move(
-                        $this->getParameter('raffle_images_directory'),
-                        $newFilename
-                    );
-                    $raffle->setImage($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_raffle_new');
+    
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                // Handle image upload
+                $imageFile = $form->get('image')->getData();
+                if ($imageFile) {
+                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+    
+                    try {
+                        $imageFile->move(
+                            $this->getParameter('raffle_images_directory'),
+                            $newFilename
+                        );
+                        $raffle->setImage($newFilename);
+                    } catch (FileException $e) {
+                        $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
+                        return $this->redirectToRoute('app_raffle_new');
+                    }
+                }
+    
+                // Set the start time to now
+                $raffle->setStartTime(new \DateTime('now'));
+                
+                $raffle->setCreator($this->getUser());
+                $raffle->setStatus('active');
+                $this->entityManager->persist($raffle);
+                $this->entityManager->flush();
+    
+                return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
+            } else {
+                // Form is not valid, add flash message or log errors
+                $errors = $form->getErrors(true);
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error->getMessage());
                 }
             }
-
-            // Set the start time to now
-            $raffle->setStartTime(new \DateTime('now'));
-            
-            $raffle->setCreator($this->getUser());
-            $raffle->setStatus('active');
-            $this->entityManager->persist($raffle);
-            $this->entityManager->flush();
-
-            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
         }
-
+    
         return $this->render('raffle/new.html.twig', [
             'raffle' => $raffle,
             'form' => $form,

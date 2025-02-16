@@ -6,6 +6,7 @@ use App\Repository\RaffleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RaffleRepository::class)]
 class Raffle
@@ -15,13 +16,16 @@ class Raffle
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $start_time = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Assert\NotBlank(message: "The end time cannot be blank.")]
+    #[Assert\GreaterThan(propertyPath: "start_time", message: "The end time must be after the start time.")]
+    #[Assert\GreaterThan(value: "today", message: "The end time must be in the future.")]
     private ?\DateTimeInterface $end_time = null;
 
     #[ORM\Column(length: 255)]
@@ -41,14 +45,20 @@ class Raffle
     private Collection $participants;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "The creator name cannot be blank.")]
+    #[Assert\Length(max: 255, maxMessage: "The creator name cannot be longer than {{ limit }} characters.")]
     private ?string $creator_name = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $raffle_description = null;
 
+
+
+    
     public function __construct()
     {
         $this->created_at = new \DateTime();
+        $this->start_time = new \DateTime(); // Set start_time to the current time
         $this->participants = new ArrayCollection();
     }
 
@@ -84,12 +94,12 @@ class Raffle
         return $this->end_time;
     }
 
-    public function setEndTime(\DateTimeInterface $end_time): self
+    public function setEndTime(?\DateTimeInterface $end_time): self
     {
         $this->end_time = $end_time;
         return $this;
     }
-
+    
     public function getStatus(): string
     {
         return $this->status;

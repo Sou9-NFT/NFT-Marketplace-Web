@@ -24,13 +24,13 @@ class RaffleType extends AbstractType
                 'mapped' => false,
                 'required' => $options['require_image'] ?? true,
                 'constraints' => [
+                    new NotBlank(),
                     new File([
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',
                             'image/gif',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, GIF)',
+                        ]
                     ])
                 ],
             ])
@@ -38,14 +38,10 @@ class RaffleType extends AbstractType
                 'label' => 'Creator Name',
                 'required' => true,
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter your name',
-                    ]),
+                    new NotBlank(),
                     new Length([
                         'min' => 2,
-                        'max' => 50,
-                        'minMessage' => 'Your name must be at least {{ limit }} characters long',
-                        'maxMessage' => 'Your name cannot be longer than {{ limit }} characters',
+                        'max' => 255, // Match the field length in the entity
                     ]),
                 ],
             ])
@@ -54,15 +50,12 @@ class RaffleType extends AbstractType
                 'label' => 'End Time',
                 'required' => true,
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter an end time',
-                    ]),
+                    new NotBlank(),
                     new GreaterThan([
                         'value' => new \DateTime(),
-                        'message' => 'End time must be in the future',
                     ]),
                 ],
-            ])
+            ])                      
             ->add('raffle_description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
@@ -74,11 +67,9 @@ class RaffleType extends AbstractType
                 'constraints' => [
                     new Length([
                         'max' => 1000,
-                        'maxMessage' => 'Description cannot be longer than {{ limit }} characters',
                     ]),
                 ],
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
