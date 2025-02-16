@@ -40,6 +40,10 @@ class Blog
     #[Assert\Type("\DateTimeInterface")]
     private ?\DateTimeInterface $date = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     /**
      * @var Collection<int, Comment>
      */
@@ -94,6 +98,17 @@ class Blog
     public function setDate(\DateTimeInterface $date): static
     {
         $this->date = $date;
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
         return $this;
     }
 

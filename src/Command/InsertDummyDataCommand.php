@@ -33,12 +33,18 @@ class InsertDummyDataCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        // Fetch User with ID 1
+        $user = $this->entityManager->getRepository(User::class)->find(1);
+        if (!$user) {
+            $io->error('User with ID 1 not found.');
+            return Command::FAILURE;
+        }
+
         // Insert Category
         $category = new Category();
         $category->setName('Example Category');
         $category->setType('image');
         $category->setDescription('This is an example category description.');
-        $category->setAllowedMimeTypes(['image/jpeg', 'image/png']);
         $this->entityManager->persist($category);
 
         // Create Admin User
@@ -85,6 +91,7 @@ class InsertDummyDataCommand extends Command
         $author->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
         $this->entityManager->persist($author);
 
+
         // Insert Artwork
         $artwork = new Artwork();
         $artwork->setCategory($category);
@@ -92,8 +99,6 @@ class InsertDummyDataCommand extends Command
         $artwork->setDescription('This is an example description for the artwork.');
         $artwork->setPrice(100);
         $artwork->setImageName('example.jpg');
-        $artwork->setUpdatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
-        $artwork->setCreatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
         $this->entityManager->persist($artwork);
 
         // Insert BetSession
@@ -108,6 +113,7 @@ class InsertDummyDataCommand extends Command
             $betSession->setCurrentPrice(100.00 * $i);
             $this->entityManager->persist($betSession);
         }
+
 
         $this->entityManager->flush();
 

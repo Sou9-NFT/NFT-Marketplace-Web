@@ -32,8 +32,15 @@ final class CommentController extends AbstractController
             throw $this->createNotFoundException('Blog post not found');
         }
 
+        // Get the current user
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to add a comment');
+        }
+
         $comment = new Comment();
         $comment->setBlog($blog);
+        $comment->setUser($user); // Set the current user
         
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);

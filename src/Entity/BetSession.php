@@ -9,6 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BetSessionRepository::class)]
 class BetSession
 {
+
+   
+    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -27,10 +31,14 @@ class BetSession
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: false)]
+    #[Assert\GreaterThan(propertyPath: "startTime", message: "End time must be after the start time.")]
     #[Assert\NotBlank(message: "End time cannot be blank.")]
     private ?\DateTimeImmutable $endTime = null;
 
+  
+
     #[ORM\Column(nullable: false)]
+    #[Assert\GreaterThan("today", message: "Start time must be in the future.")]
     #[Assert\NotBlank(message: "Start time cannot be blank.")]
     private ?\DateTimeImmutable $startTime = null;
 
