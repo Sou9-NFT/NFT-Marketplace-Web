@@ -43,7 +43,7 @@
                             {% endif %}
                             <tr>
                                 <th class="text-white">Created At</th>
-                                <td class="text-white">{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                                <td class="text-white">{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}</td>
                             </tr>
                         </tbody>
                     </table>
