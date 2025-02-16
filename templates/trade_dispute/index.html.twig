@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TradeDispute index{% endblock %}
+
+{% block body %}
+<br><br><br><br><br>
+    <h1><center>Trade Disputes List</center></h1>
+<br><br><br>
+    <div class="table-responsive" style="max-width: 1000px; margin: auto;">
+        <table border='2'>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Trade_id</th>
+                    <th>Offered item</th>
+                    <th>Received item</th>
+                    <th>Reason</th>
+                    <th>Evidence</th>
+                    <th>Timestamp</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for trade_dispute in trade_disputes %}
+                <tr>
+                    <td>{{ trade_dispute.id }}</td>
+                    <td>{{ trade_dispute.tradeId }}</td>
+                    <td>{{ trade_dispute.OfferedItem }}</td>
+                    <td>{{ trade_dispute.ReceivedItem }}</td>
+                    <td>{{ trade_dispute.reason }}</td>
+                    <td>{{ trade_dispute.evidence }}</td>
+                    <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ trade_dispute.status }}</td>
+                   <td> <a href="{{ path('app_trade_dispute_show', {'id': trade_dispute.id}) }}">View</a> /
+                <a href="{{ path('app_trade_dispute_edit', {'id': trade_dispute.id}) }}">Edit</a>
+
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8"><center>No trade disputes found</center></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <center><a href="{{ path('app_trade_dispute_new') }}" class="btn btn-success btn-sm">Create new</a></center>
+{% endblock %}

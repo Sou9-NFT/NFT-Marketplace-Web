@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Trade Offers List{% endblock %}
+
+{% block body %}
+<br><br><br><br><br>
+    <h1><center>Trade Offers List</center></h1>
+<br><br><br>
+    <div class="table-responsive" style="max-width: 1000px; margin: auto;">
+        <table border='2'>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Receiver Name</th>
+                    <th>Offered Item</th>
+                    <th>Received Item</th>
+                    <th>Description</th>
+                    <th>Creation Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for trade_offer in trade_offers %}
+                <tr>
+                    <td>{{ trade_offer.id }}</td>
+                    <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A' }}</td> {# Display receiver name, or N/A if not available #}
+                    <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A' }}</td> {# Adjust based on your Artwork entity #}
+                    <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A' }}</td> {# Adjust based on your Artwork entity #}
+                    <td>{{ trade_offer.description }}</td>
+                    <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ trade_offer.status }}</td>
+                    <td>
+                        <a href="{{ path('app_trade_show', {'id': trade_offer.id}) }}" class="btn btn-primary btn-sm">View</a> /
+                        <td><a href="{{ path('app_trade_offer_edit', {'id': trade_offer.id}) }}">Edit</a></td>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8"><center>No trade offers found</center></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <center><a href="{{ path('app_trade_offer_add') }}" class="btn btn-success btn-sm">Create new</a></center>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Trade Offer{% endblock %}
+
+{% block body %}
+<br><br><br><br><br>
+<h1 class="text-center">Edit Trade Offer</h1>
+
+
+<div class="table-responsive" style="max-width: 600px; margin: auto;">
+    <form method="post" action="{{ path('app_trade_offer_edit', {'id': trade_offer.id}) }}">
+
+        <table border="0">
+            <tbody>
+                {% for field in form %}
+                    <tr>
+                        <td style="width: 200px;">{{ form_label(field) }}</td>
+                        <td>{{ form_widget(field, {'attr': {'class': 'form-control form-control-sm'}}) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{{ path('app_trade_offer_index') }}" class="btn btn-link">Back to list</a>
+            <button class="btn btn-primary" type="submit">Update offer</button>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}
