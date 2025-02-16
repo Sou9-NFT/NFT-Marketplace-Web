@@ -48,6 +48,9 @@ security:
         - { path: ^/back/login$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
+        - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
+        - { path: ^/artwork, roles: PUBLIC_ACCESS }  # Allow public access to artwork
+        - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
         
         # Back office requires admin role
         - { path: ^/back, roles: ROLE_ADMIN }
