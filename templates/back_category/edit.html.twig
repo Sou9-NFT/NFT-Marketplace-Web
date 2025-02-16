@@ -1,0 +1,135 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Edit Category{% endblock %}
+
+{% block body %}
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Edit Category</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_back_category_index') }}">Categories</a></li>
+                    <li class="breadcrumb-item active">Edit</li>
+                </ol>
+            </nav>
+        </div>
+
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Category Details</h5>
+
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+
+                            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.name, 'Category Name', {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Enter category name'}}) }}
+                                        {{ form_errors(form.name) }}
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.type, 'Category Type', {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
+                                        {{ form_errors(form.type) }}
+                                        <div class="form-text text-muted">Select the type of content for this category</div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Enter category description'}}) }}
+                                        {{ form_errors(form.description) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Allowed File Types</label>
+                                        <div class="alert alert-info mime-types-container">
+                                            {% if category.type %}
+                                                {% for mime_type in category.allowedMimeTypes %}
+                                                    <span class="badge bg-primary me-1">{{ mime_type }}</span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-muted">Select a type to see allowed file types</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                <a href="{{ path('app_back_category_index') }}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Save Changes
+                                </button>
+                            </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.querySelector('#category_type');
+            const mimeTypesContainer = document.querySelector('.mime-types-container');
+
+            function updateMimeTypes(selectedType) {
+                if (selectedType) {
+                    fetch(`{{ path('app_back_category_info', {'id': category.id}) }}?type=${selectedType}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.allowedMimeTypes && Array.isArray(data.allowedMimeTypes)) {
+                                let html = '';
+                                data.allowedMimeTypes.forEach(mimeType => {
+                                    html += `<span class="badge bg-primary me-1">${mimeType}</span>`;
+                                });
+                                mimeTypesContainer.innerHTML = html;
+                            } else {
+                                mimeTypesContainer.innerHTML = '<span class="text-danger">No MIME types available for this category type</span>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            mimeTypesContainer.innerHTML = '<span class="text-danger">Error loading MIME types. Please try again.</span>';
+                        });
+                } else {
+                    mimeTypesContainer.innerHTML = '<span class="text-muted">Select a type to see allowed file types</span>';
+                }
+            }
+
+            typeSelect.addEventListener('change', function() {
+                updateMimeTypes(this.value);
+            });
+
+            // Initialize MIME types if type is already selected
+            if (typeSelect.value) {
+                updateMimeTypes(typeSelect.value);
+            }
+        });
+    </script>
+{% endblock %}

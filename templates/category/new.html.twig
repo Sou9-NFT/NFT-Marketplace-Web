@@ -6,55 +6,88 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Create New Category</h1>
-            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">Back to list</a>
+            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
         </div>
 
-        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        {% for label, messages in app.flashes %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ label }}">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endfor %}
-
-                        <div class="mb-3">
+        {{ form_start(form) }}
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
                             {{ form_label(form.name) }}
-                            {{ form_widget(form.name) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
                             {{ form_errors(form.name) }}
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-group mb-3">
                             {{ form_label(form.type) }}
-                            {{ form_widget(form.type) }}
+                            {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
                             {{ form_errors(form.type) }}
-                            <div class="form-text">
-                                Select the type of content for this category. Supported formats:
-                                <ul class="mt-2 mb-0">
-                                    <li><strong>Image:</strong> JPEG, PNG, GIF, WebP</li>
-                                    <li><strong>Video:</strong> MP4, WebM, OGG</li>
-                                    <li><strong>Audio:</strong> MP3, OGG, WAV, WebM</li>
-                                </ul>
-                            </div>
+                            <div class="form-text">Select the type of content for this category</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-group mb-3">
                             {{ form_label(form.description) }}
-                            {{ form_widget(form.description) }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}
                             {{ form_errors(form.description) }}
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary">Create Category</button>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Allowed File Types</label>
+                            <div class="form-text">
+                                {% if category.type %}
+                                    {% for mime_type in category.allowedMimeTypes %}
+                                        <span class="badge bg-secondary me-1">{{ mime_type }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">Select a type to see allowed file types</span>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <a href="{{ path('app_category_index') }}" class="btn btn-link">Cancel</a>
+            </div>
         </div>
         {{ form_end(form) }}
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.querySelector('#category_type');
+            const mimeTypesContainer = document.querySelector('.form-text');
+
+            typeSelect.addEventListener('change', function() {
+                const selectedType = this.value;
+                if (selectedType) {
+                    fetch(`{{ path('app_category_info', {'id': category.id|default('new') }) }}?type=${selectedType}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.allowedMimeTypes && Array.isArray(data.allowedMimeTypes)) {
+                                let html = '';
+                                data.allowedMimeTypes.forEach(mimeType => {
+                                    html += `<span class="badge bg-secondary me-1">${mimeType}</span>`;
+                                });
+                                mimeTypesContainer.innerHTML = html;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            mimeTypesContainer.innerHTML = '<span class="text-danger">Error loading MIME types</span>';
+                        });
+                } else {
+                    mimeTypesContainer.innerHTML = '<span class="text-muted">Select a type to see allowed file types</span>';
+                }
+            });
+        });
+    </script>
 {% endblock %}

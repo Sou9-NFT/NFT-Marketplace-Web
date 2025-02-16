@@ -8,6 +8,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CategoryType extends AbstractType
@@ -15,30 +17,28 @@ class CategoryType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, [
-                'label' => 'Category Name',
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => 'Enter category name'
-                ]
-            ])
+            ->add('name', TextType::class)
             ->add('type', ChoiceType::class, [
-                'label' => 'Content Type',
                 'choices' => [
-                    'Image' => 'image',
-                    'Video' => 'video',
-                    'Audio' => 'audio'
+                    'Image' => Category::TYPE_IMAGE,
+                    'Video' => Category::TYPE_VIDEO,
+                    'Audio' => Category::TYPE_AUDIO
                 ],
-                'attr' => ['class' => 'form-control']
+                'placeholder' => 'Select a type'
             ])
-            ->add('description', TextareaType::class, [
-                'label' => 'Description',
-                'attr' => [
-                    'class' => 'form-control',
-                    'rows' => 4,
-                    'placeholder' => 'Enter category description'
-                ]
-            ]);
+            ->add('description', TextareaType::class);
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            $data = $event->getData();
+            $form = $event->getForm();
+            
+            if (isset($data['type']) && $data['type']) {
+                $category = $form->getData();
+                if ($category) {
+                    $category->setType($data['type']);
+                }
+            }
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
