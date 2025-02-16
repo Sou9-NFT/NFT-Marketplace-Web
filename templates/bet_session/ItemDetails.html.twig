@@ -75,7 +75,7 @@
                                             <li class="single-tab-list d-flex align-items-center">
                                                 <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
                                                 <p class="m-0">Bid listed for
-                                                    <strong>{{ bid.bidValue }} ETH</strong>
+                                                    <strong>{{ bid.bidValue }} Dannous</strong>
 													{{ bid.bidTime|date('d M Y H:i:s') }}
                                                     <br>by
                                                     <a href="author.html">@{{ bid.author.name }}</a>
@@ -92,7 +92,7 @@
                                             <li class="single-tab-list d-flex align-items-center">
                                                 <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_6.jpg') }}" alt="">
                                                 <p class="m-0">Bid listed for
-                                                    <strong>{{ bid.bidValue }} ETH</strong>
+                                                    <strong>{{ bid.bidValue }} Dannous</strong>
                                                     {{ bid.bidTime|date('d M Y H:i:s') }}
                                                     <br>by
                                                     <a href="author.html">@{{ bid.author.name }}</a>
@@ -172,12 +172,12 @@
                                     <div class="form-group">
                                         <label for="bidValue">Enter Your Bid</label>
                                         <input type="number" class="form-control" id="bidValue" name="bidValue" placeholder="Enter bid amount" required>
-                                        {% for error in app.flashes('error') %}
+                                        {% for error in app.flashes('error_bid') %}
                                             <div class="alert alert-danger mt-2">
                                                 {{ error }}
                                             </div>
                                         {% endfor %}
-                                        {% for message in app.flashes('success') %}
+                                        {% for message in app.flashes('success_bid') %}
                                             <div class="alert alert-success mt-2">
                                                 {{ message }}
                                             </div>

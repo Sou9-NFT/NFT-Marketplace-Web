@@ -27,10 +27,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         message: 'The email {{ value }} is not a valid email.',
         mode: 'strict'
     )]
-    #[Assert\Contains(
-        needle: '@',
-        message: 'The email must contain @'
-    )]
     private ?string $email = null;
 
     /**
