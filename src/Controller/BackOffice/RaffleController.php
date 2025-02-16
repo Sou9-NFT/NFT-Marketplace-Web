@@ -103,7 +103,7 @@ class RaffleController extends AbstractController
     {
         $this->checkAndUpdateRaffleStatus($raffle);
         
-        return $this->render('raffle/raffleback.html.twig', [
+        return $this->render('raffle/show_back.html.twig', [
             'raffle' => $raffle,
         ]);
     }

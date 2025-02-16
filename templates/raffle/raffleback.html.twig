@@ -34,70 +34,60 @@
                                 {% endfor %}
                             {% endfor %}
 
-                            <!-- Simple Table -->
-                            <table class="table table-striped datatable">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">ID</th>
-                                        <th scope="col">Title</th>
-                                        <th scope="col">Description</th>
-                                        <th scope="col">Creator</th>
-                                        <th scope="col">Start Time</th>
-                                        <th scope="col">End Time</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for raffle in raffles %}
+                            {% if raffles is defined and raffles|length > 0 %}
+                                <!-- Simple Table -->
+                                <table class="table table-striped datatable">
+                                    <thead>
                                         <tr>
-                                            <td>{{ raffle.id }}</td>
-                                            <td>{{ raffle.title }}</td>
-                                            <td>
-                                                {% if raffle.raffleDescription %}
-                                                    {{ raffle.raffleDescription|length > 50 ? raffle.raffleDescription|slice(0, 50) ~ '...' : raffle.raffleDescription }}
-                                                {% else %}
-                                                    <span class="text-muted">No description</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if raffle.creator %}
-                                                    {{ raffle.creator.email }}
-                                                {% else %}
-                                                    <span class="text-muted">Unknown</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ raffle.startTime ? raffle.startTime|date('Y-m-d H:i') : '' }}</td>
-                                            <td>{{ raffle.endTime ? raffle.endTime|date('Y-m-d H:i') : '' }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ raffle.status == 'active' ? 'success' : 'secondary' }}">
-                                                    {{ raffle.status|title }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="{{ path('app_back_raffle_edit', {'id': raffle.id}) }}" class="btn btn-primary btn-sm" title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <a href="{{ path('app_back_raffle_show', {'id': raffle.id}) }}" class="btn btn-info btn-sm" title="View">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <form method="post" action="{{ path('app_back_raffle_delete', {'id': raffle.id}) }}" style="display: inline-block" onsubmit="return confirm('Are you sure you want to delete this raffle?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
-                                                        <button type="submit" class="btn btn-danger btn-sm" title="Delete">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Description</th>
+                                            <th scope="col">Creator</th>
+                                            <th scope="col">Start Time</th>
+                                            <th scope="col">End Time</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Actions</th>
                                         </tr>
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="8" class="text-center">No raffles found</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {% for raffle in raffles %}
+                                            <tr>
+                                                <td>{{ raffle.id }}</td>
+                                                <td>{{ raffle.title }}</td>
+                                                <td>{{ raffle.raffleDescription|slice(0, 50) }}...</td>
+                                                <td>{{ raffle.creatorName }}</td>
+                                                <td>{{ raffle.startTime ? raffle.startTime|date('Y-m-d H:i') : '' }}</td>
+                                                <td>{{ raffle.endTime ? raffle.endTime|date('Y-m-d H:i') : '' }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ raffle.status == 'active' ? 'success' : 'danger' }}">
+                                                        {{ raffle.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{{ path('app_back_raffle_show', {'id': raffle.id}) }}" class="btn btn-info btn-sm">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        <a href="{{ path('app_back_raffle_edit', {'id': raffle.id}) }}" class="btn btn-warning btn-sm">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <form method="post" action="{{ path('app_back_raffle_delete', {'id': raffle.id}) }}" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this raffle?');">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
+                                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    No raffles found. Click the "Add New Raffle" button to create one.
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
