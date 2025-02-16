@@ -91,6 +91,10 @@ final class BetSessionController extends AbstractController
     #[Route('/new', name: 'app_bet_session_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $betSession = new BetSession();
         $form = $this->createForm(BetSessionType::class, $betSession);
         $form->handleRequest($request);
@@ -98,15 +102,13 @@ final class BetSessionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var User $user */
             $user = $this->getUser();
-                $entityManager->persist($user);
-                $betSession->setAuthor($user);
-                $betSession->setCurrentPrice($betSession->getInitialPrice());
-                $entityManager->persist($betSession);
-                $entityManager->flush();
-                return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
-  
+            $betSession->setAuthor($user);
+            $betSession->setCurrentPrice($betSession->getInitialPrice());
+            $entityManager->persist($betSession);
+            $entityManager->flush();
+            return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
-     
+
         return $this->render('bet_session/new.html.twig', [
             'bet_session' => $betSession,
             'form' => $form->createView(),
@@ -142,6 +144,9 @@ final class BetSessionController extends AbstractController
     #[Route('/{id}/edit', name: 'app_bet_session_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, BetSession $betSession, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
         $form = $this->createForm(BetSessionType::class, $betSession);
         $form->handleRequest($request);
 
@@ -174,6 +179,9 @@ final class BetSessionController extends AbstractController
     #[Route('/ItemDetails/{id}', name: 'app_item_details', methods: ['GET'])]
     public function ItemDetails(int $id, BetSessionRepository $betSessionRepository , BidRepository $bidRepository): Response
     {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
         $betSession = $betSessionRepository->find($id);
 
         if (!$betSession) {
