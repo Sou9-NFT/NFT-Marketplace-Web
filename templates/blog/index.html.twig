@@ -80,6 +80,9 @@
                             
                             <div class="meta-info mb-3">
                                 <small class="text-muted">
+                                    <i class="far fa-user"></i> {{ blog.user ? blog.user.name : 'Anonymous' }}
+                                </small>
+                                <small class="text-muted ml-3">
                                     <i class="far fa-calendar-alt"></i> {{ blog.date ? blog.date|date('M d, Y') : 'N/A' }}
                                 </small>
                                 <small class="text-muted ml-3">

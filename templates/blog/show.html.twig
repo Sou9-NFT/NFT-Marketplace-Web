@@ -26,6 +26,11 @@
             
             <div class="meta-info mb-4">
                 <span class="meta-item">
+                    <i class="far fa-user text-purple"></i>
+                    <span class="ml-2">{{ blog.user ? blog.user.name : 'Anonymous' }}</span>
+                </span>
+                <span class="meta-divider">•</span>
+                <span class="meta-item">
                     <i class="far fa-calendar-alt text-purple"></i>
                     <span class="ml-2">{{ blog.date ? blog.date|date('F d, Y') : 'N/A' }}</span>
                 </span>
