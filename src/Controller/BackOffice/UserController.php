@@ -41,8 +41,6 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($user);
             $this->entityManager->flush();
-
-            $this->addFlash('success', 'User created successfully.');
             return $this->redirectToRoute('app_back_user_index');
         }
 
@@ -68,8 +66,6 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
-
-            $this->addFlash('success', 'User updated successfully.');
             return $this->redirectToRoute('app_back_user_index');
         }
 
