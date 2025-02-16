@@ -20,21 +20,24 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
+                'label' => 'Full Name',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter your name',
                     ]),
                     new Length([
                         'min' => 2,
-                        'minMessage' => 'Your name should be at least {{ limit }} characters',
-                        'max' => 50,
+                        'max' => 32,
+                        'minMessage' => 'Your name must be at least {{ limit }} characters long',
+                        'maxMessage' => 'Your name cannot be longer than {{ limit }} characters',
                     ]),
                 ],
             ])
             ->add('email', EmailType::class, [
+                'label' => 'Email Address',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Please enter your email',
+                        'message' => 'Please enter your email address',
                     ]),
                 ],
             ])
@@ -42,13 +45,14 @@ class RegistrationFormType extends AbstractType
                 'mapped' => false,
                 'constraints' => [
                     new IsTrue([
-                        'message' => 'You should agree to our terms.',
+                        'message' => 'You must agree to our terms and conditions to register',
                     ]),
                 ],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
                 'required' => true,
+                'label' => 'Password',
                 'attr' => ['autocomplete' => 'new-password'],
                 'constraints' => [
                     new NotBlank([
@@ -56,8 +60,9 @@ class RegistrationFormType extends AbstractType
                     ]),
                     new Length([
                         'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
-                        'max' => 4096,
+                        'max' => 50,
+                        'minMessage' => 'Your password must be at least {{ limit }} characters long',
+                        'maxMessage' => 'Your password cannot be longer than {{ limit }} characters',
                     ]),
                 ],
             ])
