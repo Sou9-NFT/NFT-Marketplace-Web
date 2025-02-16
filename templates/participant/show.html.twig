@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Participant Details{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Participant Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-sm-4">Name:</div>
+                            <div class="col-sm-8">{{ participant.name }}</div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-sm-4">Raffle:</div>
+                            <div class="col-sm-8">
+                                {% if participant.raffle %}
+                                    <div>
+                                        {% if participant.raffle.raffleDescription %}
+                                            {{ participant.raffle.raffleDescription }}
+                                        {% else %}
+                                            Raffle #{{ participant.raffle.id }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="badge bg-{{ participant.raffle.status == 'active' ? 'success' : 'secondary' }}">
+                                            {{ participant.raffle.status|capitalize }}
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">No raffle associated</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-sm-4">Joined At:</div>
+                            <div class="col-sm-8">
+                                {% if participant.joinedAt %}
+                                    {{ participant.joinedAt|date('Y-m-d H:i:s') }}
+                                {% else %}
+                                    <span class="text-muted">Not set</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if participant.raffle and participant.raffle.winnerId == participant.id %}
+                            <div class="alert alert-success mt-3">
+                                <i class="bi bi-trophy me-1"></i>
+                                Congratulations! You are the winner of this raffle!
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ path('app_participant_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

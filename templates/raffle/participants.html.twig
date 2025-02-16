@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Raffle Participants{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            Participants for Raffle: 
+                            {% if raffle.raffleDescription %}
+                                {{ raffle.raffleDescription }}
+                            {% else %}
+                                #{{ raffle.id }}
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if raffle.participants|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Joined At</th>
+                                            {% if raffle.status == 'ended' and raffle.winnerId %}
+                                                <th>Status</th>
+                                            {% endif %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for participant in raffle.participants %}
+                                            <tr>
+                                                <td>{{ participant.name }}</td>
+                                                <td>{{ participant.joinedAt ? participant.joinedAt|date('Y-m-d H:i:s') : 'N/A' }}</td>
+                                                {% if raffle.status == 'ended' and raffle.winnerId %}
+                                                    <td>
+                                                        {% if raffle.winnerId == participant.id %}
+                                                            <span class="badge bg-success">Winner</span>
+                                                        {% endif %}
+                                                    </td>
+                                                {% endif %}
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info mb-0">
+                                No participants have joined this raffle yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Raffle
+                        </a>
+                        {% if raffle.status == 'active' %}
+                            <a href="{{ path('app_raffle_join', {'id': raffle.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-person-plus"></i> Join Raffle
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

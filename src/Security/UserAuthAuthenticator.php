@@ -21,13 +21,13 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'app_login';
+    public const BACK_LOGIN_ROUTE = 'back_login';
 
     public function __construct(private UrlGeneratorInterface $urlGenerator) {}
 
     public function authenticate(Request $request): Passport
     {
         $email = $request->getPayload()->getString('email');
-
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         return new Passport(
@@ -46,12 +46,32 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // Redirect to the home page after successful authentication
+        $route = $request->attributes->get('_route');
+        $user = $token->getUser();
+        $isBackOffice = str_starts_with($request->getPathInfo(), '/back');
+        $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
+
+        // Handle back office login attempts
+        if ($isBackOffice) {
+            if ($isAdmin) {
+                return new RedirectResponse($this->urlGenerator->generate('app_home_page_back'));
+            } else {
+                return new RedirectResponse($this->urlGenerator->generate('app_access_denied'));
+            }
+        }
+
+        // For front office, allow both admin and regular users
         return new RedirectResponse($this->urlGenerator->generate('app_home_page'));
     }
 
     protected function getLoginUrl(Request $request): string
     {
+        // If trying to access back office, use back office login
+        if (str_starts_with($request->getPathInfo(), '/back')) {
+            return $this->urlGenerator->generate(self::BACK_LOGIN_ROUTE);
+        }
+        
+        // Otherwise use regular login
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }
 }

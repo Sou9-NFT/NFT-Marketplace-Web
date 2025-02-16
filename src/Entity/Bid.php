@@ -76,4 +76,10 @@ class Bid
         $this->author = $author;
         return $this;
     }
+    public function __construct()
+    {
+     
+        $this->bidTime = new \DateTimeImmutable();
+      
+    }
 }

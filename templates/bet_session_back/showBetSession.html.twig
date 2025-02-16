@@ -1,0 +1,84 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}BetSession Details{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>BetSession Details</h1>
+                <a href="{{ path('app_bet_session_index') }}" class="btn btn-secondary">Back to list</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Id</th>
+                            <td>{{ bet_session.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Start Time</th>
+                            <td>{{ bet_session.startTime ? bet_session.startTime|date('Y-m-d H:i:s') : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>End Time</th>
+                            <td>{{ bet_session.endTime ? bet_session.endTime|date('Y-m-d H:i:s') : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Item</th>
+                            <td>{{ bet_session.artwork ? bet_session.artwork.title : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>{{ bet_session.status }}</td>
+                        </tr>
+                        <tr>
+                            <th>Initial Price</th>
+                            <td>{{ bet_session.initialPrice }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h2>Author Information</h2>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <td>{{ bet_session.author.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ bet_session.author.email }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h2>Item Information</h2>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Title</th>
+                            <td>{{ bet_session.artwork.title }}</td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>{{ bet_session.artwork.description }}</td>
+                        </tr>
+                        <tr>
+                            <th>Creation Date</th>
+                            <td>{{ bet_session.artwork.createdAt ? bet_session.artwork.createdAt|date('Y-m-d') : '' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

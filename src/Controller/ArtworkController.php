@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Artwork;
 use App\Form\ArtworkType;
 use App\Repository\ArtworkRepository;
-use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,24 +23,32 @@ class ArtworkController extends AbstractController
     }
 
     #[Route('/new', name: 'app_artwork_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $artwork = new Artwork();
         $form = $this->createForm(ArtworkType::class, $artwork);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('imageFile')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile);
-                $artwork->setImageName($imageFileName);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                try {
+                    $entityManager->beginTransaction();
+                    
+                    $entityManager->persist($artwork);
+                    $entityManager->flush();
+                    
+                    $entityManager->commit();
+                    $this->addFlash('success', 'Artwork created successfully.');
+                    return $this->redirectToRoute('app_artwork_index');
+                } catch (\Exception $e) {
+                    $entityManager->rollback();
+                    $this->addFlash('error', 'An error occurred while saving the artwork. Please try again.');
+                }
+            } else {
+                foreach ($form->getErrors(true) as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
             }
-
-            $entityManager->persist($artwork);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Artwork created successfully');
-            return $this->redirectToRoute('app_artwork_index');
         }
 
         return $this->render('artwork/new.html.twig', [
@@ -59,22 +66,29 @@ class ArtworkController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_artwork_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Artwork $artwork, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
+    public function edit(Request $request, Artwork $artwork, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(ArtworkType::class, $artwork);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('imageFile')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile);
-                $artwork->setImageName($imageFileName);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                try {
+                    $entityManager->beginTransaction();
+                    $entityManager->flush();
+                    $entityManager->commit();
+                    
+                    $this->addFlash('success', 'Artwork updated successfully.');
+                    return $this->redirectToRoute('app_artwork_index');
+                } catch (\Exception $e) {
+                    $entityManager->rollback();
+                    $this->addFlash('error', 'An error occurred while updating the artwork. Please try again.');
+                }
+            } else {
+                foreach ($form->getErrors(true) as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
             }
-
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Artwork updated successfully');
-            return $this->redirectToRoute('app_artwork_index');
         }
 
         return $this->render('artwork/edit.html.twig', [
@@ -87,9 +101,13 @@ class ArtworkController extends AbstractController
     public function delete(Request $request, Artwork $artwork, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$artwork->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($artwork);
-            $entityManager->flush();
-            $this->addFlash('success', 'Artwork deleted successfully');
+            try {
+                $entityManager->remove($artwork);
+                $entityManager->flush();
+                $this->addFlash('success', 'Artwork deleted successfully.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while deleting the artwork.');
+            }
         }
 
         return $this->redirectToRoute('app_artwork_index');

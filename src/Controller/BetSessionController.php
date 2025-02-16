@@ -6,6 +6,7 @@ use App\Entity\BetSession;
 use App\Entity\User;
 use App\Form\BetSessionType;
 use App\Repository\BetSessionRepository;
+use App\Repository\BidRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -102,7 +103,6 @@ final class BetSessionController extends AbstractController
                 $betSession->setCurrentPrice($betSession->getInitialPrice());
                 $entityManager->persist($betSession);
                 $entityManager->flush();
-                $this->addFlash('success', 'Bet session created successfully.');
                 return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
   
         }
@@ -172,7 +172,7 @@ final class BetSessionController extends AbstractController
     }
 
     #[Route('/ItemDetails/{id}', name: 'app_item_details', methods: ['GET'])]
-    public function ItemDetails(int $id, BetSessionRepository $betSessionRepository): Response
+    public function ItemDetails(int $id, BetSessionRepository $betSessionRepository , BidRepository $bidRepository): Response
     {
         $betSession = $betSessionRepository->find($id);
 
@@ -180,12 +180,22 @@ final class BetSessionController extends AbstractController
             throw $this->createNotFoundException('The bet session does not exist');
         }
 
+        $bids = $bidRepository->createQueryBuilder('b')
+        ->where('b.betSession = :betSession')
+        ->setParameter('betSession', $betSession)
+        ->orderBy('b.bidTime', 'DESC')
+        ->setMaxResults(3)
+        ->getQuery()
+        ->getResult();
+
+
          if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             /** @var User $user */
             $user = $this->getUser();
             if ($betSession->getAuthor()->getId() === $user->getId()) {
                 return $this->render('bet_session/MyItemsDetail.html.twig', [
                     'bet_session' => $betSession,
+                    'bids' => $bids,
                 ]);
             }
         }
@@ -201,10 +211,11 @@ final class BetSessionController extends AbstractController
             ->getResult();
 
      
-
+     
         return $this->render('bet_session/ItemDetails.html.twig', [
             'bet_session' => $betSession,
             'live_bet_sessions' => $activeBetSessions,
+            'bids' => $bids,
         ]);
     }
 }

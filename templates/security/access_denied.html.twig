@@ -1,0 +1,63 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .lock-icon {
+        font-size: 5rem;
+        color: #e74c3c;
+        margin-bottom: 1.5rem;
+    }
+    .access-denied-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 3rem 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-top: 2rem;
+    }
+    .access-denied-title {
+        color: #e74c3c;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .access-denied-message {
+        color: #666;
+        margin-bottom: 2rem;
+    }
+    .btn-main-menu {
+        background: #2ecc71;
+        color: #fff;
+        padding: 12px 30px;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .btn-main-menu:hover {
+        background: #27ae60;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- ***** Access Denied Area Start ***** -->
+<section class="author-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <div class="access-denied-card text-center">
+                    <i class="fas fa-lock lock-icon"></i>
+                    <h2 class="access-denied-title">Access Denied</h2>
+                    <p class="access-denied-message">You don't have the required permissions to access the admin area. This section is restricted to administrators only.</p>
+                    <a href="{{ path('app_home_page') }}" class="btn-main-menu">
+                        <i class="fas fa-home me-2"></i>Go to Main Menu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

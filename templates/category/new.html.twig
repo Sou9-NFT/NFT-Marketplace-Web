@@ -6,65 +6,53 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Create New Category</h1>
-            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">Back to list</a>
+            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
         </div>
 
         {{ form_start(form) }}
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
                             {{ form_label(form.name) }}
-                            {{ form_widget(form.name) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
                             {{ form_errors(form.name) }}
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-group mb-3">
                             {{ form_label(form.type) }}
-                            {{ form_widget(form.type) }}
+                            {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
                             {{ form_errors(form.type) }}
-                            <div class="form-text">Select the type of NFT this category will contain</div>
+                            <div class="form-text">Select the type of content for this category</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-group mb-3">
                             {{ form_label(form.description) }}
-                            {{ form_widget(form.description) }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}
                             {{ form_errors(form.description) }}
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label required">Allowed MIME Types</label>
-                            <div class="mime-types-wrapper"
-                                 data-prototype="{{ form_widget(form.allowedMimeTypes.vars.prototype)|e('html_attr') }}">
-                                {% if form.allowedMimeTypes|length > 0 %}
-                                    {% for mimeTypeField in form.allowedMimeTypes %}
-                                        <div class="input-group mb-2">
-                                            {{ form_widget(mimeTypeField) }}
-                                            <button type="button" class="btn btn-danger remove-mime-type">
-                                                <i class="fas fa-times"></i> Remove
-                                            </button>
-                                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Allowed File Types</label>
+                            <div class="form-text">
+                                {% if category.type %}
+                                    {% for mime_type in category.allowedMimeTypes %}
+                                        <span class="badge bg-secondary me-1">{{ mime_type }}</span>
                                     {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">Select a type to see allowed file types</span>
                                 {% endif %}
                             </div>
-                            {{ form_errors(form.allowedMimeTypes) }}
-                            <button type="button" class="btn btn-secondary mt-2 add-mime-type">
-                                <i class="fas fa-plus"></i> Add MIME Type
-                            </button>
-                            <div class="form-text mt-2">
-                                Common MIME types:<br>
-                                - Images: image/jpeg, image/png, image/webp<br>
-                                - Videos: video/mp4, video/webm<br>
-                                - Audio: audio/mpeg, audio/wav
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">Create Category</button>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <a href="{{ path('app_category_index') }}" class="btn btn-link">Cancel</a>
             </div>
         </div>
         {{ form_end(form) }}
@@ -75,66 +63,31 @@
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let mimeTypesWrapper = document.querySelector('.mime-types-wrapper');
-            let addButton = document.querySelector('.add-mime-type');
-            let prototype = mimeTypesWrapper.dataset.prototype;
-            let index = document.querySelectorAll('.mime-types-wrapper .input-group').length;
+            const typeSelect = document.querySelector('#category_type');
+            const mimeTypesContainer = document.querySelector('.form-text');
 
-            // Function to update MIME types based on selected category type
-            function updateDefaultMimeTypes() {
-                const typeSelect = document.querySelector('#category_type');
-                const selectedType = typeSelect.value;
-                
-                if (selectedType && mimeTypesWrapper.children.length === 0) {
-                    let defaultTypes = [];
-                    switch(selectedType) {
-                        case 'image':
-                            defaultTypes = ['image/jpeg', 'image/png', 'image/webp'];
-                            break;
-                        case 'video':
-                            defaultTypes = ['video/mp4', 'video/webm'];
-                            break;
-                        case 'audio':
-                            defaultTypes = ['audio/mpeg', 'audio/wav'];
-                            break;
-                    }
-                    
-                    // Add default MIME types
-                    defaultTypes.forEach(type => {
-                        addMimeTypeField(type);
-                    });
-                }
-            }
-
-            function addMimeTypeField(value = '') {
-                let newForm = prototype.replace(/__name__/g, index);
-                let div = document.createElement('div');
-                div.classList.add('input-group', 'mb-2');
-                div.innerHTML = newForm + '<button type="button" class="btn btn-danger remove-mime-type"><i class="fas fa-times"></i> Remove</button>';
-                mimeTypesWrapper.appendChild(div);
-                
-                if (value) {
-                    div.querySelector('input').value = value;
-                }
-                
-                index++;
-            }
-
-            addButton.addEventListener('click', function() {
-                addMimeTypeField();
-            });
-
-            mimeTypesWrapper.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-mime-type') || e.target.closest('.remove-mime-type')) {
-                    e.target.closest('.input-group').remove();
+            typeSelect.addEventListener('change', function() {
+                const selectedType = this.value;
+                if (selectedType) {
+                    fetch(`{{ path('app_category_info', {'id': category.id|default('new') }) }}?type=${selectedType}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.allowedMimeTypes && Array.isArray(data.allowedMimeTypes)) {
+                                let html = '';
+                                data.allowedMimeTypes.forEach(mimeType => {
+                                    html += `<span class="badge bg-secondary me-1">${mimeType}</span>`;
+                                });
+                                mimeTypesContainer.innerHTML = html;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            mimeTypesContainer.innerHTML = '<span class="text-danger">Error loading MIME types</span>';
+                        });
+                } else {
+                    mimeTypesContainer.innerHTML = '<span class="text-muted">Select a type to see allowed file types</span>';
                 }
             });
-
-            // Listen for category type changes
-            document.querySelector('#category_type').addEventListener('change', updateDefaultMimeTypes);
-            
-            // Initial setup if type is already selected
-            updateDefaultMimeTypes();
         });
     </script>
 {% endblock %}

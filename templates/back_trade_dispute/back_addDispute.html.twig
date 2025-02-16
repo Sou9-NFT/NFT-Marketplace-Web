@@ -1,0 +1,34 @@
+{# templates/back_trade_dispute/back_addDispute.html.twig #}
+
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Create New Trade Dispute{% endblock %}
+
+{% block content %}
+<h1><center>Create Trade Dispute</center></h1>
+<br><br>
+<div class="table-responsive" style="max-width: 600px; margin: auto;">
+    {# Add enctype="multipart/form-data" to enable file upload #}
+    {{ form_start(form, {'enctype': 'multipart/form-data'}) }}
+    <table class="table table-sm table-bordered">
+        <tbody>
+            {% for field in form %}
+                {% if field.vars.name != 'offered_item' and field.vars.name != 'received_item' %}
+                    <tr>
+                        <th style="width: 200px;">{{ form_label(field) }}</th>
+                        <td>{{ form_widget(field, {'attr': {'class': 'form-control form-control-sm'}}) }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="mt-2 text-center">
+        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+    </div>
+    {{ form_end(form) }}
+</div>
+
+<div class="text-center mt-2">
+    <a href="{{ path('app_trade_dispute_back') }}" class="btn btn-secondary btn-sm">Back to list</a>
+</div>
+{% endblock %}

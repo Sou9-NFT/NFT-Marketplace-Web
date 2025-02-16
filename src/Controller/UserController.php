@@ -57,13 +57,9 @@ class UserController extends AbstractController
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function show(User $user): Response
     {
-        $currentUser = $this->getUser();
-        if (!$currentUser instanceof User || ($currentUser->getId() !== $user->getId() && !$this->isGranted('ROLE_ADMIN'))) {
-            throw new AccessDeniedException('You can only view your own profile unless you are an admin.');
-        }
-
         return $this->render('user/show.html.twig', [
             'user' => $user,
+            'canEdit' => $this->isGranted('ROLE_ADMIN') || $this->getUser()->getId() === $user->getId(),
         ]);
     }
 
@@ -79,39 +75,47 @@ class UserController extends AbstractController
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $profilePictureFile = $form->get('profilePicture')->getData();
+        if ($form->isSubmitted()) {
+            $profilePictureFile = $form->get('profilePicture')->getData();
 
-                if ($profilePictureFile) {
-                    $originalFilename = pathinfo($profilePictureFile->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $profilePictureFile->guessExtension();
-
-                    $uploadsDirectory = $this->getParameter('profile_pictures_directory');
-                    if (!file_exists($uploadsDirectory)) {
-                        mkdir($uploadsDirectory, 0777, true);
+            if ($profilePictureFile) {
+                $form->isValid();
+            } else {
+                if ($form->isValid()) {
+                    try {
+                        $userRepository->save($user, true);
+                        return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+                    } catch (\Exception $e) {
+                        $this->addFlash('error', 'Error updating profile.');
                     }
+                }
+            }
 
-                    $profilePictureFile->move($uploadsDirectory, $newFilename);
+            if ($profilePictureFile) {
+                $originalFilename = pathinfo($profilePictureFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $profilePictureFile->guessExtension();
 
-                    $oldFilename = $user->getProfilePicture();
-                    if ($oldFilename) {
-                        $oldFilePath = $uploadsDirectory . '/' . $oldFilename;
-                        if (file_exists($oldFilePath)) {
-                            unlink($oldFilePath);
-                        }
-                    }
-
-                    $user->setProfilePicture($newFilename);
-                    $this->entityManager->persist($user);
-                    $this->entityManager->flush();
+                $uploadsDirectory = $this->getParameter('profile_pictures_directory');
+                if (!file_exists($uploadsDirectory)) {
+                    mkdir($uploadsDirectory, 0777, true);
                 }
 
+                $profilePictureFile->move($uploadsDirectory, $newFilename);
+
+                $oldFilename = $user->getProfilePicture();
+                if ($oldFilename) {
+                    $oldFilePath = $uploadsDirectory . '/' . $oldFilename;
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+
+                $user->setProfilePicture($newFilename);
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
                 $userRepository->save($user, true);
                 return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Error updating profile picture.');
             }
         }
 

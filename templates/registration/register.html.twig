@@ -3,7 +3,6 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-
 <div class="main">
     <!-- ***** Signup Area Start ***** -->
     <section class="author-area">
@@ -14,60 +13,100 @@
                     <div class="intro text-center">
                         <span>Signup</span>
                         <h3 class="mt-3 mb-0">Create an Account</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum obcaecati dignissimos quae quo ad iste ipsum officiis deleniti asperiores sit.</p>
+                        <p>Create your account to start exploring and trading NFTs.</p>
                     </div>
+
                     <!-- Item Form -->
-                    {{ form_start(registrationForm, {'attr': {'class': 'item-form card no-hover'}}) }}
+                    {{ form_start(registrationForm, {
+                        'attr': {
+                            'class': 'item-form card no-hover p-4',
+                            'novalidate': 'novalidate'
+                        }
+                    }) }}
+                    
                     <div class="row">
                         <div class="col-12">
-                            <div class="form-group mt-3">
-                                {{ form_row(registrationForm.name, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Name', 'required': 'required'}}) }}
+                            <div class="form-group">
+                                {{ form_label(registrationForm.name, null, {
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                                {{ form_widget(registrationForm.name, {
+                                    'attr': {
+                                        'class': 'form-control' ~ (registrationForm.name.vars.valid ? '' : ' is-invalid'),
+                                        'placeholder': 'Enter your Name'
+                                    }
+                                }) }}
+                                {% if not registrationForm.name.vars.valid %}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(registrationForm.name) }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                {{ form_row(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Email'}}) }}
+                                {{ form_label(registrationForm.email, null, {
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                                {{ form_widget(registrationForm.email, {
+                                    'attr': {
+                                        'class': 'form-control' ~ (registrationForm.email.vars.valid ? '' : ' is-invalid'),
+                                        'placeholder': 'Enter your Email'
+                                    }
+                                }) }}
+                                {% if not registrationForm.email.vars.valid %}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(registrationForm.email) }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                {{ form_row(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Enter your Password'}}) }}
+                                {{ form_label(registrationForm.plainPassword, null, {
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                                {{ form_widget(registrationForm.plainPassword, {
+                                    'attr': {
+                                        'class': 'form-control' ~ (registrationForm.plainPassword.vars.valid ? '' : ' is-invalid'),
+                                        'placeholder': 'Enter your Password'
+                                    }
+                                }) }}
+                                {% if not registrationForm.plainPassword.vars.valid %}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(registrationForm.plainPassword) }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group mt-3">
-                                <div class="form-check form-check-inline">
-                                    {{ form_row(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
-                                    <label class="form-check-label" for="registrationForm_agreeTerms">I agree to <a href="#">Privacy Policy</a></label>
+                                <div class="form-check">
+                                    {{ form_widget(registrationForm.agreeTerms, {
+                                        'attr': {
+                                            'class': 'form-check-input' ~ (registrationForm.agreeTerms.vars.valid ? '' : ' is-invalid')
+                                        }
+                                    }) }}
+                                    {{ form_label(registrationForm.agreeTerms, 'I agree to the Terms and Conditions', {
+                                        'label_attr': {
+                                            'class': 'form-check-label'
+                                        }
+                                    }) }}
+                                    {% if not registrationForm.agreeTerms.vars.valid %}
+                                        <div class="invalid-feedback">
+                                            {{ form_errors(registrationForm.agreeTerms) }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                         <div class="col-12">
-                            <button class="btn w-100 mt-3 mt-sm-4" type="submit">Sign Up</button>
+                            <button class="btn btn-primary w-100 mt-4" type="submit">
+                                Create Account
+                            </button>
                         </div>
                         <div class="col-12">
                             <span class="d-block text-center mt-4">Already have an account? <a href="{{ path('app_login') }}">Login</a></span>
-                        </div>
-                        <div class="col-12">
-                            <hr>
-                            <div class="other-option">
-                                <span class="d-block text-center mb-4">Or</span>
-                                <!-- Social Icons -->
-                                <div class="social-icons d-flex justify-content-center">
-                                    <a class="facebook" href="#">
-                                        <i class="fab fa-facebook-f"></i>
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-                                    <a class="twitter" href="#">
-                                        <i class="fab fa-twitter"></i>
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                    <a class="google-plus" href="#">
-                                        <i class="fab fa-google-plus-g"></i>
-                                        <i class="fab fa-google-plus-g"></i>
-                                    </a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     {{ form_end(registrationForm) }}
@@ -76,5 +115,5 @@
         </div>
     </section>
     <!-- ***** Signup Area End ***** -->
-
+</div>
 {% endblock %}

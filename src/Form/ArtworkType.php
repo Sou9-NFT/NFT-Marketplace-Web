@@ -27,16 +27,14 @@ class ArtworkType extends AbstractType
             ->add('description', TextareaType::class)
             ->add('price', NumberType::class)
             ->add('imageFile', FileType::class, [
-                'label' => 'Artwork Image',
-                'mapped' => true
-            ])
-        ;
+                'label' => 'Media File'
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Artwork::class
+            'data_class' => Artwork::class,
         ]);
     }
 }

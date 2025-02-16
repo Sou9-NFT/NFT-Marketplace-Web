@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Blog;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -19,52 +18,33 @@ class BlogType extends AbstractType
             ->add('title', TextType::class, [
                 'attr' => [
                     'class' => 'form-control bg-dark text-light',
-                    'placeholder' => 'Enter blog title',
-                    'minlength' => 3,
-                    'maxlength' => 255,
+                    'placeholder' => 'Enter title'
                 ],
-                'label_attr' => [
-                    'class' => 'text-purple'
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Please enter a title',
+                    ]),
+                    new Assert\Length([
+                        'min' => 3,
+                        'max' => 255,
+                        'minMessage' => 'Title should be at least {{ limit }} characters',
+                        'maxMessage' => 'Title cannot be longer than {{ limit }} characters',
+                    ]),
                 ],
             ])
             ->add('content', TextareaType::class, [
                 'attr' => [
                     'class' => 'form-control bg-dark text-light',
-                    'placeholder' => 'Write your blog content here...',
                     'rows' => 10,
-                    'minlength' => 10,
-                    'style' => 'resize: vertical;'
-                ],
-                'label_attr' => [
-                    'class' => 'text-purple'
-                ],
-            ])
-            ->add('date', DateType::class, [
-                'widget' => 'single_text',
-                'html5' => true,
-                'attr' => [
-                    'class' => 'form-control bg-dark text-light',
-                    'max' => (new \DateTime())->modify('+1 year')->format('Y-m-d'),
-                    'min' => (new \DateTime())->modify('-1 year')->format('Y-m-d'),
-                ],
-                'label_attr' => [
-                    'class' => 'text-purple'
+                    'placeholder' => 'Write your blog post content here'
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Please select a date',
+                        'message' => 'Please enter content',
                     ]),
-                    new Assert\Type([
-                        'type' => 'object',
-                        'message' => 'Please enter a valid date',
-                    ]),
-                    new Assert\LessThanOrEqual([
-                        'value' => '+1 year',
-                        'message' => 'Date cannot be more than 1 year in the future',
-                    ]),
-                    new Assert\GreaterThanOrEqual([
-                        'value' => '-1 year',
-                        'message' => 'Date cannot be more than 1 year in the past',
+                    new Assert\Length([
+                        'min' => 10,
+                        'minMessage' => 'Content should be at least {{ limit }} characters',
                     ]),
                 ],
             ])

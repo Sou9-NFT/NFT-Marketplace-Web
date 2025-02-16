@@ -11,76 +11,59 @@
                         <h1 class="h3 mb-0 text-white">Edit Raffle #{{ raffle.id }}</h1>
                     </div>
                     <div class="card-body">
-                        {% for message in app.flashes('error') %}
-                            <div class="alert alert-danger">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-
-                        <form method="post" enctype="multipart/form-data">
+                        {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
                             <div class="mb-3">
-                                <label for="creator_name" class="form-label text-white">Creator Name</label>
-                                <input type="text" class="form-control {% if form_errors is defined and form_errors.creator_name %}is-invalid{% endif %}" 
-                                       id="creator_name" name="creator_name" value="{{ old.creator_name|default(raffle.creatorName) }}">
-                                {% if form_errors is defined and form_errors.creator_name %}
-                                    <div class="invalid-feedback">
-                                        {{ form_errors.creator_name }}
-                                    </div>
-                                {% endif %}
+                                {{ form_label(form.title, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.title) }}
                                 <div class="form-text text-muted">
-                                    Name must be between 2 and 50 characters.
+                                    Title must be between 3 and 255 characters.
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="image" class="form-label text-white">Image</label>
-                                <input type="file" class="form-control {% if form_errors is defined and form_errors.image %}is-invalid{% endif %}" 
-                                       id="image" name="image" accept="image/*">
-                                {% if form_errors is defined and form_errors.image %}
-                                    <div class="invalid-feedback">
-                                        {{ form_errors.image }}
-                                    </div>
-                                {% endif %}
-                                {% if old.image_name is defined and old.image_name %}
+                                {{ form_label(form.creator_name, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_widget(form.creator_name, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.creator_name) }}
+                                <div class="form-text text-muted">
+                                    Name must be between 2 and 255 characters.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.raffleDescription, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+                                {{ form_errors(form.raffleDescription) }}
+                                <div class="form-text text-muted">
+                                    Description must be between 10 and 1000 characters.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.image, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.image) }}
+                                {% if raffle.image %}
                                     <div class="form-text text-white">
-                                        Current file: {{ old.image_name }}
+                                        Current image: {{ raffle.image }}
                                     </div>
                                 {% endif %}
                             </div>
 
                             <div class="mb-3">
-                                <label for="start_time" class="form-label text-white">Start Time</label>
-                                <input type="datetime-local" class="form-control {% if form_errors is defined and form_errors.start_time %}is-invalid{% endif %}" 
-                                       id="start_time" name="start_time" value="{{ old.start_time|default(raffle.startTime|date('Y-m-d\\TH:i')) }}">
-                                {% if form_errors is defined and form_errors.start_time %}
-                                    <div class="invalid-feedback">
-                                        {{ form_errors.start_time }}
-                                    </div>
-                                {% endif %}
+                                {{ form_label(form.endTime, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.endTime) }}
                                 <div class="form-text text-muted">
-                                    Start time must be at least 1 minute before end time.
+                                    End time must be in the future
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="end_time" class="form-label text-white">End Time</label>
-                                <input type="datetime-local" class="form-control {% if form_errors is defined and form_errors.end_time %}is-invalid{% endif %}" 
-                                       id="end_time" name="end_time" value="{{ old.end_time|default(raffle.endTime|date('Y-m-d\\TH:i')) }}">
-                                {% if form_errors is defined and form_errors.end_time %}
-                                    <div class="invalid-feedback">
-                                        {{ form_errors.end_time }}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text text-muted">
-                                    End time must be at least 1 minute after start time.
-                                </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Update Raffle</button>
+                                <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">Cancel</a>
                             </div>
-
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">Back</a>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </div>
-                        </form>
+                        {{ form_end(form) }}
                     </div>
                 </div>
             </div>
