@@ -103,7 +103,6 @@ final class BetSessionController extends AbstractController
                 $betSession->setCurrentPrice($betSession->getInitialPrice());
                 $entityManager->persist($betSession);
                 $entityManager->flush();
-                $this->addFlash('success', 'Bet session created successfully.');
                 return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
   
         }
