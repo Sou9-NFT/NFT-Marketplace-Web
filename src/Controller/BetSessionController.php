@@ -17,6 +17,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[Route('/auctions')]
 final class BetSessionController extends AbstractController
 {
+
+    
     #[Route('/', name: 'app_bet_session_active', methods: ['GET'])]
     public function active(BetSessionRepository $betSessionRepository, Request $request): Response
     {

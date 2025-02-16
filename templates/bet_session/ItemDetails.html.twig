@@ -1,7 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Item Detail
-{% endblock %}
+{% block title %}Item Detail{% endblock %}
 
 {% block body %}
 
@@ -267,4 +266,70 @@
 			<!-- ***** Live Auctions Area End ***** -->
 		{% endif %}
 
-	{% endblock %}
+	<!-- Modal -->
+    <div class="modal fade" id="placeBidModal" tabindex="-1" role="dialog" aria-labelledby="placeBidModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="placeBidModalLabel">Place a Bid</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form to Place Bid -->
+                    <form action="{{ path('app_add_bid') }}" method="post">
+                        <input type="hidden" name="betSessionId" value="{{ bet_session.id }}">
+                        <div class="form-group">
+                            <label for="bidValue">Enter Your Bid</label>
+                            <input type="number" class="form-control" id="bidValue" name="bidValue" placeholder="Enter bid amount" required>
+                            {% for error in app.flashes('error') %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                            {% for message in app.flashes('success') %}
+                                <div class="alert alert-success mt-2">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-bordered-white btn-primary btn-block">Submit Bid</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trigger Button -->
+    <a class="d-block btn btn-bordered-white mt-4" href="#" data-toggle="modal" data-target="#placeBidModal">Place a Bid</a>
+
+    <!-- Other content -->
+</div>
+
+<script>
+    const eventSource = new EventSource('http://localhost:3000/.well-known/mercure?topic=https://example.com/bet_sessions/{{ bet_session.id }}');
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.status === 'updated') {
+            // Update the current price
+            document.querySelector('.price span').textContent = data.betSession.currentPrice + ' Dannous';
+
+            // Update the bids list
+            const bidsList = document.querySelector('.tab-content #nav-home ul');
+            const newBid = document.createElement('li');
+            newBid.classList.add('single-tab-list', 'd-flex', 'align-items-center');
+            newBid.innerHTML = `
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+                <p class="m-0">Bid listed for
+                    <strong>${data.bid.bidValue} ETH</strong>
+                    ${new Date(data.bid.bidTime).toLocaleString()}
+                    <br>by
+                    <a href="author.html">@${data.bid.author.name}</a>
+                </p>
+            `;
+            bidsList.insertBefore(newBid, bidsList.firstChild);
+        }
+    };
+</script>
+{% endblock %}
