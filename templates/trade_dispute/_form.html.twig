@@ -1,0 +1,9 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <div class="d-flex justify-content-between">
+    <a href="{{ path('app_trade_dispute_index') }}" class="btn btn-secondary btn-sm">Back to list</a>
+        <button class="btn">{{ button_label|default('Save') }}</button>
+        
+    </div>
+{{ form_end(form) }}
+<br><br><br>

@@ -33,23 +33,64 @@ class InsertDummyDataCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        // Fetch User with ID 1
+        $user = $this->entityManager->getRepository(User::class)->find(1);
+        if (!$user) {
+            $io->error('User with ID 1 not found.');
+            return Command::FAILURE;
+        }
+
         // Insert Category
         $category = new Category();
         $category->setName('Example Category');
         $category->setType('image');
         $category->setDescription('This is an example category description.');
-        $category->setAllowedMimeTypes(['image/jpeg', 'image/png']);
         $this->entityManager->persist($category);
 
-        // Insert User
+        // Create Admin User
+        // password: 123456
+        $admin = new User();
+        $admin->setEmail('admin@admin.com');
+        $admin->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+        $admin->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2');
+        $admin->setName('Admin User');
+        $admin->setBalance(500);
+        $admin->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
+        $this->entityManager->persist($admin);
+
+        // Create Regular User
+        // password: 123456
         $user = new User();
-        $user->setEmail('nessimbns2@gmail.com');
-        $user->setRoles([]);
-        $user->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2'); // hashed password
-        // password 123456789
-        $user->setName('John Doe');
+        $user->setEmail('user@user.com');
+        $user->setRoles(['ROLE_USER']);
+        $user->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2');
+        $user->setName('Regular User');
+        $user->setBalance(0);
         $user->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
         $this->entityManager->persist($user);
+
+        // Create Seller User
+        // password: 123456
+        $seller = new User();
+        $seller->setEmail('seller@artitechs.com');
+        $seller->setRoles(['ROLE_SELLER', 'ROLE_USER']);
+        $seller->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2');
+        $seller->setName('Seller User');
+        $seller->setBalance(1000);
+        $seller->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
+        $this->entityManager->persist($seller);
+
+        // Create Author User
+        // password: 123456
+        $author = new User();
+        $author->setEmail('author@artitechs.com');
+        $author->setRoles(['ROLE_AUTHOR', 'ROLE_USER']);
+        $author->setPassword('$2y$13$r98NpeevOc747TJJk0VQce/EqIWvUKv1nNiONsyL3xsEWeN33DEq2');
+        $author->setName('Author User');
+        $author->setBalance(250);
+        $author->setCreatedAt(new \DateTimeImmutable('2025-02-12 18:59:48'));
+        $this->entityManager->persist($author);
+
 
         // Insert Artwork
         $artwork = new Artwork();
@@ -58,14 +99,12 @@ class InsertDummyDataCommand extends Command
         $artwork->setDescription('This is an example description for the artwork.');
         $artwork->setPrice(100);
         $artwork->setImageName('example.jpg');
-        $artwork->setUpdatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
-        $artwork->setCreatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
         $this->entityManager->persist($artwork);
 
         // Insert BetSession
         for ($i = 2; $i <= 9; $i++) {
             $betSession = new BetSession();
-            $betSession->setAuthor($user);
+            $betSession->setAuthor($seller); // Using seller as the author for bet sessions
             $betSession->setArtwork($artwork);
             $betSession->setCreatedAt(new \DateTimeImmutable('2025-02-12 10:00:00'));
             $betSession->setEndTime(new \DateTimeImmutable('2025-02-15 10:00:00'));
@@ -75,7 +114,7 @@ class InsertDummyDataCommand extends Command
             $this->entityManager->persist($betSession);
         }
 
-        
+
         $this->entityManager->flush();
 
         $io->success('Dummy data has been inserted successfully.');
