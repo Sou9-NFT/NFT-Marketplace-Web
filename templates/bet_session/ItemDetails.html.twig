@@ -235,7 +235,11 @@
 										<div class="card">
 											<div class="image-over">
 												<a href="{{ path('app_item_details', {'id': session.id}) }}">
-													<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+													{% if session.artwork.imageName %}
+														<img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="">
+													{% else %}
+														<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+													{% endif %}
 												</a>
 											</div>
 											<!-- Card Caption -->
@@ -252,7 +256,11 @@
 														<h5 class="mb-0">{{ session.artwork.title }}</h5>
 													</a>
 													<a class="seller d-flex align-items-center my-3" href="">
-														<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+														{% if session.author.profilePicture %}
+															<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session.author.profilePicture) }}" alt="">
+														{% else %}
+															<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+														{% endif %}
 														<span class="ml-2">@Nessim</span>
 													</a>
 													<div class="card-bottom d-flex justify-content-between">

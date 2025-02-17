@@ -41,39 +41,47 @@
                     <p>No live auctions available at the moment.</p>
                 </div>
             {% else %}
-                {% for bet_session in bet_sessions %}
+                {% for session in bet_sessions %}
                     <div class="col-12 col-sm-6 col-lg-3 item">
-                        <div class="card">
-                            <div class="image-over">
-                                <a href="{{ path('app_item_details', {'id': bet_session.id}) }}">
-                                    <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
-                                </a>
-                            </div>
-                            <!-- Card Caption -->
-                            <div class="card-caption col-12 p-0">
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="countdown-times mb-3">
-                                        <div class="text-center mb-2 ">Time Remaining</div>
-                                        <div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d H:i:s') }}" data-format="datetime"></div>
-                                        <script>
-                                            console.log("Countdown date: {{ bet_session.endTime|date('Y-m-s') }}");
-                                        </script>
-                                    </div>
-                                    <a href="{{ path('app_item_details', {'id': bet_session.id}) }}">
-                                        <h5 class="mb-0"> {{ bet_session.artwork.title }}</h5>
-                                    </a>
-                                    <a class="seller d-flex align-items-center my-3" href="#">
-                                        <img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-                                        <span class="ml-2">@{{ bet_session.author.name }}</span>
-                                    </a>
-                                    <div class="card-bottom d-flex justify-content-between">
-                                        <span>{{bet_session.currentPrice}}</span>
-                                        <span>1 of 1</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="card">
+											<div class="image-over">
+												<a href="{{ path('app_item_details', {'id': session.id}) }}">
+													{% if session.artwork.imageName %}
+														<img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="">
+													{% else %}
+														<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+													{% endif %}
+												</a>
+											</div>
+											<!-- Card Caption -->
+											<div
+												class="card-caption col-12 p-0">
+												<!-- Card Body -->
+												<div class="card-body">
+													<div class="countdown-times mb-3">
+														<div class="text-center mb-2">Time Remaining</div>
+														<div class='countdown d-flex justify-content-center' data-date="{{ session.endTime|date('Y-m-d H:i:s') }}"></div>
+													</div>
+
+													<a href="/item_details/{{ session.id }}">
+														<h5 class="mb-0">{{ session.artwork.title }}</h5>
+													</a>
+													<a class="seller d-flex align-items-center my-3" href="">
+														{% if session.author.profilePicture %}
+															<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session.author.profilePicture) }}" alt="">
+														{% else %}
+															<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+														{% endif %}
+														<span class="ml-2">@Nessim</span>
+													</a>
+													<div class="card-bottom d-flex justify-content-between">
+														<span>{{ session.currentPrice }}
+															Dannous</span>
+														<span>1 of 1</span>
+													</div>
+												</div>
+											</div>
+										</div>
                     </div>
                 {% endfor %}
             {% endif %}
