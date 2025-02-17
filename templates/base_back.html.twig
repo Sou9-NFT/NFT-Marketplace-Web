@@ -90,12 +90,12 @@
                 </a>
                 <ul id="users-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_user_index') }}">
+                        <a href="{{ path('app_back_user_index') }}">
                             <i class="bi bi-circle"></i><span>All Users</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_user_new') }}">
+                        <a href="{{ path('app_back_user_new') }}">
                             <i class="bi bi-circle"></i><span>Create User</span>
                         </a>
                     </li>
@@ -108,17 +108,17 @@
                 </a>
                 <ul id="nft-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="#">
+                        <a href="{{ path('app_back_artwork_index') }}">
                             <i class="bi bi-circle"></i><span>All NFTs</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ path('app_back_artwork_new') }}">
                             <i class="bi bi-circle"></i><span>Create NFT</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ path('app_back_category_index') }}">
                             <i class="bi bi-circle"></i><span>Categories</span>
                         </a>
                     </li>
@@ -146,9 +146,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
-
-            <li class="nav-item">
+                    <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#transactions-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-currency-exchange"></i><span>Transactions</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
@@ -161,6 +159,23 @@
                     <li>
                         <a href="#">
                             <i class="bi bi-circle"></i><span>Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#raffles-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-ticket"></i><span>Raffles</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="raffles-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ path('app_back_raffle_index') }}">
+                            <i class="bi bi-circle"></i><span>All Raffles</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_back_raffle_new') }}">
+                            <i class="bi bi-circle"></i><span>Create Raffle</span>
                         </a>
                     </li>
                 </ul>
@@ -182,6 +197,22 @@
                 </li>
               </ul>
             </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="{{ path('app_back_trade') }}">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Trade Offer</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="{{ path('app_trade_dispute_back') }}">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Trade Disputes</span>
+                    </a>
+                </li>
+            </li>
+
+        
             <li class="nav-heading">Settings</li>
 
             <li class="nav-item">
@@ -198,19 +229,7 @@
                 </a>
 
             </li>
-             <li class="nav-item">
-                <a class="nav-link collapsed" href="{{ path('app_back_trade') }}">
-                    <i class="bi bi-gear"></i>
-                    <span>Trade Offer</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="{{ path('app_trade_dispute_back') }}">
-                    <i class="bi bi-gear"></i>
-                    <span>Trade Disputes</span>
-                </a>
-            </li>
+  
             
         </ul>
         {% endblock %}

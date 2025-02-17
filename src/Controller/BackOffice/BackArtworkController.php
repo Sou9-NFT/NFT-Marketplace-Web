@@ -7,9 +7,11 @@ use App\Form\ArtworkType;
 use App\Repository\ArtworkRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/back/artwork')]
 class BackArtworkController extends AbstractController
@@ -23,7 +25,7 @@ class BackArtworkController extends AbstractController
     }
 
     #[Route('/new', name: 'app_back_artwork_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $artwork = new Artwork();
         $form = $this->createForm(ArtworkType::class, $artwork);
@@ -34,6 +36,24 @@ class BackArtworkController extends AbstractController
                 try {
                     $entityManager->beginTransaction();
                     
+                    $imageFile = $form->get('imageFile')->getData();
+                    if ($imageFile) {
+                        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                        $safeFilename = $slugger->slug($originalFilename);
+                        $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                        try {
+                            $imageFile->move(
+                                $this->getParameter('artwork_images_directory'),
+                                $newFilename
+                            );
+                            $artwork->setImageName($newFilename);
+                        } catch (FileException $e) {
+                            $this->addFlash('error', 'Failed to upload file: ' . $e->getMessage());
+                            return $this->redirectToRoute('app_back_artwork_new');
+                        }
+                    }
+                    
                     $entityManager->persist($artwork);
                     $entityManager->flush();
                     
@@ -42,7 +62,7 @@ class BackArtworkController extends AbstractController
                     return $this->redirectToRoute('app_back_artwork_index');
                 } catch (\Exception $e) {
                     $entityManager->rollback();
-                    $this->addFlash('error', 'An error occurred while saving the artwork. Please try again.');
+                    $this->addFlash('error', 'An error occurred while saving the artwork: ' . $e->getMessage());
                 }
             } else {
                 foreach ($form->getErrors(true) as $error) {
@@ -66,7 +86,7 @@ class BackArtworkController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_back_artwork_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Artwork $artwork, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Artwork $artwork, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(ArtworkType::class, $artwork);
         $form->handleRequest($request);
@@ -75,6 +95,33 @@ class BackArtworkController extends AbstractController
             if ($form->isValid()) {
                 try {
                     $entityManager->beginTransaction();
+                    
+                    $imageFile = $form->get('imageFile')->getData();
+                    if ($imageFile) {
+                        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                        $safeFilename = $slugger->slug($originalFilename);
+                        $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                        try {
+                            // Delete old file if it exists
+                            if ($artwork->getImageName()) {
+                                $oldFilePath = $this->getParameter('artwork_images_directory').'/'.$artwork->getImageName();
+                                if (file_exists($oldFilePath)) {
+                                    unlink($oldFilePath);
+                                }
+                            }
+                            
+                            $imageFile->move(
+                                $this->getParameter('artwork_images_directory'),
+                                $newFilename
+                            );
+                            $artwork->setImageName($newFilename);
+                        } catch (FileException $e) {
+                            $this->addFlash('error', 'Failed to upload file: ' . $e->getMessage());
+                            return $this->redirectToRoute('app_back_artwork_edit', ['id' => $artwork->getId()]);
+                        }
+                    }
+                    
                     $entityManager->flush();
                     $entityManager->commit();
                     
@@ -82,7 +129,7 @@ class BackArtworkController extends AbstractController
                     return $this->redirectToRoute('app_back_artwork_index');
                 } catch (\Exception $e) {
                     $entityManager->rollback();
-                    $this->addFlash('error', 'An error occurred while updating the artwork. Please try again.');
+                    $this->addFlash('error', 'An error occurred while updating the artwork: ' . $e->getMessage());
                 }
             } else {
                 foreach ($form->getErrors(true) as $error) {

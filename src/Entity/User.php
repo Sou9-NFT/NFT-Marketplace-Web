@@ -23,7 +23,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank(message: 'Email cannot be blank')]
-    #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\Email(
+        message: 'The email {{ value }} is not a valid email.',
+        mode: 'strict'
+    )]
     private ?string $email = null;
 
     /**
@@ -36,13 +39,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    private ?string $password = null;
+
     #[Assert\Length(
         min: 6,
         max: 50,
         minMessage: 'Your password must be at least {{ limit }} characters long',
         maxMessage: 'Your password cannot be longer than {{ limit }} characters'
     )]
-    private ?string $password = null;
+    private ?string $plainPassword = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
@@ -58,7 +63,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Url(message: 'The profile picture must be a valid URL')]
+    #[Assert\Url(message: 'The profile picture must be a valid URL', groups: ['profile_picture_update'])]
     private ?string $profilePicture = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
@@ -134,7 +139,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): ?string
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -142,6 +147,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): static
+    {
+        $this->plainPassword = $plainPassword;
 
         return $this;
     }

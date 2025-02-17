@@ -6,14 +6,12 @@ use App\Entity\TradeOffer;
 use App\Entity\User;
 use App\Form\TradeOfferType;
 use App\Repository\TradeOfferRepository;
-use App\Repository\UserRepository; 
-use App\Repository\ArtworkRepository;  // Add ArtworkRepository
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/trade/offer')]
 class TradeController extends AbstractController
@@ -27,48 +25,24 @@ class TradeController extends AbstractController
     }
 
     #[Route('/add', name: 'app_trade_offer_add', methods: ['GET', 'POST'])]
-    public function add(Request $request, TradeOfferRepository $tradeOfferRepository, UserRepository $userRepository, ArtworkRepository $artworkRepository, ManagerRegistry $doctrine): Response
+    public function add(Request $request, ManagerRegistry $doctrine): Response
     {
         $tradeOffer = new TradeOffer();
-        $users = $userRepository->findAll();
-        $usersList = [];
-        foreach ($users as $user) {
-            $usersList[$user->getName()] = $user->getId(); // Assuming you want the username to be the display value
-        }
-
-        // Get the list of artworks for offered and received items
-        $artworks = $artworkRepository->findAll();
-        $artworksList = [];
-        foreach ($artworks as $artwork) {
-            $artworksList[$artwork->getImageName()] = $artwork->getId(); // Assuming artwork has a name and id
-        }
-
-        // Create the form and pass the data
-        $form = $this->createForm(TradeOfferType::class, $tradeOffer, [
-            'users' => $usersList,   // Users for receiver_name
-            'artworks' => $artworksList  // Artworks for offered_item and received_item
-        ]);
-
+        $form = $this->createForm(TradeOfferType::class, $tradeOffer);
         $form->handleRequest($request);
-        $tradeOffer->setCreationDate(new \DateTime());
-        //echo($form->isSubmitted());
-        //echo($form->isValid());
-        if ($form->isSubmitted() ) {
-            // Manually persist the trade offer using the entity manager
-            
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            $tradeOffer->setCreationDate(new \DateTime());
             $em = $doctrine->getManager();
             $em->persist($tradeOffer);
-            $em->flush();  // Force the database insert
+            $em->flush();
 
-            // Redirect after saving the data
-            return $this->redirectToRoute('app_trade_show');  // Redirect after saving
+            return $this->redirectToRoute('app_trade_show', ['id' => $tradeOffer->getId()]);
         }
 
         return $this->render('trade/addtradeoffer.html.twig', [
             'trade_offer' => $tradeOffer,
             'form' => $form->createView(),
-            'users' => $usersList,  // Pass the users data to the template
-            'artworks' => $artworksList  // Pass the artworks data to the template
         ]);
     }
 
@@ -88,24 +62,21 @@ class TradeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
             return $this->redirectToRoute('app_trade_offer_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('trade/edit.html.twig', [
             'trade_offer' => $tradeOffer,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}', name: 'app_trade_offer_delete', methods: ['POST'])]
     public function delete(Request $request, TradeOffer $tradeOffer, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$tradeOffer->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($tradeOffer);
-            $entityManager->flush();
-        }
-
+        $entityManager->remove($tradeOffer);
+        $entityManager->flush();
+        
         return $this->redirectToRoute('app_trade_offer_index', [], Response::HTTP_SEE_OTHER);
     }
 }
