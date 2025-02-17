@@ -257,7 +257,7 @@
 													</a>
 													<a class="seller d-flex align-items-center my-3" href="">
 														{% if session.author.profilePicture %}
-															<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session.author.profilePicture) }}" alt="">
+															<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session	.author.profilePicture) }}" alt="">
 														{% else %}
 															<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
 														{% endif %}
