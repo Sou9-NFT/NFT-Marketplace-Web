@@ -27,7 +27,9 @@ class ArtworkType extends AbstractType
             ->add('description', TextareaType::class)
             ->add('price', NumberType::class)
             ->add('imageFile', FileType::class, [
-                'label' => 'Media File'
+                'label' => 'Media File',
+                'required' => true,
+                'mapped' => true
             ]);
     }
 
