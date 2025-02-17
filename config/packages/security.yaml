@@ -25,11 +25,14 @@ security:
                 lifetime: 604800
                 path: /
         back_office:
-            pattern: ^/(admin|back)
+            pattern: ^/admin
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\UserAuthAuthenticator
             entry_point: App\Security\UserAuthAuthenticator
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
             access_denied_handler: App\Security\AccessDeniedHandler
             logout:
                 path: app_logout
@@ -45,7 +48,7 @@ security:
         # Allow access to login pages and registration
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/back/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
         - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
@@ -53,7 +56,7 @@ security:
         - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
         
         # Back office requires admin role
-        - { path: ^/back, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         
         # Front office is accessible to all authenticated users
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

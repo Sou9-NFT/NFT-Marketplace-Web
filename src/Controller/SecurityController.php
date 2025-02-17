@@ -31,7 +31,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/back/login', name: 'back_login')]
+    #[Route('/admin/login', name: 'back_login')]
     public function backLogin(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/back/dispute')]
+#[Route('/admin/dispute')]
 class BackTradeDisputeController extends AbstractController
 {
     #[Route('/', name: 'app_trade_dispute_back', methods: ['GET'])]

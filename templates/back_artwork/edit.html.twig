@@ -129,7 +129,7 @@
             function updateFileHelp() {
                 const selectedOption = categorySelect.options[categorySelect.selectedIndex];
                 if (selectedOption.value) {
-                    fetch(`/back/category/${selectedOption.value}/info`, {
+                    fetch(`/admin/category/${selectedOption.value}/info`, {
                         headers: {
                             'Accept': 'application/json'
                         }
