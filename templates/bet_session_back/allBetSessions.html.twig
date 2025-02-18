@@ -2,7 +2,7 @@
 
 {% block title %}All BetSessions{% endblock %}
 
-{% block content %}
+{% block body %}
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -35,7 +35,7 @@
                                 <td>{{ bet_session.status }}</td>
                                 <td>{{ bet_session.initialPrice }}</td>
                                 <td>
-                                    <a href="{{ path('app_item_details', {'id': bet_session.id}) }}" class="btn btn-primary">show</a>
+                                    <a href="{{ path('app_bet_session_show', {'id': bet_session.id}) }}" class="btn btn-primary">show</a>
                                     {% if bet_session.status == 'pending' or bet_session.status == 'withdraw' %}
                                         <a href="{{ path('app_bet_session_delete', {'id': bet_session.id}) }}" class="btn btn-danger">delete</a>
                                     {% else %}
