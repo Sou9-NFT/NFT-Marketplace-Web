@@ -10,10 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Regex;
 
 class UserType extends AbstractType
 {
@@ -32,35 +28,10 @@ class UserType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
-            ->add('password', PasswordType::class, [
-                'mapped' => false,
+            ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password',
                 'attr' => [
                     'class' => 'form-control',
-                ],
-            ])
-            ->add('profilePicture', FileType::class, [
-                'mapped' => false,
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'accept' => 'image/*'
-                ],
-            ])
-            ->add('password', PasswordType::class, [
-                'label' => 'Password',
-                'attr' => [
-                    'class' => 'form-control',
-                ],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter a password',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
-                        'max' => 4096,
-                    ]),
                 ],
             ])
             ->add('profilePicture', FileType::class, [

@@ -11,18 +11,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface; // Add this use statement at the top
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/back/user')]
 #[IsGranted('ROLE_ADMIN')]
 class UserController extends AbstractController
 {
     private $entityManager;
-    private $passwordHasher;  // Add this property
+    private $passwordHasher;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher  // Add password hasher to constructor
+        UserPasswordHasherInterface $passwordHasher
     ) {
         $this->entityManager = $entityManager;
         $this->passwordHasher = $passwordHasher;
@@ -44,15 +44,21 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the password before persisting
+            // The plainPassword is now directly mapped to the entity
+            // Just need to hash it and set the password
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $user,
-                $form->get('password')->getData()
+                $user->getPlainPassword()
             );
             $user->setPassword($hashedPassword);
-
+            
+            // Set creation date
+            $user->setCreatedAt(new \DateTimeImmutable());
+            
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            $this->addFlash('success', 'User created successfully.');
             return $this->redirectToRoute('app_back_user_index');
         }
 
