@@ -26,22 +26,19 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            
             // encode the plain password
             $user->setPassword(
                 $userPasswordHasher->hashPassword(
                     $user,
-                    $plainPassword
+                    $user->getPlainPassword()
                 )
             );
 
-            // set the name and initial balance
-            $user->setName($form->get('name')->getData());
-            $user->setBalance(0);
-
             $entityManager->persist($user);
             $entityManager->flush();
+
+            // Add a flash message for success
+            $this->addFlash('success', 'Your account has been created successfully. You can now log in.');
 
             return $this->redirectToRoute('app_login');
         }
