@@ -19,7 +19,7 @@ class BackCategoryController extends AbstractController
     #[Route('/', name: 'app_admin_category_index', methods: ['GET'])]
     public function index(CategoryRepository $categoryRepository): Response
     {
-        return $this->render('admin_category/index.html.twig', [
+        return $this->render('back_category/index.html.twig', [
             'categories' => $categoryRepository->findAll(),
         ]);
     }
@@ -47,7 +47,7 @@ class BackCategoryController extends AbstractController
             }
         }
 
-        return $this->render('admin_category/new.html.twig', [
+        return $this->render('back_category/new.html.twig', [
             'category' => $category,
             'form' => $form,
         ]);
@@ -56,7 +56,7 @@ class BackCategoryController extends AbstractController
     #[Route('/{id}', name: 'app_admin_category_show', methods: ['GET'])]
     public function show(Category $category): Response
     {
-        return $this->render('admin_category/show.html.twig', [
+        return $this->render('back_category/show.html.twig', [
             'category' => $category,
         ]);
     }
@@ -82,7 +82,7 @@ class BackCategoryController extends AbstractController
             }
         }
 
-        return $this->render('admin_category/edit.html.twig', [
+        return $this->render('back_category/edit.html.twig', [
             'category' => $category,
             'form' => $form,
         ]);

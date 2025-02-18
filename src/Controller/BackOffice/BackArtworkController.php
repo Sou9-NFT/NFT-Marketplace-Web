@@ -19,7 +19,7 @@ class BackArtworkController extends AbstractController
     #[Route('/', name: 'app_admin_artwork_index', methods: ['GET'])]
     public function index(ArtworkRepository $artworkRepository): Response
     {
-        return $this->render('admin_artwork/index.html.twig', [
+        return $this->render('back_artwork/index.html.twig', [
             'artworks' => $artworkRepository->findAll(),
         ]);
     }
@@ -71,7 +71,7 @@ class BackArtworkController extends AbstractController
             }
         }
 
-        return $this->render('admin_artwork/new.html.twig', [
+        return $this->render('back_artwork/new.html.twig', [
             'artwork' => $artwork,
             'form' => $form,
         ]);
@@ -80,7 +80,7 @@ class BackArtworkController extends AbstractController
     #[Route('/{id}', name: 'app_admin_artwork_show', methods: ['GET'])]
     public function show(Artwork $artwork): Response
     {
-        return $this->render('admin_artwork/show.html.twig', [
+        return $this->render('back_artwork/show.html.twig', [
             'artwork' => $artwork,
         ]);
     }
@@ -138,7 +138,7 @@ class BackArtworkController extends AbstractController
             }
         }
 
-        return $this->render('admin_artwork/edit.html.twig', [
+        return $this->render('back_artwork/edit.html.twig', [
             'artwork' => $artwork,
             'form' => $form,
         ]);
