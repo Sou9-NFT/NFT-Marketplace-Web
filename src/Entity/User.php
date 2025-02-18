@@ -93,6 +93,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->participations = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
         $this->balance = 0; // Initialize balance to 0
+        $this->plainPassword = null; // Initialize plainPassword
     }
 
     public function getId(): ?int
