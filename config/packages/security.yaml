@@ -13,17 +13,6 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: app_user_provider
-            custom_authenticator: App\Security\UserAuthAuthenticator
-            logout:
-                path: app_logout
-                target: app_home_page
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800
-                path: /
         back_office:
             pattern: ^/admin
             lazy: true
@@ -41,24 +30,31 @@ security:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\UserAuthAuthenticator
+            logout:
+                path: app_logout
+                target: app_home_page
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
-        # Allow access to login pages and registration
+        # Public access routes
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
-        - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
-        - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
-        - { path: ^/artwork, roles: PUBLIC_ACCESS }  # Allow public access to artwork
-        - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/blog, roles: PUBLIC_ACCESS }
         
-        # Back office requires admin role
+        # Admin area requires admin role
         - { path: ^/admin, roles: ROLE_ADMIN }
         
-        # Front office is accessible to all authenticated users
+        # Other routes require authentication
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
