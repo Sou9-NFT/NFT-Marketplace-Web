@@ -1,0 +1,50 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}TradeDispute{% endblock %}
+
+{% block content %}
+    <h1><center>Trade Dispute</center></h1>
+<br><br>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td>{{ trade_dispute.id }}</td>
+            </tr>
+            <tr>
+                <th>Trade ID</th>
+                <td>{{ trade_dispute.tradeId }}</td>
+            </tr>
+            <tr>
+                <th>Offered Item</th>
+                <td>{{ trade_dispute.OfferedItem }}</td>
+            </tr>
+            <tr>
+                <th>Received Item</th>
+                <td>{{ trade_dispute.ReceivedItem }}</td>
+            </tr>
+            <tr>
+                <th>Reason</th>
+                <td>{{ trade_dispute.reason }}</td>
+            </tr>
+            <tr>
+                <th>Evidence</th>
+                <td>{{ trade_dispute.evidence }}</td>
+            </tr>
+            <tr>
+                <th>Timestamp</th>
+                <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ trade_dispute.status }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_trade_dispute_back') }}">back to list</a> /
+
+    <a href="{{ path('app_trade_dispute_backedit', {'id': trade_dispute.id}) }}">edit</a>
+
+    {{ include('back_trade_dispute/_delete_form.html.twig') }}
+{% endblock %}

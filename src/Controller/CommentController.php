@@ -108,6 +108,7 @@ final class CommentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            
             $this->addFlash('success', 'Comment updated successfully');
             return $this->redirectToRoute('app_comment_back_index');
         }

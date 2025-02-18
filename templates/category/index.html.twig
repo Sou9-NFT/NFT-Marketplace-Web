@@ -6,12 +6,27 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Categories</h1>
-            <a href="{{ path('app_category_new') }}" class="btn btn-primary">Create New Category</a>
+            <div>
+                <a href="{{ path('app_artwork_index') }}" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-image"></i> Manage Artworks
+                </a>
+                <a href="{{ path('app_category_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create New Category
+                </a>
+            </div>
         </div>
 
         {% for message in app.flashes('success') %}
-            <div class="alert alert-success">
+            <div class="alert alert-success alert-dismissible fade show">
                 {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
 
@@ -21,41 +36,57 @@
                     <table class="table table-dark table-hover mb-0">
                         <thead>
                             <tr>
-                                <th scope="col" class="px-4">Name</th>
+                                <th scope="col" class="px-4">#</th>
+                                <th scope="col">Name</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Allowed Types</th>
+                                <th scope="col">Artworks</th>
                                 <th scope="col" class="px-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for category in categories %}
                             <tr>
-                                <td class="align-middle px-4">{{ category.name }}</td>
+                                <td class="align-middle px-4">{{ category.id }}</td>
+                                <td class="align-middle">{{ category.name }}</td>
                                 <td class="align-middle">
-                                    <span class="badge bg-{{ category.type == 'image' ? 'info' : (category.type == 'video' ? 'success' : 'warning') }} text-dark">
+                                    <span class="badge bg-{{ category.type == 'image' ? 'success' : (category.type == 'video' ? 'primary' : 'info') }}">
                                         {{ category.type|capitalize }}
                                     </span>
                                 </td>
-                                <td class="align-middle">{{ category.description|slice(0, 100) }}{% if category.description|length > 100 %}...{% endif %}</td>
+                                <td class="align-middle">{{ category.description|length > 50 ? category.description|slice(0, 50) ~ '...' : category.description }}</td>
                                 <td class="align-middle">
                                     <small class="text-secondary">{{ category.allowedMimeTypes|join(', ') }}</small>
                                 </td>
+                                <td class="align-middle">
+                                    <span class="badge bg-secondary">{{ category.artworks|length }} items</span>
+                                </td>
                                 <td class="align-middle px-4">
                                     <div class="btn-group">
-                                        <a href="{{ path('app_category_show', {'id': category.id}) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                        <a href="{{ path('app_category_edit', {'id': category.id}) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                                        <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}" onsubmit="return confirm('Are you sure you want to delete this category?');" style="display: inline-block;">
+                                        <a href="{{ path('app_category_show', {'id': category.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_category_edit', {'id': category.id}) }}" 
+                                           class="btn btn-sm btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}" 
+                                              onsubmit="return confirm('Are you sure you want to delete this category? This will affect all associated artworks.');" 
+                                              style="display: inline-block;">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                            <button class="btn btn-sm btn-outline-danger" {{ category.artworks|length > 0 ? 'disabled' : '' }} title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="5" class="text-center">
-                                    <div class="alert alert-info m-3">
+                                <td colspan="7" class="text-center">
+                                    <div class="alert alert-info m-3 mb-0">
                                         No categories found. <a href="{{ path('app_category_new') }}">Create your first category</a>
                                     </div>
                                 </td>
@@ -99,20 +130,11 @@
         }
         .btn-group .btn {
             margin: 0 2px;
-            border-color: #4a5568;
+            border-radius: 0.25rem;
         }
         .badge {
-            padding: 0.5em 0.8em;
-            font-weight: 500;
-        }
-        .alert-info {
-            background-color: #2b6cb0;
-            border-color: #2c5282;
-            color: #ebf8ff;
-        }
-        .alert-info a {
-            color: #fff;
-            text-decoration: underline;
+            font-size: 0.8rem;
+            padding: 0.4em 0.6em;
         }
     </style>
 {% endblock %}

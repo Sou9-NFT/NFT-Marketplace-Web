@@ -3,10 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\ArtworkRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: ArtworkRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -18,7 +19,7 @@ class Artwork
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Title is required')]
+    #[Assert\NotBlank(message: 'Title cannot be empty')]
     #[Assert\Length(
         min: 3,
         max: 255,
@@ -27,56 +28,45 @@ class Artwork
     )]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'text')]
-    #[Assert\NotBlank(message: 'Description is required')]
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Description cannot be empty')]
     #[Assert\Length(
         min: 10,
-        max: 1000,
-        minMessage: 'Description must be at least {{ limit }} characters long',
-        maxMessage: 'Description cannot be longer than {{ limit }} characters'
+        minMessage: 'Description must be at least {{ limit }} characters long'
     )]
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: 'Price is required')]
+    #[Assert\NotBlank(message: 'Price cannot be empty')]
     #[Assert\Positive(message: 'Price must be greater than zero')]
-    #[Assert\Range(
-        min: 0.01,
-        max: 999999.99,
-        notInRangeMessage: 'Price must be between {{ min }} and {{ max }}'
-    )]
+    #[Assert\Type(type: 'float', message: 'Price must be a valid number')]
     private ?float $price = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $imageName = null;
 
     #[Assert\NotNull(message: 'Please upload a file')]
     #[Assert\File(
         maxSize: '100M',
-        maxSizeMessage: 'The file is too large ({{ size }} {{ suffix }}). Maximum allowed size is {{ limit }} {{ suffix }}.',
-        mimeTypes: [
-            'image/*',
-            'video/*',
-            'audio/*'
-        ],
-        mimeTypesMessage: 'Please upload a valid file (image, video, or audio)'
+        maxSizeMessage: 'The file is too large ({{ size }} {{ suffix }}). Maximum allowed size is {{ limit }} {{ suffix }}.'
     )]
     private ?File $imageFile = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updatedAt = null;
+    #[ORM\Column(name: 'image_name', length: 255, nullable: true)]
+    private ?string $imageName = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'artworks')]
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'artworks')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Category is required')]
+    #[Assert\NotNull(message: 'Please select a category')]
     private ?Category $category = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     #[ORM\PreUpdate]
@@ -86,20 +76,27 @@ class Artwork
     }
 
     #[Assert\Callback]
-    public function validateFileType(ExecutionContextInterface $context): void
+    public function validateMediaType(ExecutionContextInterface $context): void
     {
-        if (!$this->imageFile || !$this->category) {
+        if (!$this->imageFile) {
+            return;
+        }
+
+        if (!$this->category) {
+            $context->buildViolation('Please select a category before uploading a file')
+                ->atPath('imageFile')
+                ->addViolation();
             return;
         }
 
         $mimeType = $this->imageFile->getMimeType();
-        $allowedMimeTypes = $this->category->getAllowedMimeTypes();
+        $allowedTypes = $this->category->getAllowedMimeTypes();
 
-        if (!in_array($mimeType, $allowedMimeTypes)) {
-            $context->buildViolation('The file type "{{ mime_type }}" is not allowed for this category. Allowed types are: {{ allowed_types }}')
+        if (!in_array($mimeType, $allowedTypes)) {
+            $context->buildViolation('The file type {{ type }} is not allowed for this category. Allowed types are: {{ types }}')
                 ->setParameters([
-                    '{{ mime_type }}' => $mimeType,
-                    '{{ allowed_types }}' => implode(', ', $allowedMimeTypes)
+                    '{{ type }}' => $mimeType,
+                    '{{ types }}' => implode(', ', $allowedTypes)
                 ])
                 ->atPath('imageFile')
                 ->addViolation();
@@ -144,6 +141,19 @@ class Artwork
         return $this;
     }
 
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+        if (null !== $imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
     public function getImageName(): ?string
     {
         return $this->imageName;
@@ -155,17 +165,25 @@ class Artwork
         return $this;
     }
 
-    public function getImageFile(): ?File
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->imageFile;
+        return $this->createdAt;
     }
 
-    public function setImageFile(?File $imageFile): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->imageFile = $imageFile;
-        if ($imageFile) {
-            $this->updatedAt = new \DateTimeImmutable();
-        }
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
@@ -178,15 +196,5 @@ class Artwork
     {
         $this->category = $category;
         return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
     }
 }

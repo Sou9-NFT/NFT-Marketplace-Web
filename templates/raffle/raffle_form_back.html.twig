@@ -1,0 +1,77 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}{{ raffle.id ? 'Edit Raffle' : 'New Raffle' }}{% endblock %}
+
+{% block body %}
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>{{ raffle.id ? 'Edit Raffle' : 'Create New Raffle' }}</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_back_raffle_index') }}">Raffles</a></li>
+                    <li class="breadcrumb-item active">{{ raffle.id ? 'Edit' : 'New' }}</li>
+                </ol>
+            </nav>
+        </div>
+
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ raffle.id ? 'Edit Raffle Details' : 'Raffle Details' }}</h5>
+
+                            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.title, 'Title', {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(form.title, {'attr': {'class': 'form-control' ~ (form.title.vars.valid ? '' : ' is-invalid')}}) }}
+                                        {{ form_errors(form.title) }}
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.raffleDescription, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control' ~ (form.raffleDescription.vars.valid ? '' : ' is-invalid'), 'rows': '4'}}) }}
+                                        {{ form_errors(form.raffleDescription) }}
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.endTime, 'End Time', {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(form.endTime, {'attr': {'class': 'form-control' ~ (form.endTime.vars.valid ? '' : ' is-invalid')}}) }}
+                                        {{ form_errors(form.endTime) }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        {% if raffle.image %}
+                                            <div class="mb-3">
+                                                <label class="form-label">Current Image</label>
+                                                <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" class="img-fluid rounded" alt="Current Raffle Image">
+                                            </div>
+                                        {% endif %}
+                                        {{ form_label(form.image, 'Raffle Image', {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(form.image, {'attr': {'class': 'form-control' ~ (form.image.vars.valid ? '' : ' is-invalid')}}) }}
+                                        {{ form_errors(form.image) }}
+                                        <small class="form-text text-muted">Upload a new image{% if raffle.image %} to replace the current one{% endif %}.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> {{ raffle.id ? 'Update Raffle' : 'Create Raffle' }}
+                                </button>
+                                <a href="{{ path('app_back_raffle_index') }}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                            </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}

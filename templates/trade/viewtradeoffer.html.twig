@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TradeDispute{% endblock %}
+
+{% block body %}
+<br><br><br><br><br>
+<center>
+    <h1>Trade Offer</h1>
+</center>
+<center>
+    <table style="width: 80%; max-width: 800px; margin: auto;">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ trade_offer.id }}</td>
+            </tr>
+            <tr>
+                <th>Trade_id</th>
+                <td>{{ trade_offer.receiverName? trade_offer.receiverName.getName() : 'N/A'  }}</td>
+            </tr>
+            <tr>
+                <th>Item</th>
+                <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A'  }}</td>
+            </tr>
+            <tr>
+                <th>Item</th>
+                <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ trade_offer.description }}</td>
+            </tr>
+            <tr>
+                <th>creation Date</th>
+                <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ trade_offer.status }}</td>
+            </tr>
+            <td><a href="{{ path('app_trade_offer_index') }}">Back to list</a> </td>
+            <td><a href="{{ path('app_trade_offer_edit', {'id': trade_offer.id}) }}">Edit</a></td>
+            
+
+        </tbody>
+    </table>
+</center>
+<div class="text-center mt-3">
+
+    {{ include('trade/_delete_form.html.twig') }}
+</div>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}New Trade Dispute{% endblock %}
+
+{% block body %}
+<div class="pagetitle">
+    <h1>Trade Disputes</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_trade_dispute_back') }}">Trade Disputes</a></li>
+            <li class="breadcrumb-item active">New Trade Dispute</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Create New Trade Dispute</h5>
+
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_label(form.trade_id, 'Trade Offer', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.trade_id, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.trade_id) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_label(form.reason, 'Reason', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.reason, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                            {{ form_errors(form.reason) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_label(form.evidence, 'Evidence', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.evidence, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.evidence) }}
+                            <small class="text-muted">Upload any evidence to support your dispute (optional)</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <button class="btn btn-primary">Create</button>
+                            <a href="{{ path('app_trade_dispute_back') }}" class="btn btn-secondary">Back to list</a>
+                        </div>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

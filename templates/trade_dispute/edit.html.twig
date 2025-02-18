@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Trade Dispute{% endblock %}
+
+{% block body %}
+<section class="author-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                
+                <div class="intro text-center">
+                    <h3 class="mt-3 mb-0">Edit Trade Dispute</h3>
+                </div>
+                <div class="item-form card no-hover">
+                    {{ form_start(form, {
+                        'attr': {
+                            'novalidate': 'novalidate',
+                            'id': 'edit_trade_dispute_' ~ trade_dispute.id
+                        }
+                    }) }}
+                        {{ form_errors(form) }}
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mt-3">
+                                    {{ form_label(form.trade_id) }}
+                                    {{ form_widget(form.trade_id, {'attr': {'class': 'form-control', 'style': 'font-size: 1.2rem; height: 3rem; padding: 5px;'}}) }}
+                                    {{ form_errors(form.trade_id) }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group mt-3">
+                                    {{ form_label(form.reason) }}
+                                    {{ form_widget(form.reason, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(form.reason) }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group mt-3">
+                                    {{ form_label(form.evidence) }}
+                                    {% if trade_dispute.evidence %}
+                                        <div class="mb-2">
+                                            <span class="text-muted">Current evidence:</span>
+                                            <a href="{{ asset('uploads/evidence/' ~ trade_dispute.evidence) }}" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="bi bi-file-earmark-image"></i> View Evidence
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {{ form_widget(form.evidence, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_help(form.evidence) }}
+                                    {{ form_errors(form.evidence) }}
+                                    <small class="form-text text-muted">Optional. Supported formats: JPEG, PNG, GIF (max 5MB)</small>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a href="{{ path('app_trade_dispute_index') }}" class="btn btn-link">Back to list</a>
+                                    <button class="btn btn-primary" type="submit">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
