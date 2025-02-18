@@ -3,8 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TradeDisputeRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TradeDisputeRepository::class)]
 class TradeDispute
@@ -14,10 +14,9 @@ class TradeDispute
     #[ORM\Column]
     private ?int $id = null;
 
- 
-
-    #[ORM\ManyToOne(targetEntity: "App\Entity\TradeOffer")]
+    #[ORM\ManyToOne(targetEntity: TradeOffer::class)]
     #[ORM\JoinColumn(name: "trade_id", referencedColumnName: "id", nullable: false)]
+    #[Assert\NotNull(message: 'Please select a trade offer')]
     private ?TradeOffer $trade_id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -27,12 +26,13 @@ class TradeDispute
     private $received_item;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Please provide a reason for the dispute')]
     private ?string $reason = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $evidence = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: "datetime")]
     private ?\DateTimeInterface $timestamp = null;
 
     #[ORM\Column(length: 255)]
@@ -48,7 +48,7 @@ class TradeDispute
         return $this->trade_id;
     }
 
-    public function setTradeId(TradeOffer $trade_id): static
+    public function setTradeId(?TradeOffer $trade_id): static
     {
         $this->trade_id = $trade_id;
 
@@ -67,7 +67,6 @@ class TradeDispute
         return $this;
     }
 
-
     public function getReceivedItem(): ?string
     {
         return $this->received_item;
@@ -85,7 +84,7 @@ class TradeDispute
         return $this->reason;
     }
 
-    public function setReason(string $reason): static
+    public function setReason(?string $reason): static
     {
         $this->reason = $reason;
 
@@ -127,5 +126,4 @@ class TradeDispute
 
         return $this;
     }
-
 }

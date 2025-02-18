@@ -31,7 +31,7 @@
                     <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ trade_offer.status }}</td>
                     <td>
-                        <a href="{{ path('app_trade_show', {'id': trade_offer.id}) }}" class="btn btn-primary btn-sm">View</a> /
+                        <a href="{{ path('app_trade_show', {'id': trade_offer.id}) }}" class="btn btn-primary btn-sm">View</a> 
                         <td><a href="{{ path('app_trade_offer_edit', {'id': trade_offer.id}) }}">Edit</a></td>
                     </td>
                 </tr>

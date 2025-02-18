@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\TradeOfferRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+
 #[ORM\Entity(repositoryClass: TradeOfferRepository::class)]
 class TradeOffer
 {
@@ -14,23 +14,25 @@ class TradeOffer
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: "App\Entity\User")]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: "receiver_name", referencedColumnName: "id", nullable: false)]
-    #[Assert\NotBlank(message: "Receiver name is required.")]
+    #[Assert\NotNull(message: 'Please select a receiver')]
     private ?User $receiver_name = null;
 
-    #[ORM\ManyToOne(targetEntity: "App\Entity\Artwork")]
+    #[ORM\ManyToOne(targetEntity: Artwork::class)]
     #[ORM\JoinColumn(name: "offered_item", referencedColumnName: "id", nullable: false)]
+    #[Assert\NotNull(message: 'Please select an item to offer')]
     private ?Artwork $offered_item = null;
 
-    #[ORM\ManyToOne(targetEntity: "App\Entity\Artwork")]
+    #[ORM\ManyToOne(targetEntity: Artwork::class)]
     #[ORM\JoinColumn(name: "received_item", referencedColumnName: "id", nullable: false)]
+    #[Assert\NotNull(message: 'Please select an item to receive')]
     private ?Artwork $received_item = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[ORM\Column(type: "datetime")]
     private ?\DateTimeInterface $creation_date = null;
 
     #[ORM\Column(type: "string", length: 50, options: ["default" => "pending"])]
@@ -39,21 +41,6 @@ class TradeOffer
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    private $user;
-
-    // Getter and setter for user
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
-
-        return $this;
     }
 
     public function getReceiverName(): ?User
