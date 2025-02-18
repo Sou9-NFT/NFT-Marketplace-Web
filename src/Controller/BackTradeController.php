@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/back/trade')]
+#[Route('/admin/trade')]
 class BackTradeController extends AbstractController
 {
     #[Route(name: 'app_back_trade', methods: ['GET'])]

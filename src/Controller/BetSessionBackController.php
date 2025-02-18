@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BetSession;
 use App\Form\BetSessionType;
 use App\Entity\User;
-#[Route('/back/auctions')]
+#[Route('/admin/auctions')]
 final class BetSessionBackController extends AbstractController
 {
     #[Route("/All",name: 'app_bet_session_index', methods: ['GET'])]

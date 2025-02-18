@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
-#[Route('/back/raffle')]
+#[Route('/admin/raffle')]
 class RaffleController extends AbstractController
 {
     private $entityManager;
