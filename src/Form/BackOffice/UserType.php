@@ -23,38 +23,28 @@ class UserType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                 ],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter the name',
-                    ]),
-                    new Length([
-                        'min' => 2,
-                        'max' => 32,
-                        'minMessage' => 'The name must be at least {{ limit }} characters long',
-                        'maxMessage' => 'The name cannot be longer than {{ limit }} characters',
-                    ]),
-                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email Address',
                 'attr' => [
                     'class' => 'form-control',
                 ],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter an email address',
-                    ]),
-                    new Email([
-                        'message' => 'Please enter a valid email address',
-                        'mode' => 'strict',
-                    ]),
-                    new Regex([
-                        'pattern' => '/^.*@.*$/',
-                        'message' => 'The email must contain @',
-                    ]),
+            ])
+            ->add('password', PasswordType::class, [
+                'mapped' => false,
+                'label' => 'Password',
+                'attr' => [
+                    'class' => 'form-control',
                 ],
             ])
-        ;
+            ->add('profilePicture', FileType::class, [
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'accept' => 'image/*'
+                ],
+            ]);;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
