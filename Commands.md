@@ -37,3 +37,13 @@ To assign the admin role to a user with email `admin@admin.com`, use:
 ```sh
 php bin/console app:make-user-role admin@admin.com --role=admin
 ```
+
+## Run Mercure
+
+To run the Mercure service using Docker, use the following command:
+
+```sh
+docker run -d -p 3000:80 -e MERCURE_PUBLISHER_JWT_KEY='2vJXFuJ1Y0iaYgwYdZP4MD6OHyyyP/k3uGNcG0b2h7E=' -e MERCURE_SUBSCRIBER_JWT_KEY='2vJXFuJ1Y0iaYgwYdZP4MD6OHyyyP/k3uGNcG0b2h7E=' dunglas/mercure
+```
+
+This command will start the Mercure service in detached mode, mapping port 3000 on your host to port 80 on the container, and setting the necessary JWT keys for publisher and subscriber.
