@@ -8,7 +8,7 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ path('app_home_page_back') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ path('app_back_user_index') }}">Users</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_admin_user_index') }}">Users</a></li>
                 <li class="breadcrumb-item active">New</li>
             </ol>
         </nav>
@@ -91,7 +91,8 @@
                             <div class="row mb-3">
                                 <div class="col-sm-10 offset-sm-2">
                                     <button type="submit" class="btn btn-primary">Create User</button>
-                                    <a href="{{ path('app_back_user_index') }}" class="btn btn-secondary">Cancel</a>
+                                    <a href="{{ path('app_admin_user_new') }}" class="btn btn-primary">Create New User</a>
+                                    <a href="{{ path('app_admin_user_index') }}" class="btn btn-secondary">Cancel</a>
                                 </div>
                             </div>
                         {{ form_end(form) }}

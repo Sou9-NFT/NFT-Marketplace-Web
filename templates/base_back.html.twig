@@ -52,7 +52,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="{{ path('app_back_user_show', {id: app.user.id}) }}">
+                            <a class="dropdown-item d-flex align-items-center" href="{{ path('app_admin_user_show', {id: app.user.id}) }}">
                                 <i class="bi bi-person"></i>
                                 <span>Profile</span>
                             </a>
@@ -90,12 +90,12 @@
                 </a>
                 <ul id="users-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_back_user_index') }}">
+                        <a href="{{ path('app_admin_user_index') }}">
                             <i class="bi bi-circle"></i><span>All Users</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_back_user_new') }}">
+                        <a href="{{ path('app_admin_user_new') }}">
                             <i class="bi bi-circle"></i><span>Create User</span>
                         </a>
                     </li>
@@ -108,17 +108,17 @@
                 </a>
                 <ul id="nft-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_back_artwork_index') }}">
+                        <a href="{{ path('app_admin_artwork_index') }}">
                             <i class="bi bi-circle"></i><span>All NFTs</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_back_artwork_new') }}">
+                        <a href="{{ path('app_admin_artwork_new') }}">
                             <i class="bi bi-circle"></i><span>Create NFT</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_back_category_index') }}">
+                        <a href="{{ path('app_admin_category_index') }}">
                             <i class="bi bi-circle"></i><span>Categories</span>
                         </a>
                     </li>
@@ -131,12 +131,12 @@
                 </a>
                 <ul id="blog-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_back_blog_index') }}">
+                        <a href="{{ path('app_admin_blog_index') }}">
                             <i class="bi bi-circle"></i><span>Posts</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_back_blog_new') }}">
+                        <a href="{{ path('app_admin_blog_new') }}">
                             <i class="bi bi-circle"></i><span>New Post</span>
                         </a>
                     </li>
@@ -169,12 +169,12 @@
                 </a>
                 <ul id="raffles-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="{{ path('app_back_raffle_index') }}">
+                        <a href="{{ path('app_admin_raffle_index') }}">
                             <i class="bi bi-circle"></i><span>All Raffles</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_back_raffle_new') }}">
+                        <a href="{{ path('app_admin_raffle_new') }}">
                             <i class="bi bi-circle"></i><span>Create Raffle</span>
                         </a>
                     </li>
@@ -186,31 +186,30 @@
               </a>
               <ul id="bets-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                 <li>
-                    <a href="{{ path('app_bet_session_index') }}">
+                    <a href="{{ path('app_admin_bet_session_index') }}">
                     <i class="bi bi-circle"></i><span>All Bets</span>
                     </a>
                 </li>
                 <li>
-                  <a href="{{ path('app_bet_session_create') }}">
+                  <a href="{{ path('app_admin_bet_session_create') }}">
                     <i class="bi bi-circle"></i><span>Create Bet</span>
                   </a>
                 </li>
               </ul>
             </li>
                 <li class="nav-item">
-                    <a class="nav-link collapsed" href="{{ path('app_back_trade') }}">
+                    <a class="nav-link collapsed" href="{{ path('app_admin_trade') }}">
                         <i class="bi bi-arrow-left-right"></i>
                         <span>Trade Offer</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link collapsed" href="{{ path('app_trade_dispute_back') }}">
+                    <a class="nav-link collapsed" href="{{ path('app_admin_trade_dispute_index') }}">
                         <i class="bi bi-exclamation-triangle"></i>
                         <span>Trade Disputes</span>
                     </a>
                 </li>
-            </li>
 
         
             <li class="nav-heading">Settings</li>
