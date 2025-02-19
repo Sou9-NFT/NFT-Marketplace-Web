@@ -50,6 +50,14 @@ security:
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/blog, roles: PUBLIC_ACCESS }
+        - { path: ^/raffle, roles: PUBLIC_ACCESS }
+        - { path: ^/artwork, roles: PUBLIC_ACCESS }
+        - { path: ^/auctions, roles: PUBLIC_ACCESS }
+        - { path: ^/bid, roles: PUBLIC_ACCESS }
+        - { path: ^/participant, roles: PUBLIC_ACCESS }
+        - { path: ^/category, roles: PUBLIC_ACCESS }
+        - { path: ^/comment, roles: PUBLIC_ACCESS }
+        - { path: ^/bet-session, roles: PUBLIC_ACCESS }
         
         # Admin area requires admin role
         - { path: ^/admin, roles: ROLE_ADMIN }
