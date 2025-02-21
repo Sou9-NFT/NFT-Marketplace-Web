@@ -110,7 +110,7 @@
             function updateFileHelp() {
                 const selectedOption = categorySelect.options[categorySelect.selectedIndex];
                 if (selectedOption.value) {
-                    fetch(`{{ path('back_category_info', {'id': '__ID__'}) }}`.replace('__ID__', selectedOption.value))
+                    fetch(`{{ path('app_admin_category_info', {'id': '__ID__'}) }}`.replace('__ID__', selectedOption.value))
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
