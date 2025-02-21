@@ -12,6 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
@@ -33,6 +34,10 @@ class UserType extends AbstractType
                         'minMessage' => 'Your name must be at least {{ limit }} characters long',
                         'maxMessage' => 'Your name cannot be longer than {{ limit }} characters',
                         'groups' => ['user'],
+                    ]),
+                    new Regex([
+                        'pattern' => '/^[a-zA-Z\s]+$/',
+                        'message' => 'Name can only contain letters and spaces'
                     ]),
                 ],
             ])

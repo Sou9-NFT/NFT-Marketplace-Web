@@ -60,7 +60,7 @@
                   {% endblock %}
 
                   {% block form %}
-                  <form class="row g-3 needs-validation" method="post" novalidate action="{{ path('back_login') }}">
+                  <form class="row g-3 needs-validation" method="post" novalidate action="{{ path('admin_login') }}">
                     {% if error %}
                         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                     {% endif %}

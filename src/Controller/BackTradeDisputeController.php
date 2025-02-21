@@ -11,10 +11,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/back/dispute')]
+#[Route('/admin/dispute')]
 class BackTradeDisputeController extends AbstractController
 {
-    #[Route('/', name: 'app_trade_dispute_back', methods: ['GET'])]
+    #[Route('/', name: 'app_admin_trade_dispute_index', methods: ['GET'])]
     public function index(TradeDisputeRepository $tradeDisputeRepository): Response
     {
         return $this->render('back_trade_dispute/back_dispute.html.twig', [
@@ -22,7 +22,7 @@ class BackTradeDisputeController extends AbstractController
         ]);
     }
 
-    #[Route('/add', name: 'app_back_trade_dispute_add', methods: ['GET', 'POST'])]
+    #[Route('/add', name: 'app_admin_trade_dispute_add', methods: ['GET', 'POST'])]
     public function add(Request $request, EntityManagerInterface $entityManager): Response
     {
         $tradeDispute = new TradeDispute();
@@ -66,7 +66,7 @@ class BackTradeDisputeController extends AbstractController
             $entityManager->persist($tradeDispute);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_trade_dispute_back', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_trade_dispute_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('back_trade_dispute/add.html.twig', [
@@ -75,7 +75,7 @@ class BackTradeDisputeController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/show', name: 'app_back_trade_dispute_show', methods: ['GET'])]
+    #[Route('/{id}/show', name: 'app_admin_trade_dispute_show', methods: ['GET'])]
     public function show(TradeDispute $tradeDispute): Response
     {
         return $this->render('back_trade_dispute/show.html.twig', [
@@ -83,7 +83,7 @@ class BackTradeDisputeController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_back_trade_dispute_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_trade_dispute_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, TradeDispute $tradeDispute, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(TradeDisputeType::class, $tradeDispute, [
@@ -94,7 +94,7 @@ class BackTradeDisputeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-            return $this->redirectToRoute('app_trade_dispute_back', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_trade_dispute_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('back_trade_dispute/edit.html.twig', [
@@ -103,7 +103,7 @@ class BackTradeDisputeController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_back_trade_dispute_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_admin_trade_dispute_delete', methods: ['POST'])]
     public function delete(Request $request, TradeDispute $tradeDispute, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$tradeDispute->getId(), $request->request->get('_token'))) {
@@ -111,6 +111,6 @@ class BackTradeDisputeController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_trade_dispute_back', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_trade_dispute_index', [], Response::HTTP_SEE_OTHER);
     }
 }
