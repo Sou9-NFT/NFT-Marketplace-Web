@@ -14,7 +14,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         back_office:
-            pattern: ^/admin
+            pattern: ^/admin/
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\UserAuthAuthenticator
@@ -59,8 +59,8 @@ security:
         - { path: ^/comment, roles: PUBLIC_ACCESS }
         - { path: ^/bet-session, roles: PUBLIC_ACCESS }
         
-        # Admin area requires admin role
-        - { path: ^/admin, roles: ROLE_ADMIN }
+        # Admin area requires admin role - Note the trailing slash to be explicit about admin routes
+        - { path: ^/admin/, roles: ROLE_ADMIN }
         
         # Other routes require authentication
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
