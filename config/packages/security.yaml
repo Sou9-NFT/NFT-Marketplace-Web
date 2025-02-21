@@ -13,23 +13,6 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        back_office:
-            pattern: ^/admin/
-            lazy: true
-            provider: app_user_provider
-            custom_authenticator: App\Security\UserAuthAuthenticator
-            entry_point: App\Security\UserAuthAuthenticator
-            form_login:
-                login_path: admin_login
-                check_path: admin_login
-            access_denied_handler: App\Security\AccessDeniedHandler
-            logout:
-                path: app_logout
-                target: app_home_page
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800
-                path: /
         main:
             lazy: true
             provider: app_user_provider
@@ -41,28 +24,38 @@ security:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
+        back_office:
+            pattern: ^/(admin|back)
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\UserAuthAuthenticator
+            entry_point: App\Security\UserAuthAuthenticator
+            access_denied_handler: App\Security\AccessDeniedHandler
+            logout:
+                path: app_logout
+                target: app_home_page
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
 
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
     access_control:
-        # Public access routes
+        # Allow access to login pages and registration
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
-        - { path: ^/$, roles: PUBLIC_ACCESS }
-        - { path: ^/blog, roles: PUBLIC_ACCESS }
-        - { path: ^/raffle, roles: PUBLIC_ACCESS }
-        - { path: ^/artwork, roles: PUBLIC_ACCESS }
-        - { path: ^/auctions, roles: PUBLIC_ACCESS }
-        - { path: ^/bid, roles: PUBLIC_ACCESS }
-        - { path: ^/participant, roles: PUBLIC_ACCESS }
-        - { path: ^/category, roles: PUBLIC_ACCESS }
-        - { path: ^/comment, roles: PUBLIC_ACCESS }
-        - { path: ^/bet-session, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
+        - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
+        - { path: ^/artwork, roles: PUBLIC_ACCESS }  # Allow public access to artwork
+        - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
         
-        # Admin area requires admin role - Note the trailing slash to be explicit about admin routes
-        - { path: ^/admin/, roles: ROLE_ADMIN }
+        # Back office requires admin role
+        - { path: ^/admin, roles: ROLE_ADMIN }
         
-        # Other routes require authentication
+        # Front office is accessible to all authenticated users
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
