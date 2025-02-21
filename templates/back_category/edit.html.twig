@@ -8,7 +8,7 @@
             <h1>Edit Category</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ path('app_back_category_index') }}">Categories</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_admin_category_index') }}">Categories</a></li>
                     <li class="breadcrumb-item active">Edit</li>
                 </ol>
             </nav>
@@ -70,7 +70,7 @@
                             </div>
 
                             <div class="text-end">
-                                <a href="{{ path('app_back_category_index') }}" class="btn btn-secondary">
+                                <a href="{{ path('app_admin_category_index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary">
@@ -95,7 +95,7 @@
 
             function updateMimeTypes(selectedType) {
                 if (selectedType) {
-                    fetch(`{{ path('app_back_category_info', {'id': category.id}) }}?type=${selectedType}`)
+                    fetch(`{{ path('app_admin_category_info', {'id': category.id}) }}?type=${selectedType}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Network response was not ok');

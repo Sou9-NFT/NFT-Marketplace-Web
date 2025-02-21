@@ -9,7 +9,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ path('app_home_page') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ path('app_back_artwork_index') }}">Artwork Management</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_admin_artwork_index') }}">Artwork Management</a></li>
                     <li class="breadcrumb-item active">Create New</li>
                 </ol>
             </nav>
@@ -81,7 +81,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-check-circle"></i> Create
                                 </button>
-                                <a href="{{ path('app_back_artwork_index') }}" class="btn btn-secondary">
+                                <a href="{{ path('app_admin_artwork_index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
                                 </a>
                             </div>
@@ -110,7 +110,7 @@
             function updateFileHelp() {
                 const selectedOption = categorySelect.options[categorySelect.selectedIndex];
                 if (selectedOption.value) {
-                    fetch(`{{ path('app_back_category_info', {'id': '__ID__'}) }}`.replace('__ID__', selectedOption.value))
+                    fetch(`{{ path('app_admin_category_info', {'id': '__ID__'}) }}`.replace('__ID__', selectedOption.value))
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');

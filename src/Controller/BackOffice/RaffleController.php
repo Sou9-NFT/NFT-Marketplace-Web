@@ -39,7 +39,7 @@ class RaffleController extends AbstractController
         }
     }
 
-    #[Route('/', name: 'app_back_raffle_index', methods: ['GET'])]
+    #[Route('/', name: 'app_admin_raffle_index', methods: ['GET'])]
     public function index(): Response
     {
         $raffles = $this->raffleRepository->findAll();
@@ -57,7 +57,7 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_back_raffle_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_raffle_new', methods: ['GET', 'POST'])]
     public function new(Request $request, SluggerInterface $slugger): Response
     {
         $raffle = new Raffle();
@@ -79,7 +79,7 @@ class RaffleController extends AbstractController
                     $raffle->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_back_raffle_new');
+                    return $this->redirectToRoute('app_admin_raffle_new');
                 }
             }
     
@@ -90,7 +90,7 @@ class RaffleController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Raffle created successfully.');
-            return $this->redirectToRoute('app_back_raffle_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_raffle_index', [], Response::HTTP_SEE_OTHER);
         }
     
         return $this->render('raffle/raffle_form_back.html.twig', [
@@ -99,7 +99,7 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_back_raffle_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_raffle_show', methods: ['GET'])]
     public function show(Raffle $raffle): Response
     {
         $this->checkAndUpdateRaffleStatus($raffle);
@@ -109,7 +109,7 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_back_raffle_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_raffle_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Raffle $raffle, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(RaffleType::class, $raffle, [
@@ -132,13 +132,13 @@ class RaffleController extends AbstractController
                     $raffle->setImage($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_back_raffle_edit', ['id' => $raffle->getId()]);
+                    return $this->redirectToRoute('app_admin_raffle_edit', ['id' => $raffle->getId()]);
                 }
             }
 
             $this->entityManager->flush();
             $this->addFlash('success', 'Raffle updated successfully.');
-            return $this->redirectToRoute('app_back_raffle_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_raffle_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('raffle/raffle_form_back.html.twig', [
@@ -148,7 +148,7 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_back_raffle_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_admin_raffle_delete', methods: ['POST'])]
     public function delete(Request $request, Raffle $raffle): Response
     {
         if ($this->isCsrfTokenValid('delete'.$raffle->getId(), $request->request->get('_token'))) {
@@ -156,10 +156,10 @@ class RaffleController extends AbstractController
             $this->entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_back_raffle_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_raffle_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/participants', name: 'app_back_raffle_participants', methods: ['GET'])]
+    #[Route('/{id}/participants', name: 'app_admin_raffle_participants', methods: ['GET'])]
     public function participants(Raffle $raffle): Response
     {
         return $this->render('raffle/raffleback.html.twig', [
