@@ -45,7 +45,7 @@ security:
         # Allow access to login pages and registration
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/back/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
         - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
@@ -53,7 +53,7 @@ security:
         - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
         
         # Back office requires admin role
-        - { path: ^/back, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         
         # Front office is accessible to all authenticated users
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

@@ -21,7 +21,7 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'app_login';
-    public const BACK_LOGIN_ROUTE = 'back_login';
+    public const ADMIN_LOGIN_ROUTE = 'admin_login';
 
     public function __construct(private UrlGeneratorInterface $urlGenerator) {}
 
@@ -48,11 +48,11 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
 
         $route = $request->attributes->get('_route');
         $user = $token->getUser();
-        $isBackOffice = str_starts_with($request->getPathInfo(), '/back');
+        $isAdminArea = str_starts_with($request->getPathInfo(), '/admin');
         $isAdmin = in_array('ROLE_ADMIN', $user->getRoles());
 
-        // Handle back office login attempts
-        if ($isBackOffice) {
+        // Handle admin area login attempts
+        if ($isAdminArea) {
             if ($isAdmin) {
                 return new RedirectResponse($this->urlGenerator->generate('app_home_page_back'));
             } else {
@@ -66,9 +66,9 @@ class UserAuthAuthenticator extends AbstractLoginFormAuthenticator
 
     protected function getLoginUrl(Request $request): string
     {
-        // If trying to access back office, use back office login
-        if (str_starts_with($request->getPathInfo(), '/back')) {
-            return $this->urlGenerator->generate(self::BACK_LOGIN_ROUTE);
+        // If trying to access admin area, use admin login
+        if (str_starts_with($request->getPathInfo(), '/admin')) {
+            return $this->urlGenerator->generate(self::ADMIN_LOGIN_ROUTE);
         }
         
         // Otherwise use regular login
