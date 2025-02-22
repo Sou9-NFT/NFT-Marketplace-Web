@@ -32,5 +32,14 @@ services:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
+    # Register Ethereum service and Twig extension
+    App\Service\EthereumService:
+        arguments: []
+        
+    App\Twig\EthereumExtension:
+        tags: ['twig.extension']
+        arguments:
+            $ethereumService: '@App\Service\EthereumService'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

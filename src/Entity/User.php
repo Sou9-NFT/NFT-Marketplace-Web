@@ -76,10 +76,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Url(message: 'The profile picture must be a valid URL', groups: ['profile_picture_update'])]
     private ?string $profilePicture = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
-    #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
-    private ?float $balance = 0;
-
     #[ORM\Column(length: 42, nullable: true)]
     #[Assert\Length(exactly: 42, exactMessage: 'Ethereum address must be exactly {{ limit }} characters')]
     #[Assert\Regex(
@@ -100,7 +96,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdRaffles = new ArrayCollection();
         $this->participations = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
-        $this->balance = 0; // Initialize balance to 0
         $this->plainPassword = null; // Initialize plainPassword
     }
 
@@ -223,18 +218,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfilePicture(?string $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
-
-        return $this;
-    }
-
-    public function getBalance(): ?float
-    {
-        return $this->balance;
-    }
-
-    public function setBalance(float $balance): static
-    {
-        $this->balance = $balance;
 
         return $this;
     }
