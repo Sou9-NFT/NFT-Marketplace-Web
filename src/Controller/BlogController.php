@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/blog')]
 class BlogController extends AbstractController
@@ -64,20 +65,37 @@ class BlogController extends AbstractController
 
     #[Route('/new', name: 'app_blog_new', methods: ['GET', 'POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $blog = new Blog();
+        $blog->setUser($this->getUser());
         $blog->setDate(new \DateTime());
-        $blog->setUser($this->getUser()); // Set the current user as the blog author
         
         $form = $this->createForm(BlogType::class, $blog);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('blog_images_directory'),
+                        $newFilename
+                    );
+                    $blog->setImageFilename($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Error uploading image');
+                }
+            }
+
             $entityManager->persist($blog);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Blog post created successfully!');
             return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -131,13 +149,40 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_blog_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Blog $blog, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(BlogType::class, $blog);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    // Delete old image if it exists
+                    if ($blog->getImageFilename()) {
+                        $oldImagePath = $this->getParameter('blog_images_directory') . '/' . $blog->getImageFilename();
+                        if (file_exists($oldImagePath)) {
+                            unlink($oldImagePath);
+                        }
+                    }
+                    
+                    $imageFile->move(
+                        $this->getParameter('blog_images_directory'),
+                        $newFilename
+                    );
+                    $blog->setImageFilename($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Error uploading image');
+                }
+            }
+
             $entityManager->flush();
+            $this->addFlash('success', 'Blog post updated successfully!');
 
             return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
         }

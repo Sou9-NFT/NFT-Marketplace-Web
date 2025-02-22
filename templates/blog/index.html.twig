@@ -19,25 +19,29 @@
     .card-text {
         color: #888;
     }
-    .btn-purple {
-        background-color: #6f42c1;
+    .btn-outline-purple {
+        color: #6f42c1;
         border-color: #6f42c1;
-        color: white;
-        transition: all 0.2s;
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.2rem;
+        transition: all 0.2s ease;
     }
-    .btn-purple:hover {
-        background-color: #553098;
-        border-color: #553098;
+    .btn-outline-purple:hover {
+        background-color: #6f42c1;
         color: white;
         transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
     }
     .card-actions {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
     }
     .card-actions .btn {
-        flex: 0 0 auto;
+        border-radius: 6px;
+    }
+    .card-actions .fas {
+        font-size: 0.875rem;
     }
     .meta-info {
         color: #666;
@@ -74,6 +78,12 @@
             {% for blog in blogs %}
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100">
+                        {% if blog.imageFilename %}
+                            <img src="{{ asset('uploads/blog_images/' ~ blog.imageFilename) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ blog.title }}"
+                                 style="height: 200px; object-fit: cover;">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ blog.title }}</h5>
                             <p class="card-text">{{ blog.content|slice(0, 100) }}...</p>
@@ -101,15 +111,17 @@
                             {% endif %}
 
                             <div class="card-actions mt-3">
-                                <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="btn btn-sm btn-purple me-2">
-                                    <i class="fas fa-book-reader"></i> Read More
+                                <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="btn btn-sm btn-outline-purple">
+                                    <i class="fas fa-book-reader fa-sm"></i>
                                 </a>
-                                <a href="{{ path('app_comment_new', {'blogId': blog.id}) }}" class="btn btn-sm btn-purple me-2">
-                                    <i class="fas fa-comment"></i> Comment
+                                <a href="{{ path('app_comment_new', {'blogId': blog.id}) }}" class="btn btn-sm btn-outline-purple">
+                                    <i class="fas fa-comment fa-sm"></i>
                                 </a>
-                                <a href="{{ path('app_blog_edit', {'id': blog.id}) }}" class="btn btn-sm btn-purple">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
+                                {% if app.user and blog.user == app.user %}
+                                    <a href="{{ path('app_blog_edit', {'id': blog.id}) }}" class="btn btn-sm btn-outline-purple">
+                                        <i class="fas fa-edit fa-sm"></i>
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -123,12 +135,10 @@
             {% endfor %}
         </div>
 
-        <div class="row mt-4 mb-5">
-            <div class="col text-center">
-                <a href="{{ path('app_blog_new') }}" class="btn btn-success">
-                    <i class="fas fa-plus-circle"></i> Create New Post
-                </a>
-            </div>
+        <div class="text-center mt-4 mb-5">
+            <a href="{{ path('app_blog_new') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Create New Post
+            </a>
         </div>
     </div>
 {% endblock %}
