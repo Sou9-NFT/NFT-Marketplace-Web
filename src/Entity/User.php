@@ -80,6 +80,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
     private ?float $balance = 0;
 
+    #[ORM\Column(length: 42, nullable: true)]
+    #[Assert\Length(exactly: 42, exactMessage: 'Ethereum address must be exactly {{ limit }} characters')]
+    #[Assert\Regex(
+        pattern: '/^0x[a-fA-F0-9]{40}$/',
+        message: 'Invalid Ethereum address format'
+    )]
+    private ?string $walletAddress = null;
+
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
 
@@ -228,6 +236,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->balance = $balance;
 
+        return $this;
+    }
+
+    public function getWalletAddress(): ?string
+    {
+        return $this->walletAddress;
+    }
+
+    public function setWalletAddress(?string $walletAddress): static
+    {
+        $this->walletAddress = $walletAddress;
         return $this;
     }
 
