@@ -10,10 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Regex;
 
 class UserType extends AbstractType
 {
@@ -25,51 +21,17 @@ class UserType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                 ],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter the name',
-                    ]),
-                    new Length([
-                        'min' => 2,
-                        'max' => 32,
-                        'minMessage' => 'The name must be at least {{ limit }} characters long',
-                        'maxMessage' => 'The name cannot be longer than {{ limit }} characters',
-                    ]),
-                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email Address',
                 'attr' => [
                     'class' => 'form-control',
                 ],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter an email address',
-                    ]),
-                    new Email([
-                        'message' => 'Please enter a valid email address',
-                        'mode' => 'strict',
-                    ]),
-                    new Regex([
-                        'pattern' => '/^.*@.*$/',
-                        'message' => 'The email must contain @',
-                    ]),
-                ],
             ])
-            ->add('password', PasswordType::class, [
+            ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password',
                 'attr' => [
                     'class' => 'form-control',
-                ],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter a password',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
-                        'max' => 4096,
-                    ]),
                 ],
             ])
             ->add('profilePicture', FileType::class, [
