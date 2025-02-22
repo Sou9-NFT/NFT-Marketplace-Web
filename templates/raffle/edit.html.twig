@@ -13,11 +13,29 @@
                     <div class="card-body">
                         {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
                             <div class="mb-3">
+                                {{ form_label(form.title, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.title) }}
+                                <div class="form-text text-muted">
+                                    Title must be between 3 and 255 characters.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
                                 {{ form_label(form.creator_name, null, {'label_attr': {'class': 'form-label text-white'}}) }}
                                 {{ form_widget(form.creator_name, {'attr': {'class': 'form-control'}}) }}
                                 {{ form_errors(form.creator_name) }}
                                 <div class="form-text text-muted">
-                                    Name must be between 2 and 50 characters.
+                                    Name must be between 2 and 255 characters.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.raffleDescription, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+                                {{ form_errors(form.raffleDescription) }}
+                                <div class="form-text text-muted">
+                                    Description must be between 10 and 1000 characters.
                                 </div>
                             </div>
 
@@ -25,9 +43,9 @@
                                 {{ form_label(form.image, null, {'label_attr': {'class': 'form-label text-white'}}) }}
                                 {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
                                 {{ form_errors(form.image) }}
-                                {% if old.image_name is defined and old.image_name %}
+                                {% if raffle.image %}
                                     <div class="form-text text-white">
-                                        Current file: {{ old.image_name }}
+                                        Current image: {{ raffle.image }}
                                     </div>
                                 {% endif %}
                             </div>
@@ -41,18 +59,9 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                {{ form_label(form.raffle_description, null, {'label_attr': {'class': 'form-label text-white'}}) }}
-                                {{ form_widget(form.raffle_description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
-                                {{ form_errors(form.raffle_description) }}
-                                <div class="form-text text-muted">
-                                    Describe your raffle (optional)
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between mt-4">
-                                <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">Back</a>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Update Raffle</button>
+                                <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">Cancel</a>
                             </div>
                         {{ form_end(form) }}
                     </div>

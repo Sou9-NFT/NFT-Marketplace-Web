@@ -11,32 +11,36 @@
                         <h1 class="h3 mb-0 text-white">Create New Raffle</h1>
                     </div>
                     <div class="card-body">
-                        {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                            <!-- Creator Name -->
                             <div class="mb-3">
                                 {{ form_label(form.creator_name, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.creator_name, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.creator_name) }}
+                                {{ form_errors(form.creator_name) }} <!-- Ensure custom errors display -->
                             </div>
 
+                            <!-- Image -->
                             <div class="mb-3">
                                 {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.image) }}
+                                {{ form_errors(form.image) }} <!-- Ensure custom errors display -->
                             </div>
 
+                            <!-- End Time -->
                             <div class="mb-3">
                                 {{ form_label(form.endTime, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.endTime) }}
+                                {{ form_errors(form.endTime) }} <!-- Ensure custom errors display -->
                                 <div class="form-text text-muted">
                                     End time must be in the future
                                 </div>
                             </div>
 
+                            <!-- Raffle Description -->
                             <div class="mb-3">
-                                {{ form_label(form.raffle_description, null, {'label_attr': {'class': 'form-label'}}) }}
-                                {{ form_widget(form.raffle_description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
-                                {{ form_errors(form.raffle_description) }}
+                                {{ form_label(form.raffleDescription, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                                {{ form_errors(form.raffleDescription) }} <!-- Ensure custom errors display -->
                                 <div class="form-text text-muted">
                                     Describe your raffle (optional)
                                 </div>

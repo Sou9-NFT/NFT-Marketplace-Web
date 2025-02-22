@@ -4,51 +4,68 @@
 
 {% block body %}
     <div class="container mt-4">
-        <h1>Edit Category</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Edit Category</h1>
+            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
 
-        {{ form_start(form) }}
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    {{ form_label(form.name) }}
-                    {{ form_widget(form.name) }}
-                    {{ form_errors(form.name) }}
-                </div>
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
 
-                <div class="mb-3">
-                    {{ form_label(form.type) }}
-                    {{ form_widget(form.type) }}
-                    {{ form_errors(form.type) }}
-                </div>
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
 
-                <div class="mb-3">
-                    {{ form_label(form.description) }}
-                    {{ form_widget(form.description) }}
-                    {{ form_errors(form.description) }}
-                </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Edit {{ category.name }}</h5>
 
-                <div class="mb-3">
-                    <label>Allowed MIME Types</label>
-                    <div class="mime-types-wrapper"
-                         data-prototype="{{ form_widget(form.allowedMimeTypes.vars.prototype)|e('html_attr') }}">
-                        {% for mimeTypeField in form.allowedMimeTypes %}
-                            <div class="input-group mb-2">
-                                {{ form_widget(mimeTypeField) }}
-                                <button type="button" class="btn btn-danger remove-mime-type">Remove</button>
-                            </div>
-                        {% endfor %}
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            {{ form_label(form.type) }}
+                            {{ form_widget(form.type) }}
+                            {{ form_errors(form.type) }}
+                            {% if category.artworks|length > 0 %}
+                                <small class="form-text text-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    Changing the type may affect existing artworks in this category.
+                                </small>
+                            {% endif %}
+                            <div id="mimeTypesHelp" class="form-text mt-2"></div>
+                        </div>
                     </div>
-                    <button type="button" class="btn btn-secondary add-mime-type">Add MIME Type</button>
-                    {{ form_errors(form.allowedMimeTypes) }}
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            {{ form_label(form.description) }}
+                            {{ form_widget(form.description) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                    </div>
                 </div>
+
+                <div class="text-end mt-3">
+                    <a href="{{ path('app_category_index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+                {{ form_end(form) }}
             </div>
         </div>
-
-        <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="{{ path('app_category_index') }}" class="btn btn-secondary">Back to list</a>
-        </div>
-        {{ form_end(form) }}
     </div>
 {% endblock %}
 
@@ -56,25 +73,25 @@
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let mimeTypesWrapper = document.querySelector('.mime-types-wrapper');
-            let addButton = document.querySelector('.add-mime-type');
-            let prototype = mimeTypesWrapper.dataset.prototype;
-            let index = document.querySelectorAll('.mime-types-wrapper .input-group').length;
+            const typeSelect = document.querySelector('#category_type');
+            const mimeTypesHelp = document.querySelector('#mimeTypesHelp');
+            const mimeTypes = {
+                'image': ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+                'video': ['video/mp4', 'video/webm', 'video/ogg'],
+                'audio': ['audio/mpeg', 'audio/ogg', 'audio/wav']
+            };
 
-            addButton.addEventListener('click', function() {
-                let newForm = prototype.replace(/__name__/g, index);
-                let div = document.createElement('div');
-                div.classList.add('input-group', 'mb-2');
-                div.innerHTML = newForm + '<button type="button" class="btn btn-danger remove-mime-type">Remove</button>';
-                mimeTypesWrapper.appendChild(div);
-                index++;
-            });
-
-            mimeTypesWrapper.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-mime-type')) {
-                    e.target.closest('.input-group').remove();
+            function updateMimeTypesHelp() {
+                const selectedType = typeSelect.value;
+                if (selectedType && mimeTypes[selectedType]) {
+                    mimeTypesHelp.innerHTML = `<strong>Allowed MIME types:</strong><br>${mimeTypes[selectedType].join(', ')}`;
+                } else {
+                    mimeTypesHelp.innerHTML = '';
                 }
-            });
+            }
+
+            typeSelect.addEventListener('change', updateMimeTypesHelp);
+            updateMimeTypesHelp(); // Initial update
         });
     </script>
 {% endblock %}

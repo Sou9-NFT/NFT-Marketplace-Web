@@ -1,0 +1,31 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Edit TradeDispute{% endblock %}
+
+{% block content %}
+<h1><center>Edit Trade Dispute</center></h1>
+<br><br>
+<div class="table-responsive" style="max-width: 600px; margin: auto;">
+    {{ form_start(form) }}
+    <table class="table table-sm table-bordered">
+        <tbody>
+            {% for field in form %}
+                <tr>
+                    <th style="width: 200px;">{{ form_label(field) }}</th>
+                    <td>{{ form_widget(field, {'attr': {'class': 'form-control form-control-sm'}}) }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="mt-2 text-center">
+        <button type="submit" class="btn btn-primary btn-sm">{{ button_label|default('Update') }}</button>
+    </div>
+    {{ form_end(form) }}
+</div>
+
+<div class="text-center mt-2">
+    <a href="{{ path('app_trade_dispute_back') }}" class="btn btn-secondary btn-sm">Back to list</a>
+</div>
+
+{{ include('back_trade_dispute/_delete_form.html.twig') }}
+{% endblock %}

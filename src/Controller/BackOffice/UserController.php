@@ -11,16 +11,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface; // Add this use statement at the top
 
 #[Route('/back/user')]
 #[IsGranted('ROLE_ADMIN')]
 class UserController extends AbstractController
 {
     private $entityManager;
+    private $passwordHasher;  // Add this property
 
-    public function __construct(EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher  // Add password hasher to constructor
+    ) {
         $this->entityManager = $entityManager;
+        $this->passwordHasher = $passwordHasher;
     }
 
     #[Route('/', name: 'app_back_user_index', methods: ['GET'])]
@@ -39,10 +44,15 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Hash the password before persisting
+            $hashedPassword = $this->passwordHasher->hashPassword(
+                $user,
+                $form->get('password')->getData()
+            );
+            $user->setPassword($hashedPassword);
+
             $this->entityManager->persist($user);
             $this->entityManager->flush();
-
-            $this->addFlash('success', 'User created successfully.');
             return $this->redirectToRoute('app_back_user_index');
         }
 
@@ -68,8 +78,6 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
-
-            $this->addFlash('success', 'User updated successfully.');
             return $this->redirectToRoute('app_back_user_index');
         }
 
@@ -88,7 +96,7 @@ class UserController extends AbstractController
             'ROLE_SELLER',
             'ROLE_AUTHOR'
         ];
-        
+
         if ($request->isMethod('POST')) {
             $roles = $request->request->all()['roles'] ?? [];
             // Ensure ROLE_USER is always present
@@ -97,7 +105,7 @@ class UserController extends AbstractController
             }
             $user->setRoles($roles);
             $this->entityManager->flush();
-            
+
             $this->addFlash('success', 'User roles updated successfully.');
             return $this->redirectToRoute('app_back_user_index');
         }
@@ -111,7 +119,7 @@ class UserController extends AbstractController
     #[Route('/{id}', name: 'app_back_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
             $this->entityManager->remove($user);
             $this->entityManager->flush();
             $this->addFlash('success', 'User deleted successfully.');
