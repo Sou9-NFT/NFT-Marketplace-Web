@@ -154,8 +154,12 @@
 							<div class="owner d-flex align-items-center mt-3">
 								<span>Owned By</span>
 								<a class="owner-meta d-flex align-items-center ml-3" href="author.html">
-									<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-									<h6 class="ml-2">Themeland</h6>
+									{% if bet_session.artwork.owner.profilePicture %}
+										<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
+									{% else %}
+										<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+									{% endif %}
+									<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
 								</a>
 							</div>
 							<!-- Item Info List -->
@@ -168,13 +172,17 @@
 									</div>
 									<div class="col-12 col-md-6 item px-lg-2">
 										<div class="card no-hover">
-											<div class="single-seller d-flex align-items-center">
+												<div class="single-seller d-flex align-items-center">
 												<a href="author.html">
-													<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+													{% if bet_session.artwork.creator.profilePicture %}
+														<img class="avatar-md rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.creator.profilePicture) }}" alt="">
+													{% else %}
+														<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+													{% endif %}
 												</a>
 												<!-- Seller Info -->
 												<div class="seller-info ml-3">
-													<a class="seller mb-2" href="author.html">@ArtNoxStudio</a>
+													<a class="seller mb-2" href="author.html">@{{bet_session.artwork.creator.name|capitalize}}</a>
 													<span>Creator</span>
 												</div>
 											</div>

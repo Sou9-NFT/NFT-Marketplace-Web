@@ -136,10 +136,14 @@
 							<p>{{bet_session.artwork.description}}</p>
 							<!-- Owner -->
 							<div class="owner d-flex align-items-center">
-								<span>Owned By</span>
+							<span>Owned By</span>
 								<a class="owner-meta d-flex align-items-center ml-3" href="author.html">
-									<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-									<h6 class="ml-2">Themeland</h6>
+									{% if bet_session.artwork.owner.profilePicture %}
+										<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
+									{% else %}
+										<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+									{% endif %}
+									<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
 								</a>
 							</div>
 							<!-- Item Info List -->
@@ -154,11 +158,15 @@
 										<div class="card no-hover">
 											<div class="single-seller d-flex align-items-center">
 												<a href="author.html">
-													<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+													{% if bet_session.artwork.creator.profilePicture %}
+														<img class="avatar-md rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.creator.profilePicture) }}" alt="">
+													{% else %}
+														<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+													{% endif %}
 												</a>
 												<!-- Seller Info -->
 												<div class="seller-info ml-3">
-													<a class="seller mb-2" href="author.html">@ArtNoxStudio</a>
+													<a class="seller mb-2" href="author.html">@{{bet_session.artwork.creator.name|capitalize}}</a>
 													<span>Creator</span>
 												</div>
 											</div>
@@ -280,46 +288,7 @@
 			</section>
 			<!-- ***** Live Auctions Area End ***** -->
 		{% endif %}
-
-	<!-- Modal -->
-    <div class="modal fade" id="placeBidModal" tabindex="-1" role="dialog" aria-labelledby="placeBidModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="placeBidModalLabel">Place a Bid</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!-- Form to Place Bid -->
-                    <form action="{{ path('app_add_bid') }}" method="post">
-                        <input type="hidden" name="betSessionId" value="{{ bet_session.id }}">
-                        <div class="form-group">
-                            <label for="bidValue">Enter Your Bid</label>
-                            <input type="number" class="form-control" id="bidValue" name="bidValue" placeholder="Enter bid amount" required>
-                            {% for error in app.flashes('error') %}
-                                <div class="alert alert-danger mt-2">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-                            {% for message in app.flashes('success') %}
-                                <div class="alert alert-success mt-2">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <button type="submit" class="btn btn-bordered-white btn-primary btn-block">Submit Bid</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Trigger Button -->
-    <a class="d-block btn btn-bordered-white mt-4" href="#" data-toggle="modal" data-target="#placeBidModal">Place a Bid</a>
-
-    <!-- Other content -->
+>
 </div>
 
 <script>
