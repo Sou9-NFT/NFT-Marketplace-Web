@@ -148,6 +148,22 @@ class BlogController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/blog', name: 'app_admin_blog_index', methods: ['GET'])]
+    public function backendIndex(BlogRepository $blogRepository): Response
+    {
+        return $this->render('blog_back/posts.html.twig', [
+            'blogs' => $blogRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/admin/blog/{id}/show', name: 'app_blog_back_show', methods: ['GET'])]
+    public function backendShow(Blog $blog): Response
+    {
+        return $this->render('blog_back/show.html.twig', [
+            'blog' => $blog,
+        ]);
+    }
+
     #[Route('/{id}/edit', name: 'app_blog_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Blog $blog, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {

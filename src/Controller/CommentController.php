@@ -18,7 +18,7 @@ final class CommentController extends AbstractController
     #[Route('/', name: 'app_comment_index', methods: ['GET'])]
     public function index(CommentRepository $commentRepository): Response
     {
-        return $this->render('comment/index.html.twig', [
+        return $this->render('back_office_html/comment/index.html.twig', [
             'comments' => $commentRepository->findAll(),
         ]);
     }
@@ -95,8 +95,16 @@ final class CommentController extends AbstractController
     #[Route('/admin/comments', name: 'app_comment_back_index', methods: ['GET'])]
     public function backendIndex(CommentRepository $commentRepository): Response
     {
-        return $this->render('back_office_html/comment/index.html.twig', [
+        return $this->render('blog_back/comments.html.twig', [
             'comments' => $commentRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/admin/comments/{id}/show', name: 'app_comment_back_show', methods: ['GET'])]
+    public function backendShow(Comment $comment): Response
+    {
+        return $this->render('blog_back/comment_show.html.twig', [
+            'comment' => $comment,
         ]);
     }
 
@@ -113,7 +121,7 @@ final class CommentController extends AbstractController
             return $this->redirectToRoute('app_comment_back_index');
         }
 
-        return $this->render('back_office_html/comment/edit.html.twig', [
+        return $this->render('blog_back/comment_edit.html.twig', [
             'comment' => $comment,
             'form' => $form,
         ]);
