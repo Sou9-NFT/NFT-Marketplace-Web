@@ -133,11 +133,12 @@
                                     <span class="ml-2">{{ app.user.name ?: app.user.email }}</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-<li><a class="dropdown-item" href="{{ path('app_user_show', {'id': app.user.id}) }}">Profile</a></li>
-                                        <li><a class="dropdown-item" href="{{ path('app_bet_session_mylist', {'userId': app.user.id}) }}">My Bet Sessions</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
-                                    </ul>
+                                    <li><a class="dropdown-item" href="{{ path('app_user_show', {'id': app.user.id}) }}">Profile</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_bet_session_mylist', {'userId': app.user.id}) }}">My Bet Sessions</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_wallet_connect') }}">Connect Wallet</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
+                                </ul>
                                 </div>
                             </li>
                             <li class="nav-item ml-3">
@@ -310,27 +311,17 @@
 
         window.addEventListener('load', async () => {
             if (typeof window.ethereum !== 'undefined') {
-                try {
-                    // Initialize Web3 with MetaMask provider
-                    web3 = new Web3(window.ethereum);
-                    
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                // Initialize Web3 with MetaMask provider
+                web3 = new Web3(window.ethereum);
+                
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', function (accounts) {
                     if (accounts.length > 0) {
                         updateTokenBalance(accounts[0]);
+                    } else {
+                        document.getElementById('walletBalance').textContent = 'Connect wallet';
                     }
-
-                    // Listen for account changes
-                    window.ethereum.on('accountsChanged', function (accounts) {
-                        if (accounts.length > 0) {
-                            updateTokenBalance(accounts[0]);
-                        } else {
-                            document.getElementById('walletBalance').textContent = 'Connect wallet';
-                        }
-                    });
-                } catch (error) {
-                    console.error('User denied account access');
-                    document.getElementById('walletBalance').textContent = 'Connect wallet';
-                }
+                });
             } else {
                 document.getElementById('walletBalance').textContent = 'Please install MetaMask';
             }

@@ -48,8 +48,7 @@
                             </div>
                             <div id="wallet-status" class="mt-3" style="display: none;">
                                 <p class="text-success">Connected: <span id="wallet-address"></span></p>
-                                <p class="text-white">ETH Balance: <span id="eth-balance"></span> ETH</p>
-                                <p class="text-white">Token Balance: <span id="wallet-balance"></span> ESPRIT DAN</p>
+                                <p class="text-white"><span id="eth-balance"></span> ETH</p>
                                 <div class="token-tutorial mt-3">
                                     <h5>How to Import ESPRIT DAN Token:</h5>
                                     <ol class="text-left">
@@ -178,22 +177,37 @@
         }
 
         async function connectMetaMask() {
-            try {
-                const result = await window.walletService.connectMetaMask();
-                updateWalletUI(result.address, result.balance);
-                
-                // Store wallet address in session
-                fetch('{{ path('app_connect_wallet') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ address: result.address })
-                });
-            } catch (error) {
-                alert('Failed to connect wallet: ' + error.message);
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Initialize Web3 with MetaMask provider if not already initialized
+                    if (!web3) {
+                        web3 = new Web3(window.ethereum);
+                    }
+                    
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    if (accounts.length > 0) {
+                        const address = accounts[0];
+                        updateWalletUI(address);
+                        updateTokenBalance(address);
+                    }
+                } catch (error) {
+                    console.error('User denied account access');
+                    alert('Failed to connect wallet: ' + error.message);
+                }
+            } else {
+                alert('Please install MetaMask');
             }
         }
+
+        // Only check if wallet is already connected when the page loads
+        window.addEventListener('load', async () => {
+            if (typeof window.ethereum !== 'undefined' && web3) {
+                const accounts = await web3.eth.getAccounts();
+                if (accounts.length > 0) {
+                    updateWalletUI(accounts[0]);
+                }
+            }
+        });
 
         // Check if wallet is already connected
         if (window.walletService && window.walletService.isConnected()) {
