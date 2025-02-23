@@ -98,9 +98,23 @@ final class BetSessionController extends AbstractController
         }
 
         $betSession = new BetSession();
-        $form = $this->createForm(BetSessionType::class, $betSession);
+        $form = $this->createForm(BetSessionType::class, $betSession, [
+            'user' => $this->getUser(),
+        ]);
         $form->handleRequest($request);
+        $existingBetSession = $entityManager->getRepository(BetSession::class)
+            ->createQueryBuilder('b')
+            ->where('b.artwork = :artwork')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('artwork', $betSession->getArtwork())
+            ->setParameter('statuses', ['active', 'pending'])
+            ->getQuery()
+            ->getOneOrNullResult();
 
+        if ($existingBetSession) {
+            $this->addFlash('error_new_betsession', 'This artwork is already in an active or pending auction.');
+            return $this->redirectToRoute('app_bet_session_new');
+        }
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var User $user */
             $user = $this->getUser();
