@@ -8,7 +8,7 @@ php bin/console app:insert-dummy-data
 
 > **Note:** This could cause errors if there are modifications in the entities. Ensure to update the files in the commands accordingly.
 
-## Add Balance
+## Add Balance (no longer works)
 
 ```sh
 php bin/console app:add-balance <email> <amount>
