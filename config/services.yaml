@@ -6,6 +6,8 @@
 parameters:
     artwork_images_directory: '%kernel.project_dir%/public/uploads/artworks'
     raffle_images_directory: '%kernel.project_dir%/public/uploads/raffle_images'
+    profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
+    evidence_directory: '%kernel.project_dir%/public/uploads/evidence'
 
 services:
     # default configuration for services in *this* file
@@ -29,6 +31,15 @@ services:
     App\Controller\RaffleController:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
+
+    # Register Ethereum service and Twig extension
+    App\Service\EthereumService:
+        arguments: []
+        
+    App\Twig\EthereumExtension:
+        tags: ['twig.extension']
+        arguments:
+            $ethereumService: '@App\Service\EthereumService'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

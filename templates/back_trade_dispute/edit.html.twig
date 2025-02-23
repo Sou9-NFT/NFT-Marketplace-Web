@@ -1,0 +1,46 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Edit Trade Dispute{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Edit Trade Dispute</h1>
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Trade ID = {{ trade_dispute.tradeId.id }}</label>
+            </div>
+
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                <div class="mb-3">
+                    {{ form_label(form.reason) }}
+                    {{ form_widget(form.reason, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.reason) }}
+                </div>
+
+                {% if trade_dispute.evidence %}
+                    <div class="mb-3">
+                        <label class="form-label">Evidence</label>
+                        <div>
+                            <a href="{{ asset('uploads/evidence/' ~ trade_dispute.evidence) }}" target="_blank" class="btn btn-info">
+                                <i class="fas fa-file-image"></i> View Evidence
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    {{ form_label(form.status) }}
+                    {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.status) }}
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('app_trade_dispute_back') }}" class="btn btn-secondary">Back to list</a>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

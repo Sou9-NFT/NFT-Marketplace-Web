@@ -9,6 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BetSessionRepository::class)]
 class BetSession
 {
+
+   
+    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -16,36 +20,36 @@ class BetSession
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotBlank]
     private ?User $author = null;
 
     #[ORM\ManyToOne(targetEntity: Artwork::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Artwork cannot be blank.")]
     private ?Artwork $artwork = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: false)]
-    #[Assert\NotBlank]
+    #[Assert\GreaterThan(propertyPath: "startTime", message: "End time must be after the start time.")]
+    #[Assert\NotBlank(message: "End time cannot be blank.")]
     private ?\DateTimeImmutable $endTime = null;
 
+  
+
     #[ORM\Column(nullable: false)]
-    #[Assert\NotBlank]
+    #[Assert\GreaterThan("today", message: "Start time must be in the future.")]
+    #[Assert\NotBlank(message: "Start time cannot be blank.")]
     private ?\DateTimeImmutable $startTime = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Initial price cannot be blank.")]
     private ?float $initialPrice = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Assert\NotBlank]
     private ?float $currentPrice = null;
 
     #[ORM\Column(length: 10)]
-    #[Assert\NotBlank]
     private string $status = 'pending';
 
     public function __construct()
@@ -143,6 +147,11 @@ class BetSession
         return $this->status;
     }
 
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+        return $this;
+    }
     public function updateStatus(): void
     {
         if ($this->endTime !== null && $this->endTime < new \DateTimeImmutable()) {

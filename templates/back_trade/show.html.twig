@@ -1,0 +1,101 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}View Trade Offer{% endblock %}
+
+{% block body %}
+<div class="pagetitle">
+    <h1>Trade Offers</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_trade') }}">Trade Offers</a></li>
+            <li class="breadcrumb-item active">View Trade Offer</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trade Offer Details #{{ trade_offer.id }}</h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>ID</th>
+                                        <td>{{ trade_offer.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Receiver</th>
+                                        <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Offered Item</th>
+                                        <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Received Item</th>
+                                        <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Description</th>
+                                        <td>{{ trade_offer.description }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Creation Date</th>
+                                        <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status</th>
+                                        <td>{{ trade_offer.status }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {% if trade_offer.offeredItem or trade_offer.receivedItem %}
+                        <div class="col-md-6">
+                            <div class="row">
+                                {% if trade_offer.offeredItem %}
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6>Offered Item</h6>
+                                        </div>
+                                        <img src="{{ asset('uploads/artworks/' ~ trade_offer.offeredItem.getImageName()) }}" class="card-img-top" alt="Offered Item">
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if trade_offer.receivedItem %}
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6>Received Item</h6>
+                                        </div>
+                                        <img src="{{ asset('uploads/artworks/' ~ trade_offer.receivedItem.getImageName()) }}" class="card-img-top" alt="Received Item">
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <a href="{{ path('app_admin_trade') }}" class="btn btn-secondary">Back to list</a>
+                            <a href="{{ path('app_admin_trade_offer_edit', {'id': trade_offer.id}) }}" class="btn btn-primary">Edit</a>
+                            {{ include('back_trade/_delete_form.html.twig', {'trade_offer': trade_offer}) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

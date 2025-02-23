@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Regex;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -19,6 +23,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'Email cannot be blank')]
+    #[Assert\Email(
+        message: 'The email {{ value }} is not a valid email.',
+        mode: 'strict'
+    )]
     private ?string $email = null;
 
     /**
@@ -33,18 +42,61 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 32, nullable: true)]
-    private ?string $name = null;
+    #[Assert\NotBlank(message: 'Password cannot be blank')]
+    #[Assert\Length(
+        min: 6,
+        max: 50,
+        minMessage: 'Your password must be at least {{ limit }} characters long',
+        maxMessage: 'Your password cannot be longer than {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?=.*[A-Z])(?=.*\d).+$/',
+        message: 'Password must contain at least one uppercase letter and one number'
+    )]
+    private ?string $plainPassword = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(length: 32, nullable: false)]
+    #[Assert\NotBlank(message: 'Name cannot be blank')]
+    #[Assert\Length(
+        min: 2,
+        max: 32,
+        minMessage: 'Your name must be at least {{ limit }} characters long',
+        maxMessage: 'Your name cannot be longer than {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s]+$/',
+        message: 'Name can only contain letters and spaces'
+    )]
+    private ?string $name = null;
+
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Url(message: 'The profile picture must be a valid URL', groups: ['profile_picture_update'])]
     private ?string $profilePicture = null;
+
+    #[ORM\Column(length: 42, nullable: true)]
+    #[Assert\Length(exactly: 42, exactMessage: 'Ethereum address must be exactly {{ limit }} characters')]
+    #[Assert\Regex(
+        pattern: '/^0x[a-fA-F0-9]{40}$/',
+        message: 'Invalid Ethereum address format'
+    )]
+    private ?string $walletAddress = null;
+
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
+    private Collection $createdRaffles;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participant::class)]
+    private Collection $participations;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->createdRaffles = new ArrayCollection();
+        $this->participations = new ArrayCollection();
+        $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
+        $this->plainPassword = null; // Initialize plainPassword
     }
 
     public function getId(): ?int
@@ -101,7 +153,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): ?string
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -109,6 +161,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): static
+    {
+        $this->plainPassword = $plainPassword;
 
         return $this;
     }
@@ -154,6 +218,77 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfilePicture(?string $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
+
+        return $this;
+    }
+
+    public function getWalletAddress(): ?string
+    {
+        return $this->walletAddress;
+    }
+
+    public function setWalletAddress(?string $walletAddress): static
+    {
+        $this->walletAddress = $walletAddress;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Raffle>
+     */
+    public function getCreatedRaffles(): Collection
+    {
+        return $this->createdRaffles;
+    }
+
+    public function addCreatedRaffle(Raffle $raffle): self
+    {
+        if (!$this->createdRaffles->contains($raffle)) {
+            $this->createdRaffles->add($raffle);
+            $raffle->setCreator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCreatedRaffle(Raffle $raffle): self
+    {
+        if ($this->createdRaffles->removeElement($raffle)) {
+            // set the owning side to null (unless already changed)
+            if ($raffle->getCreator() === $this) {
+                $raffle->setCreator(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Participant>
+     */
+    public function getParticipations(): Collection
+    {
+        return $this->participations;
+    }
+
+    public function addParticipation(Participant $participant): self
+    {
+        if (!$this->participations->contains($participant)) {
+            $this->participations->add($participant);
+            $participant->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipation(Participant $participant): self
+    {
+        if ($this->participations->removeElement($participant)) {
+            // set the owning side to null (unless already changed)
+            if ($participant->getUser() === $this) {
+                $participant->setUser(null);
+            }
+        }
 
         return $this;
     }

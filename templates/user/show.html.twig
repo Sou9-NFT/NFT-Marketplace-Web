@@ -3,44 +3,56 @@
 {% block title %}User{% endblock %}
 
 {% block body %}
-    <h1>User</h1>
-
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ user.id }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ user.email }}</td>
-            </tr>
-            <tr>
-                <th>Roles</th>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>{{ user.password }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ user.name }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>ProfilePicture</th>
-                <td>{{ user.profilePicture }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_user_index') }}">back to list</a>
-
-    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
-
-    {{ include('user/_delete_form.html.twig') }}
+    <!-- ***** Profile Area Start ***** -->
+    <section class="author-area">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-12 col-md-4">
+                    <div class="author-profile">
+                        <img src="{{ user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="img-fluid rounded-circle">
+                    </div>
+                </div>
+                <div class="col-12 col-md-7">
+                    <!-- Intro -->
+                    <div class="intro mt-5 mt-lg-0 mb-4 mb-lg-5">
+                        <div class="intro-content">
+                            <span>User Details</span>
+                            <h3 class="mt-3 mb-0">View User Information</h3>
+                        </div>
+                    </div>
+                    <!-- User Details -->
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th class="text-white">Name</th>
+                                <td class="text-white">{{ user.name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-white">Email</th>
+                                <td class="text-white">{{ user.email }}</td>
+                            </tr>
+                            {% if 'ROLE_AUTHOR' in user.roles or 'ROLE_SELLER' in user.roles %}
+                            <tr>
+                                <th class="text-white">Roles</th>
+                                <td class="text-white">
+                                    {% if 'ROLE_AUTHOR' in user.roles %}Author{% endif %}
+                                    {% if 'ROLE_AUTHOR' in user.roles and 'ROLE_SELLER' in user.roles %}, {% endif %}
+                                    {% if 'ROLE_SELLER' in user.roles %}Seller{% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th class="text-white">Created At</th>
+                                <td class="text-white">{{ user.createdAt ? user.createdAt|date('Y-m-d') : '' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% if canEdit %}
+                        <a class="btn btn-primary mt-3" href="{{ path('app_user_edit', {'id': user.id}) }}">Edit</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ***** Profile Area End ***** -->
 {% endblock %}

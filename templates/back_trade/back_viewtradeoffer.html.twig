@@ -1,0 +1,46 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Trade Offer{% endblock %}
+
+{% block content %}
+    <h1><center>Trade Offer</center></h1>
+<br><br>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td>{{ trade_offer.id }}</td>
+            </tr>
+            <tr>
+                <th>Trade ID</th>
+                <td>{{ trade_offer.receiverName? trade_offer.receiverName.getName() : 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Offered Item</th>
+                <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Received Item</th>
+                <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ trade_offer.description }}</td>
+            </tr>
+            <tr>
+                <th>creation Date</th>
+                <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ trade_offer.status }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_admin_trade') }}">back to list</a> /
+    <a href="{{ path('app_admin_trade_offer_edit', {'id': trade_offer.id}) }}">Edit</a>
+
+    {{ include('back_trade/_delete_form.html.twig') }}
+
+{% endblock %}

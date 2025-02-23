@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Our Posts{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .card {
+        background-color: #1a1a1a;
+        border: none;
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .card-title {
+        color: #6f42c1;
+    }
+    .card-text {
+        color: #888;
+    }
+    .btn-purple {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        color: white;
+        transition: all 0.2s;
+    }
+    .btn-purple:hover {
+        background-color: #553098;
+        border-color: #553098;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .card-actions .btn {
+        flex: 0 0 auto;
+    }
+    .meta-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .latest-comment {
+        background-color: #141414;
+        border-radius: 4px;
+        padding: 10px;
+        margin-top: 10px;
+    }
+    .latest-comment p {
+        margin-bottom: 0;
+        color: #888;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="text-center">Our Posts</h1>
+            </div>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            {% for blog in blogs %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ blog.title }}</h5>
+                            <p class="card-text">{{ blog.content|slice(0, 100) }}...</p>
+                            
+                            <div class="meta-info mb-3">
+                                <small class="text-muted">
+                                    <i class="far fa-user"></i> {{ blog.user ? blog.user.name : 'Anonymous' }}
+                                </small>
+                                <small class="text-muted ml-3">
+                                    <i class="far fa-calendar-alt"></i> {{ blog.date ? blog.date|date('M d, Y') : 'N/A' }}
+                                </small>
+                                <small class="text-muted ml-3">
+                                    <i class="far fa-comments"></i> {{ blog.comments|length }} 
+                                    {% if blog.comments|length == 1 %}Comment{% else %}Comments{% endif %}
+                                </small>
+                            </div>
+
+                            {% if blog.comments|length > 0 %}
+                                <div class="latest-comment mb-3 p-2 bg-light rounded">
+                                    <small class="d-block text-muted">Latest comment:</small>
+                                    <p class="mb-1"><small>"{{ blog.comments|last.content|slice(0, 50) }}{% if blog.comments|last.content|length > 50 %}...{% endif %}"</small></p>
+                                    <small class="text-primary">- {{ blog.comments|last.user ? blog.comments|last.user.name : 'Anonymous' }}</small>
+                                    <small class="text-muted d-block">at {{ blog.comments|last.createdAt|date('F d, Y H:i') }}</small>
+                                </div>
+                            {% endif %}
+
+                            <div class="card-actions mt-3">
+                                <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="btn btn-sm btn-purple me-2">
+                                    <i class="fas fa-book-reader"></i> Read More
+                                </a>
+                                <a href="{{ path('app_comment_new', {'blogId': blog.id}) }}" class="btn btn-sm btn-purple me-2">
+                                    <i class="fas fa-comment"></i> Comment
+                                </a>
+                                <a href="{{ path('app_blog_edit', {'id': blog.id}) }}" class="btn btn-sm btn-purple">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        No blog posts found. Be the first to create one!
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row mt-4 mb-5">
+            <div class="col text-center">
+                <a href="{{ path('app_blog_new') }}" class="btn btn-success">
+                    <i class="fas fa-plus-circle"></i> Create New Post
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

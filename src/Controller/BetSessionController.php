@@ -6,6 +6,7 @@ use App\Entity\BetSession;
 use App\Entity\User;
 use App\Form\BetSessionType;
 use App\Repository\BetSessionRepository;
+use App\Repository\BidRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[Route('/auctions')]
 final class BetSessionController extends AbstractController
 {
+
+    
     #[Route('/', name: 'app_bet_session_active', methods: ['GET'])]
     public function active(BetSessionRepository $betSessionRepository, Request $request): Response
     {
@@ -47,12 +50,24 @@ final class BetSessionController extends AbstractController
     #[Route('/List/{userId}', name: 'app_bet_session_mylist', methods: ['GET'])]
     public function mylist(int $userId, BetSessionRepository $betSessionRepository, Request $request): Response
     {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($user->getId() !== $userId) {
+            return $this->render('error/index.html.twig');
+        }
+
         $page = $request->query->getInt('page', 1);
         $limit = 4;
 
         $query = $betSessionRepository->createQueryBuilder('b')
             ->where('b.author = :user')
+            ->andWhere('b.status != :status')
             ->setParameter('user', $userId)
+            ->setParameter('status', 'withdrawn')
             ->getQuery();
 
         $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
@@ -69,37 +84,45 @@ final class BetSessionController extends AbstractController
             'total_items' => $totalItems,
             'pages_count' => $pagesCount,
             'current_page' => $page,
-            
         ]);
     }
 
-    
-    #[Route("All",name: 'app_bet_session_index', methods: ['GET'])]
-    public function index(BetSessionRepository $betSessionRepository): Response
-    {
-        return $this->render('bet_session/index.html.twig', [
-            'bet_sessions' => $betSessionRepository->findAll(),
-        ]);
-    }
+
+
 
     #[Route('/new', name: 'app_bet_session_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $betSession = new BetSession();
-        $form = $this->createForm(BetSessionType::class, $betSession);
-        $form->handleRequest($request);
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
 
+        $betSession = new BetSession();
+        $form = $this->createForm(BetSessionType::class, $betSession, [
+            'user' => $this->getUser(),
+        ]);
+        $form->handleRequest($request);
+        $existingBetSession = $entityManager->getRepository(BetSession::class)
+            ->createQueryBuilder('b')
+            ->where('b.artwork = :artwork')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('artwork', $betSession->getArtwork())
+            ->setParameter('statuses', ['active', 'pending'])
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if ($existingBetSession) {
+            $this->addFlash('error_new_betsession', 'This artwork is already in an active or pending auction.');
+            return $this->redirectToRoute('app_bet_session_new');
+        }
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = new User();
-            $user->setName('John Doe');
-            $user->setEmail('aaaaa@gmail.com');
-            $user->setPassword('123');
-            $entityManager->persist($user);
+            /** @var User $user */
+            $user = $this->getUser();
             $betSession->setAuthor($user);
+            $betSession->setCurrentPrice($betSession->getInitialPrice());
             $entityManager->persist($betSession);
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_bet_session_mylist', ['userId' => 1], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('bet_session/new.html.twig', [
@@ -108,18 +131,46 @@ final class BetSessionController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/withdraw', name: 'app_bet_session_withdraw', methods: ['POST'])]
+    public function withdraw(Request $request, BetSession $betSession, EntityManagerInterface $entityManager): Response
+    {
+        try {
+            if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
+                /** @var User $user */
+                $user = $this->getUser();
+                if ($betSession->getAuthor()->getId() === $user->getId() && $betSession->getStatus() === 'pending') {
+                    $betSession->setStatus('withdrawn');
+                    $entityManager->flush();
+                    $this->addFlash('success', 'Bet session withdrawn successfully.');
+                    
+                    return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
+                } else {
+                    throw $this->createAccessDeniedException('You are not authorized to withdraw this bet session.');
+                }
+            } else {
+                $this->addFlash('error', 'You need to be authenticated to withdraw a bet session.');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'An error occurred while withdrawing the bet session: ' . $e->getMessage());
+            error_log('An error occurred while withdrawing the bet session: ' . $e->getMessage());
+        }
+    }
 
 
     #[Route('/{id}/edit', name: 'app_bet_session_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, BetSession $betSession, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
         $form = $this->createForm(BetSessionType::class, $betSession);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_bet_session_mylist', ['userId' => 1], Response::HTTP_SEE_OTHER);
+             /** @var User $user */
+            $user = $this->getUser();   
+            return $this->redirectToRoute('app_bet_session_mylist', ['userId' =>  $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('bet_session/edit.html.twig', [
@@ -132,30 +183,63 @@ final class BetSessionController extends AbstractController
     public function delete(Request $request, BetSession $betSession, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$betSession->getId(), $request->request->get('_token'))) {
+             /** @var User $user */
+            $user = $this->getUser();
             $entityManager->remove($betSession);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_bet_session_mylist', ['userId' => 1], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/ItemDetails/{id}', name: 'app_item_details', methods: ['GET'])]
-    public function ItemDetails(int $id, BetSessionRepository $betSessionRepository): Response
+    public function ItemDetails(int $id, BetSessionRepository $betSessionRepository , BidRepository $bidRepository): Response
     {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
         $betSession = $betSessionRepository->find($id);
 
         if (!$betSession) {
             throw $this->createNotFoundException('The bet session does not exist');
         }
+
+        $bids = $bidRepository->createQueryBuilder('b')
+        ->where('b.betSession = :betSession')
+        ->setParameter('betSession', $betSession)
+        ->orderBy('b.bidTime', 'DESC')
+        ->setMaxResults(3)
+        ->getQuery()
+        ->getResult();
+
+
+         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            /** @var User $user */
+            $user = $this->getUser();
+            if ($betSession->getAuthor()->getId() === $user->getId()) {
+                return $this->render('bet_session/MyItemsDetail.html.twig', [
+                    'bet_session' => $betSession,
+                    'bids' => $bids,
+                ]);
+            }
+        }
+        if ($betSession->getStatus() !== 'active') {
+            return $this->render('error/index.html.twig');
+        }
+
         $activeBetSessions = $betSessionRepository->createQueryBuilder('b')
             ->where('b.status = :status')
             ->setParameter('status', 'active')
             ->setMaxResults(6)
             ->getQuery()
             ->getResult();
+
+     
+     
         return $this->render('bet_session/ItemDetails.html.twig', [
             'bet_session' => $betSession,
             'live_bet_sessions' => $activeBetSessions,
+            'bids' => $bids,
         ]);
     }
 }

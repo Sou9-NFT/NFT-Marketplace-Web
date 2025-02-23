@@ -13,34 +13,62 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        access_denied:
+            pattern: ^/access-denied
+            security: false
         main:
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\UserAuthAuthenticator
             logout:
                 path: app_logout
-                # where to redirect after logout
-                # target: app_any_route
-
+                target: app_home_page
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
-                # by default, the feature is enabled by checking a checkbox in the
-                # login form, uncomment the following line to always enable it.
-                #always_remember_me: true
-
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+        back_office:
+            pattern: ^/(admin|back)
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\UserAuthAuthenticator
+            entry_point: App\Security\UserAuthAuthenticator
+            access_denied_handler: App\Security\AccessDeniedHandler
+            logout:
+                path: app_logout
+                target: app_home_page
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Static assets and public resources
+        - { path: ^/access-denied, roles: PUBLIC_ACCESS }
+        - { path: ^/css, roles: PUBLIC_ACCESS }
+        - { path: ^/js, roles: PUBLIC_ACCESS }
+        - { path: ^/images, roles: PUBLIC_ACCESS }
+        - { path: ^/front_office, roles: PUBLIC_ACCESS }
+        - { path: ^/back_office, roles: PUBLIC_ACCESS }
+        
+        # Allow access to login pages and registration
+        - { path: ^/register$, roles: PUBLIC_ACCESS }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
+        - { path: ^/security/access-denied$, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
+        - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
+        - { path: ^/artwork, roles: PUBLIC_ACCESS }  # Allow public access to artwork
+        - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
+        
+        # Back office requires admin role
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        
+        # Front office is accessible to all authenticated users
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

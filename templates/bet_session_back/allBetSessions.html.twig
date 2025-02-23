@@ -1,0 +1,56 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}All BetSessions{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>All BetSessions</h1>
+                <a href="{{ path('app_admin_bet_session_create') }}" class="btn btn-primary">Create new</a>
+                <p class="text-muted mt-2">Note: Active and ended bet sessions can't be deleted.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Item</th>
+                            <th>Status</th>
+                            <th>Initial Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bet_session in bet_sessions %}
+                            <tr>
+                                <td>{{ bet_session.id }}</td>
+                                <td>{{ bet_session.startTime ? bet_session.startTime|date('Y-m-d H:i:s') : '' }}</td>
+                                <td>{{ bet_session.endTime ? bet_session.endTime|date('Y-m-d H:i:s') : '' }}</td>
+                                <td>{{ bet_session.artwork ? bet_session.artwork.title : '' }}</td>
+                                <td>{{ bet_session.status }}</td>
+                                <td>{{ bet_session.initialPrice }}</td>
+                                <td>
+                                    <a href="{{ path('app_bet_session_show', {'id': bet_session.id}) }}" class="btn btn-primary">show</a>
+                                    {% if bet_session.status == 'pending' or bet_session.status == 'withdraw' %}
+                                        <a href="{{ path('app_bet_session_delete', {'id': bet_session.id}) }}" class="btn btn-danger">delete</a>
+                                    {% else %}
+                                        <button class="btn btn-danger" disabled data-toggle="tooltip" title="You can't delete active or finished sessions">delete</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7">no records found</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
