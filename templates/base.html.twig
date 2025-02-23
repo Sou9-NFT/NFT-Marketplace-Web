@@ -133,15 +133,16 @@
                                     <span class="ml-2">{{ app.user.name ?: app.user.email }}</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-<li><a class="dropdown-item" href="{{ path('app_user_show', {'id': app.user.id}) }}">Profile</a></li>
-                                        <li><a class="dropdown-item" href="{{ path('app_bet_session_mylist', {'userId': app.user.id}) }}">My Bet Sessions</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
-                                    </ul>
+                                    <li><a class="dropdown-item" href="{{ path('app_user_show', {'id': app.user.id}) }}">Profile</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_bet_session_mylist', {'userId': app.user.id}) }}">My Bet Sessions</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_wallet_connect') }}">Connect Wallet</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
+                                </ul>
                                 </div>
                             </li>
                             <li class="nav-item ml-3">
-                                <span class="navbar-text"><i class="fas fa-money-bill-wave"></i> {{ app.user.balance }}</span>
+                                <span class="navbar-text"><i class="fas fa-wallet"></i> <span id="walletBalance">Connect wallet</span></span>
                             </li>
                         {% else %}
                             <li class="nav-item ml-3">
@@ -302,11 +303,43 @@
     <!-- JavaScripts Block -->
     {% block javascripts %}
     <!-- ***** All jQuery Plugins ***** -->
-    {#<script src="{{ asset('front_office/js/jquery/jquery-3.3.1.min.js') }}"></script>
-    <script src="{{ asset('front_office/js/bootstrap/popper.min.js') }}"></script>
-    <script src="{{ asset('front_office/js/bootstrap/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('front_office/js/plugins/plugins.min.js') }}"></script>
-    <script src="{{ asset('front_office/js/active.js') }}"></script> #}
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script>
+        const tokenAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}];
+        const tokenAddress = '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801';
+        let web3;
+
+        window.addEventListener('load', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                // Initialize Web3 with MetaMask provider
+                web3 = new Web3(window.ethereum);
+                
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    if (accounts.length > 0) {
+                        updateTokenBalance(accounts[0]);
+                    } else {
+                        document.getElementById('walletBalance').textContent = 'Connect wallet';
+                    }
+                });
+            } else {
+                document.getElementById('walletBalance').textContent = 'Please install MetaMask';
+            }
+        });
+
+        async function updateTokenBalance(account) {
+            try {
+                const tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress);
+                const balance = await tokenContract.methods.balanceOf(account).call();
+                const decimals = await tokenContract.methods.decimals().call();
+                const formattedBalance = (balance / Math.pow(10, decimals)).toFixed(2);
+                document.getElementById('walletBalance').textContent = formattedBalance + ' ESPRIT DAN';
+            } catch (error) {
+                console.error('Error fetching token balance:', error);
+                document.getElementById('walletBalance').textContent = 'Error loading balance';
+            }
+        }
+    </script>
     <script src="{{ asset('front_office/js/main.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/jquery.min.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/popper.min.js') }}"></script>

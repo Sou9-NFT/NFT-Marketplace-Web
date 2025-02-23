@@ -165,7 +165,7 @@
                         <div class="intro text-center">
                             <span>Wallet Connect</span>
                             <h3 class="mt-3 mb-0">Connect your Wallet</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum obcaecati dignissimos quae quo ad iste ipsum officiis deleniti asperiores sit.</p>
+                            <p>Connect your cryptocurrency wallet to access and manage your NFTs.</p>
                         </div>
                     </div>
                 </div>
@@ -173,11 +173,15 @@
                     <div class="col-12 col-md-6 col-lg-4 item">
                         <!-- Single Wallet -->
                         <div class="card single-wallet">
-                            <a class="d-block text-center" href="login.html">
+                            <div class="d-block text-center" id="metamask-connect">
                                 <img class="avatar-lg" src="assets/img/content/metamask.png" alt="">
                                 <h4 class="mb-0">MetaMask</h4>
                                 <p>A browser extension with great flexibility. The web's most popular wallet</p>
-                            </a>
+                                <button class="btn btn-bordered-white mt-3" onclick="connectMetaMask()">Connect Wallet</button>
+                                <div id="wallet-status" class="mt-3" style="display: none;">
+                                    <p class="text-success">Connected: <span id="wallet-address"></span></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-lg-4 item">
@@ -401,6 +405,43 @@
 
     <!-- Active js -->
     <script src="assets/js/main.js"></script>
+
+    <!-- Wallet Service -->
+    <script src="/front_office/js/wallet-service.js"></script>
+    
+    <script>
+        async function connectMetaMask() {
+            try {
+                const result = await window.walletService.connectMetaMask();
+                const walletStatus = document.getElementById('wallet-status');
+                const walletAddress = document.getElementById('wallet-address');
+                
+                walletStatus.style.display = 'block';
+                walletAddress.textContent = result.address.slice(0, 6) + '...' + result.address.slice(-4);
+                
+                // Store wallet address in session
+                fetch('/connect-wallet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ address: result.address })
+                });
+            } catch (error) {
+                alert('Failed to connect wallet: ' + error.message);
+            }
+        }
+
+        // Check if wallet is already connected
+        if (window.walletService.isConnected()) {
+            const account = window.walletService.getCurrentAccount();
+            if (account) {
+                document.getElementById('wallet-status').style.display = 'block';
+                document.getElementById('wallet-address').textContent = 
+                    account.slice(0, 6) + '...' + account.slice(-4);
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -39,7 +39,6 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Roles</th>
-                                    <th>Balance</th>
                                     <th>Created At</th>
                                     <th>Actions</th>
                                 </tr>
@@ -55,7 +54,6 @@
                                             <span class="badge bg-primary">{{ role }}</span>
                                         {% endfor %}
                                     </td>
-                                    <td>{{ user.balance|default(0) }} ETH</td>
                                     <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
@@ -79,7 +77,7 @@
                                 </tr>
                             {% else %}
                                 <tr>
-                                    <td colspan="7" class="text-center">No users found</td>
+                                    <td colspan="6" class="text-center">No users found</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
