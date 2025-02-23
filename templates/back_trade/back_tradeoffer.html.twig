@@ -2,45 +2,66 @@
 
 {% block title %}Trade Offers List{% endblock %}
 
-{% block content %}
-<h1><center>Trade Offers List</center></h1>
-<br><br>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Receiver Name</th>
-            <th>Offered Item</th>
-            <th>Received Item</th>
-            <th>Description</th>
-            <th>Creation Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for trade_offer in trade_offers %}
-        <tr>
-            <td>{{ trade_offer.id }}</td>
-            <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A'  }}</td>
-            <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A' }}</td>
-            <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A'  }}</td>
-            <td>{{ trade_offer.description }}</td>
-            <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : ''  }}</td>
-            <td>{{ trade_offer.status }}</td>
-            <td>
-                <a href="{{ path('app_back_trade_show', {'id': trade_offer.id}) }}">View</a>/
-                <a href="{{ path('app_back_trade_offer_edit', {'id': trade_offer.id}) }}">Edit</a>
-                {{ include('back_trade/_delete_form.html.twig', {'id': trade_offer.id}) }}
-                </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="9"><center>No trade Offers found</center></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% block body %}
+<div class="pagetitle">
+    <h1>Trade Offers</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="">Home</a></li>
+            <li class="breadcrumb-item active">Trade Offers</li>
+        </ol>
+    </nav>
+</div>
 
-<a href="{{ path('app_back_trade_offer_add') }}">Create new</a>
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trade Offers List</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Receiver Name</th>
+                                <th>Offered Item</th>
+                                <th>Received Item</th>
+                                <th>Description</th>
+                                <th>Creation Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for trade_offer in trade_offers %}
+                            <tr>
+                                <td>{{ trade_offer.id }}</td>
+                                <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A'  }}</td>
+                                <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A' }}</td>
+                                <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A'  }}</td>
+                                <td>{{ trade_offer.description }}</td>
+                                <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : ''  }}</td>
+                                <td>{{ trade_offer.status }}</td>
+                                <td>
+                                    <a href="{{ path('app_admin_trade_show', {'id': trade_offer.id}) }}" class="btn btn-info btn-sm"><i class="bi bi-eye"></i></a>
+                                    <a href="{{ path('app_admin_trade_offer_edit', {'id': trade_offer.id}) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i></a>
+                                    {{ include('back_trade/_delete_form.html.twig', {'trade_offer': trade_offer}) }}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center">No trade Offers found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="mt-3">
+                        <a href="{{ path('app_admin_trade_offer_add') }}" class="btn btn-primary">Create new</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

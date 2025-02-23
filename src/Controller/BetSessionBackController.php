@@ -11,10 +11,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BetSession;
 use App\Form\BetSessionType;
 use App\Entity\User;
-#[Route('/back/auctions')]
+
+#[Route('/admin/auctions')]
 final class BetSessionBackController extends AbstractController
 {
-    #[Route("/All",name: 'app_bet_session_index', methods: ['GET'])]
+    #[Route("/All", name: 'app_admin_bet_session_index', methods: ['GET'])]
     public function index(BetSessionRepository $betSessionRepository): Response
     {
         return $this->render('bet_session_back/allBetSessions.html.twig', [
@@ -22,7 +23,7 @@ final class BetSessionBackController extends AbstractController
         ]);
     }
     
-    #[Route('/create', name: 'app_bet_session_create', methods: ['GET', 'POST'])]
+    #[Route('/create', name: 'app_admin_bet_session_create', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $betSession = new BetSession();
@@ -32,14 +33,13 @@ final class BetSessionBackController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var User $user */
             $user = $this->getUser();
-                $entityManager->persist($user);
-                $betSession->setAuthor($user);
-                $betSession->setCurrentPrice($betSession->getInitialPrice());
-                $entityManager->persist($betSession);
-                $entityManager->flush();
-                $this->addFlash('success', 'Bet session created successfully.');
-                return $this->redirectToRoute('app_bet_session_index', [], Response::HTTP_SEE_OTHER);
-  
+            $entityManager->persist($user);
+            $betSession->setAuthor($user);
+            $betSession->setCurrentPrice($betSession->getInitialPrice());
+            $entityManager->persist($betSession);
+            $entityManager->flush();
+            $this->addFlash('success', 'Bet session created successfully.');
+            return $this->redirectToRoute('app_admin_bet_session_index', [], Response::HTTP_SEE_OTHER);
         }
      
         return $this->render('bet_session_back/createBetSession.html.twig', [
@@ -48,7 +48,7 @@ final class BetSessionBackController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_bet_session_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_bet_session_show', methods: ['GET'])]
     public function show(BetSession $betSession): Response
     {
         return $this->render('bet_session_back/showBetSession.html.twig', [
@@ -56,17 +56,16 @@ final class BetSessionBackController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_bet_session_delete_admin', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_bet_session_delete', methods: ['POST'])]
     public function delete(Request $request, BetSession $betSession, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$betSession->getId(), $request->request->get('_token'))) {
-             /** @var User $user */
+            /** @var User $user */
             $user = $this->getUser();
             $entityManager->remove($betSession);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_bet_session_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_bet_session_index', [], Response::HTTP_SEE_OTHER);
     }
-
 }

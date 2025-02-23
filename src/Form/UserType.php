@@ -10,6 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
@@ -20,6 +23,23 @@ class UserType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your name',
+                        'groups' => ['user'],
+                    ]),
+                    new Length([
+                        'min' => 2,
+                        'max' => 32,
+                        'minMessage' => 'Your name must be at least {{ limit }} characters long',
+                        'maxMessage' => 'Your name cannot be longer than {{ limit }} characters',
+                        'groups' => ['user'],
+                    ]),
+                    new Regex([
+                        'pattern' => '/^[a-zA-Z\s]+$/',
+                        'message' => 'Name can only contain letters and spaces'
+                    ]),
+                ],
             ])
             ->add('email', EmailType::class, [
                 'disabled' => true,
@@ -33,6 +53,7 @@ class UserType extends AbstractType
                 ],
                 'constraints' => [
                     new File([
+                        'groups' => ['profile_picture'],
                         'maxSize' => '5M',
                         'mimeTypes' => [
                             'image/jpeg',
@@ -62,6 +83,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'validation_groups' => ['user', 'profile_picture'],
         ]);
     }
 }

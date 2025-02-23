@@ -64,72 +64,49 @@ class RaffleController extends AbstractController
         $raffle = new Raffle();
         $form = $this->createForm(RaffleType::class, $raffle);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Handle image upload
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-
-                try {
-                    $imageFile->move(
-                        $this->getParameter('raffle_images_directory'),
-                        $newFilename
-                    );
-                    $raffle->setImage($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_raffle_new');
+    
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                // Handle image upload
+                $imageFile = $form->get('image')->getData();
+                if ($imageFile) {
+                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+    
+                    try {
+                        $imageFile->move(
+                            $this->getParameter('raffle_images_directory'),
+                            $newFilename
+                        );
+                        $raffle->setImage($newFilename);
+                    } catch (FileException $e) {
+                        $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
+                        return $this->redirectToRoute('app_raffle_new');
+                    }
+                }
+    
+                // Set the start time to now
+                $raffle->setStartTime(new \DateTime('now'));
+                
+                $raffle->setCreator($this->getUser());
+                $raffle->setStatus('active');
+                $this->entityManager->persist($raffle);
+                $this->entityManager->flush();
+    
+                return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
+            } else {
+                // Form is not valid, add flash message or log errors
+                $errors = $form->getErrors(true);
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error->getMessage());
                 }
             }
-
-            // Set the start time to now
-            $raffle->setStartTime(new \DateTime('now'));
-            
-            $raffle->setCreator($this->getUser());
-            $raffle->setStatus('active');
-            $this->entityManager->persist($raffle);
-            $this->entityManager->flush();
-
-            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
         }
-
+    
         return $this->render('raffle/new.html.twig', [
             'raffle' => $raffle,
             'form' => $form,
-        ]);
-    }
-
-    #[Route('/admin', name: 'app_raffle_admin', methods: ['GET'])]
-    public function adminIndex(): Response
-    {
-        // Get all raffles
-        $raffles = $this->raffleRepository->findAll();
-        
-        // Debug information
-        foreach ($raffles as $raffle) {
-            dump([
-                'id' => $raffle->getId(),
-                'description' => $raffle->getRaffleDescription(),
-                'startTime' => $raffle->getStartTime(),
-                'endTime' => $raffle->getEndTime(),
-                'status' => $raffle->getStatus()
-            ]);
-        }
-        
-        // Check and update status for all raffles
-        foreach ($raffles as $raffle) {
-            $this->checkAndUpdateRaffleStatus($raffle);
-        }
-
-        return $this->render('raffle/raffleback.html.twig', [
-            'raffles' => $raffles,
-            'debug' => [
-                'count' => count($raffles),
-                'empty' => empty($raffles),
-            ],
         ]);
     }
 
@@ -214,7 +191,7 @@ class RaffleController extends AbstractController
         $originalStartTime = $raffle->getStartTime();
         
         $form = $this->createForm(RaffleType::class, $raffle, [
-            'require_image' => false,
+            'is_edit' => true,
         ]);
         $form->handleRequest($request);
 
@@ -227,12 +204,6 @@ class RaffleController extends AbstractController
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
                 try {
-                    // Delete old image if it exists
-                    $oldImagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
-                    if ($raffle->getImage() && file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
-                    }
-
                     $imageFile->move(
                         $this->getParameter('raffle_images_directory'),
                         $newFilename
@@ -244,16 +215,18 @@ class RaffleController extends AbstractController
                 }
             }
 
-            // Restore the original start time
+            // Keep the original start time
             $raffle->setStartTime($originalStartTime);
             
             $this->entityManager->flush();
-            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Raffle updated successfully.');
+            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
         }
 
         return $this->render('raffle/edit.html.twig', [
             'raffle' => $raffle,
             'form' => $form,
+            'is_edit' => true,
         ]);
     }
 
@@ -287,51 +260,4 @@ class RaffleController extends AbstractController
         return $this->redirectToRoute('app_raffle_index');
     }
 
-    #[Route('/participant/{id}/edit', name: 'app_participant_edit', methods: ['GET', 'POST'])]
-    public function editParticipant(Request $request, Participant $participant): Response
-    {
-        // Check if user is the raffle creator
-        if ($this->getUser() !== $participant->getRaffle()->getCreator()) {
-            throw $this->createAccessDeniedException('Only the raffle creator can edit participants.');
-        }
-
-        if ($request->isMethod('POST')) {
-            $name = $request->request->get('name');
-            
-            // Validate name
-            if (!empty($name) && strlen($name) >= 2 && strlen($name) <= 50 && preg_match('/^[a-zA-Z0-9\s\-]+$/', $name)) {
-                $participant->setName($name);
-                $this->entityManager->flush();
-
-                $this->addFlash('success', 'Participant name updated successfully!');
-                return $this->redirectToRoute('app_raffle_participants', ['id' => $participant->getRaffle()->getId()]);
-            }
-
-            $this->addFlash('error', 'Invalid name format.');
-        }
-
-        return $this->render('participant/edit.html.twig', [
-            'participant' => $participant
-        ]);
-    }
-
-    #[Route('/participant/{id}/delete', name: 'app_participant_delete', methods: ['POST'])]
-    public function deleteParticipant(Request $request, Participant $participant): Response
-    {
-        // Check if user is the raffle creator
-        if ($this->getUser() !== $participant->getRaffle()->getCreator()) {
-            throw $this->createAccessDeniedException('Only the raffle creator can remove participants.');
-        }
-
-        if ($this->isCsrfTokenValid('delete'.$participant->getId(), $request->request->get('_token'))) {
-            $raffleId = $participant->getRaffle()->getId();
-            $this->entityManager->remove($participant);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Participant removed successfully!');
-            return $this->redirectToRoute('app_raffle_participants', ['id' => $raffleId]);
-        }
-
-        return $this->redirectToRoute('app_raffle_participants', ['id' => $participant->getRaffle()->getId()]);
-    }
 }

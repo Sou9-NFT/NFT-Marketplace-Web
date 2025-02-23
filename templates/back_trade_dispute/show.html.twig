@@ -1,0 +1,89 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}View Trade Dispute{% endblock %}
+
+{% block body %}
+<div class="pagetitle">
+    <h1>Trade Disputes</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_trade_dispute_back') }}">Trade Disputes</a></li>
+            <li class="breadcrumb-item active">View Trade Dispute</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trade Dispute Details #{{ trade_dispute.id }}</h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>ID</th>
+                                        <td>{{ trade_dispute.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Trade Offer</th>
+                                        <td>{{ trade_dispute.tradeId ? trade_dispute.tradeId.id : 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Offered Item</th>
+                                        <td>{{ trade_dispute.offeredItem }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Received Item</th>
+                                        <td>{{ trade_dispute.receivedItem }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Reason</th>
+                                        <td>{{ trade_dispute.reason }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Evidence</th>
+                                        <td>
+                                            {% if trade_dispute.evidence %}
+                                                <a href="{{ asset('uploads/evidence/' ~ trade_dispute.evidence) }}" target="_blank" class="btn btn-sm btn-info">
+                                                    <i class="bi bi-file-earmark"></i> View Evidence
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">No evidence provided</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status</th>
+                                        <td>
+                                            <span class="badge bg-{{ trade_dispute.status == 'pending' ? 'warning' : (trade_dispute.status == 'resolved' ? 'success' : 'danger') }}">
+                                                {{ trade_dispute.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <a href="{{ path('app_trade_dispute_back') }}" class="btn btn-secondary">Back to list</a>
+                            <a href="{{ path('app_admin_trade_dispute_edit', {'id': trade_dispute.id}) }}" class="btn btn-primary">Edit</a>
+                            {{ include('back_trade_dispute/_delete_form.html.twig', {'trade_dispute': trade_dispute}) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
