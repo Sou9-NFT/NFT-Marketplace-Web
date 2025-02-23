@@ -48,14 +48,52 @@
         font-size: 0.9rem;
     }
     .latest-comment {
-        background-color: #141414;
-        border-radius: 4px;
-        padding: 10px;
-        margin-top: 10px;
+        background: linear-gradient(145deg, #1c1c1c, #242424);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 15px;
+        border: 1px solid rgba(111, 66, 193, 0.1);
+        position: relative;
     }
-    .latest-comment p {
-        margin-bottom: 0;
-        color: #888;
+    .latest-comment::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 20px;
+        width: 15px;
+        height: 15px;
+        background: linear-gradient(145deg, #1c1c1c, #242424);
+        transform: rotate(45deg);
+        border-left: 1px solid rgba(111, 66, 193, 0.1);
+        border-top: 1px solid rgba(111, 66, 193, 0.1);
+    }
+    .latest-comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+    }
+    .latest-comment-author {
+        color: #6f42c1;
+        font-weight: 500;
+    }
+    .latest-comment-time {
+        color: #666;
+        font-size: 0.8rem;
+    }
+    .latest-comment-content {
+        color: #a8a8a8;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin: 0;
+    }
+    .latest-comment-label {
+        font-size: 0.75rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
     }
 </style>
 {% endblock %}
@@ -102,11 +140,21 @@
                             </div>
 
                             {% if blog.comments|length > 0 %}
-                                <div class="latest-comment mb-3 p-2 bg-light rounded">
-                                    <small class="d-block text-muted">Latest comment:</small>
-                                    <p class="mb-1"><small>"{{ blog.comments|last.content|slice(0, 50) }}{% if blog.comments|last.content|length > 50 %}...{% endif %}"</small></p>
-                                    <small class="text-primary">- {{ blog.comments|last.user ? blog.comments|last.user.name : 'Anonymous' }}</small>
-                                    <small class="text-muted d-block">at {{ blog.comments|last.createdAt|date('F d, Y H:i') }}</small>
+                                <div class="latest-comment">
+                                    <div class="latest-comment-label">Latest Comment</div>
+                                    <div class="latest-comment-header">
+                                        <span class="latest-comment-author">
+                                            <i class="fas fa-user-circle me-1"></i>
+                                            {{ blog.comments|last.user ? blog.comments|last.user.name : 'Anonymous' }}
+                                        </span>
+                                        <span class="latest-comment-time">
+                                            <i class="far fa-clock me-1"></i>
+                                            {{ blog.comments|last.createdAt|ago }}
+                                        </span>
+                                    </div>
+                                    <p class="latest-comment-content">
+                                        "{{ blog.comments|last.content|slice(0, 100) }}{% if blog.comments|last.content|length > 100 %}...{% endif %}"
+                                    </p>
                                 </div>
                             {% endif %}
 

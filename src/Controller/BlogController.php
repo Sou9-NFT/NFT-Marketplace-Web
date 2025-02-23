@@ -18,8 +18,8 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/blog')]
 class BlogController extends AbstractController
 {
-    #[Route(name: 'app_blog_index', methods: ['GET', 'POST'])]
-    public function index(Request $request, BlogRepository $blogRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/', name: 'app_blog_index', methods: ['GET'])]
+    public function index(BlogRepository $blogRepository): Response
     {
         $blogs = $blogRepository->findAll();
         $commentForms = [];
