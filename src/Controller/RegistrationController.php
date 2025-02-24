@@ -25,40 +25,22 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $plainPassword = $form->get('plainPassword')->getData();
-                
-                if (!$plainPassword) {
-                    $form->get('plainPassword')->addError(new \Symfony\Component\Form\FormError('Please enter a password'));
-                    return $this->render('registration/register.html.twig', [
-                        'registrationForm' => $form->createView(),
-                    ]);
-                }
+        if ($form->isSubmitted() && $form->isValid()) {
+            // encode the plain password
+            $user->setPassword(
+                $userPasswordHasher->hashPassword(
+                    $user,
+                    $user->getPlainPassword()
+                )
+            );
 
-                // encode the plain password
-                $user->setPassword(
-                    $userPasswordHasher->hashPassword(
-                        $user,
-                        $plainPassword
-                    )
-                );
+            $entityManager->persist($user);
+            $entityManager->flush();
 
-                // set the name and initial balance
-                $user->setName($form->get('name')->getData());
-                $user->setBalance(0);
+            // Add a flash message for success
+            $this->addFlash('success', 'Your account has been created successfully. You can now log in.');
 
-                $entityManager->persist($user);
-                $entityManager->flush();
-
-                // Add flash message for success
-                $this->addFlash('success', 'Your account has been created successfully!');
-
-                return $this->redirectToRoute('app_login');
-            } else {
-                // Add flash message for error
-                $this->addFlash('error', 'There were problems with your registration. Please check the form errors below.');
-            }
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('registration/register.html.twig', [

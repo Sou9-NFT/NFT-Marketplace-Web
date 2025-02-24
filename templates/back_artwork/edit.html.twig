@@ -9,7 +9,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ path('app_home_page') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ path('app_back_artwork_index') }}">Artwork Management</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_admin_artwork_index') }}">Artwork Management</a></li>
                     <li class="breadcrumb-item active">Edit</li>
                 </ol>
             </nav>
@@ -105,7 +105,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-check-circle"></i> Save Changes
                                 </button>
-                                <a href="{{ path('app_back_artwork_index') }}" class="btn btn-secondary">
+                                <a href="{{ path('app_admin_artwork_index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
                                 </a>
                             </div>
@@ -129,7 +129,7 @@
             function updateFileHelp() {
                 const selectedOption = categorySelect.options[categorySelect.selectedIndex];
                 if (selectedOption.value) {
-                    fetch(`/back/category/${selectedOption.value}/info`, {
+                    fetch(`/admin/category/${selectedOption.value}/info`, {
                         headers: {
                             'Accept': 'application/json'
                         }

@@ -8,7 +8,7 @@
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ path('app_back_trade') }}">Trade Offers</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_trade') }}">Trade Offers</a></li>
             <li class="breadcrumb-item active">Edit Trade Offer</li>
         </ol>
     </nav>
@@ -57,7 +57,7 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             <button class="btn btn-primary">Update</button>
-                            <a href="{{ path('app_back_trade') }}" class="btn btn-secondary">Back to list</a>
+                            <a href="{{ path('app_admin_trade') }}" class="btn btn-secondary">Back to list</a>
                         </div>
                     </div>
                     {{ form_end(form) }}

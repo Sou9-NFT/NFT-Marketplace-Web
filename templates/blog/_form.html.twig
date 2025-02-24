@@ -1,7 +1,36 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+    <div class="mb-4">
+        {{ form_label(form.title, 'Title', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.title, {'attr': {
+            'class': 'form-control',
+            'placeholder': 'Enter your blog title'
+        }}) }}
+        {{ form_errors(form.title) }}
+    </div>
 
+    <div class="mb-4">
+        {{ form_label(form.content, 'Content', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.content, {'attr': {
+            'class': 'form-control',
+            'rows': '10',
+            'placeholder': 'Write your blog content here...'
+        }}) }}
+        {{ form_errors(form.content) }}
+    </div>
 
-    
+    <div class="mb-4">
+        {{ form_label(form.imageFile, 'Blog Image', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.imageFile, {'attr': {
+            'class': 'form-control',
+            'accept': 'image/*'
+        }}) }}
+        <div class="form-text">Upload an image for your blog post (JPEG, PNG, or GIF, max 1MB)</div>
+        {{ form_errors(form.imageFile) }}
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane me-2"></i>{{ button_label|default('Publish Post') }}
+        </button>
+    </div>
 {{ form_end(form) }}

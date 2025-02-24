@@ -10,6 +10,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Regex;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -23,7 +24,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank(message: 'Email cannot be blank')]
-    #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\Email(
+        message: 'The email {{ value }} is not a valid email.',
+        mode: 'strict'
+    )]
     private ?string $email = null;
 
     /**
@@ -36,13 +40,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    private ?string $password = null;
+
+    #[Assert\NotBlank(message: 'Password cannot be blank')]
     #[Assert\Length(
         min: 6,
         max: 50,
         minMessage: 'Your password must be at least {{ limit }} characters long',
         maxMessage: 'Your password cannot be longer than {{ limit }} characters'
     )]
-    private ?string $password = null;
+    #[Assert\Regex(
+        pattern: '/^(?=.*[A-Z])(?=.*\d).+$/',
+        message: 'Password must contain at least one uppercase letter and one number'
+    )]
+    private ?string $plainPassword = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
@@ -55,15 +66,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Your name must be at least {{ limit }} characters long',
         maxMessage: 'Your name cannot be longer than {{ limit }} characters'
     )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s]+$/',
+        message: 'Name can only contain letters and spaces'
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Url(message: 'The profile picture must be a valid URL')]
+    #[Assert\Url(message: 'The profile picture must be a valid URL', groups: ['profile_picture_update'])]
     private ?string $profilePicture = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
-    #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
-    private ?float $balance = 0;
+    #[ORM\Column(length: 42, nullable: true)]
+    #[Assert\Length(exactly: 42, exactMessage: 'Ethereum address must be exactly {{ limit }} characters')]
+    #[Assert\Regex(
+        pattern: '/^0x[a-fA-F0-9]{40}$/',
+        message: 'Invalid Ethereum address format'
+    )]
+    private ?string $walletAddress = null;
 
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
@@ -77,7 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdRaffles = new ArrayCollection();
         $this->participations = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
-        $this->balance = 0; // Initialize balance to 0
+        $this->plainPassword = null; // Initialize plainPassword
     }
 
     public function getId(): ?int
@@ -134,7 +153,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): ?string
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -142,6 +161,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): static
+    {
+        $this->plainPassword = $plainPassword;
 
         return $this;
     }
@@ -191,15 +222,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getBalance(): ?float
+    public function getWalletAddress(): ?string
     {
-        return $this->balance;
+        return $this->walletAddress;
     }
 
-    public function setBalance(float $balance): static
+    public function setWalletAddress(?string $walletAddress): static
     {
-        $this->balance = $balance;
-
+        $this->walletAddress = $walletAddress;
         return $this;
     }
 

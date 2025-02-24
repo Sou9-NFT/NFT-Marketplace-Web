@@ -9,7 +9,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ path('app_home_page') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ path('app_back_artwork_index') }}">Artwork Management</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_admin_artwork_index') }}">Artwork Management</a></li>
                     <li class="breadcrumb-item active">Create New</li>
                 </ol>
             </nav>
@@ -22,18 +22,13 @@
                         <div class="card-body">
                             <h5 class="card-title">Artwork Details</h5>
 
-                            {% for message in app.flashes('success') %}
-                                <div class="alert alert-success alert-dismissible fade show">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
-
-                            {% for message in app.flashes('error') %}
-                                <div class="alert alert-danger alert-dismissible fade show">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
                             {% endfor %}
 
                             {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
@@ -86,7 +81,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-check-circle"></i> Create
                                 </button>
-                                <a href="{{ path('app_back_artwork_index') }}" class="btn btn-secondary">
+                                <a href="{{ path('app_admin_artwork_index') }}" class="btn btn-secondary">
                                     <i class="bi bi-x-circle"></i> Cancel
                                 </a>
                             </div>
@@ -115,7 +110,7 @@
             function updateFileHelp() {
                 const selectedOption = categorySelect.options[categorySelect.selectedIndex];
                 if (selectedOption.value) {
-                    fetch(`{{ path('app_back_category_info', {'id': '__ID__'}) }}`.replace('__ID__', selectedOption.value))
+                    fetch(`{{ path('app_admin_category_info', {'id': '__ID__'}) }}`.replace('__ID__', selectedOption.value))
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');

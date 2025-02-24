@@ -9,14 +9,21 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Bid;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BetSession;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
+use Psr\Log\LoggerInterface;
 
 final class BidController extends AbstractController
 {
     private $entityManager;
+    private $hub;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, HubInterface $hub, LoggerInterface $logger)
     {
         $this->entityManager = $entityManager;
+        $this->hub = $hub;
+        $this->logger = $logger;
     }
 
     #[Route('/bid/add', name: 'app_add_bid', methods: ['POST'])]
@@ -29,7 +36,7 @@ final class BidController extends AbstractController
         $bid->setAuthor($this->getUser());
 
         if ($bidValue <= 0) {
-            $this->addFlash('error', 'The Raise Should be greater than 0');
+            $this->addFlash('error_bid', 'The Raise Should be greater than 0');
             return $this->redirectToRoute('app_item_details', [
                 'id' => $betSessionId,
             ]);
@@ -38,29 +45,26 @@ final class BidController extends AbstractController
         try {
             $betSession = $this->entityManager->getRepository(BetSession::class)->find($betSessionId);
             if (!$betSession) {
-                $this->addFlash('error', 'Bet session not found');
+                $this->addFlash('error_bid', 'Bet session not found');
                 return $this->json([
                     'error' => 'Bet session not found',
                 ], Response::HTTP_NOT_FOUND);
             }
 
-                
             $user = $this->getUser();
             if (!$user instanceof \App\Entity\User) {
-                $this->addFlash('error', 'User not found');
+                $this->addFlash('error_bid', 'User not found');
                 return $this->redirectToRoute('app_item_details', [
                     'id' => $betSessionId,
                 ]);
             }
-            else{
+
             if ($user->getBalance() < $bidValue) {
                 $this->addFlash('error', 'Insufficient balance Go Charge your wallet');
                 return $this->redirectToRoute('app_item_details', [
                     'id' => $betSessionId,
                 ]);
             }
-
-            
 
             $bid->setBetSession($betSession);
             $bid->setBidValue($betSession->getCurrentPrice() + $bidValue);
@@ -71,13 +75,24 @@ final class BidController extends AbstractController
             $this->entityManager->persist($bid);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            // Publish update to Mercure hub
+            $update = new Update(
+                'http://localhost:3000/.well-known/mercure?topic=https://example.com/bet_sessions/' . $betSession->getId(),
+                json_encode(['status' => 'updated', 'betSession' => $betSession, 'bid' => $bid])
+            );
+            $this->hub->publish($update);
+
             $this->addFlash('success', 'Bid added successfully');
             return $this->redirectToRoute('app_item_details', [
                 'id' => $betSessionId,
             ]);
-            }
         } catch (\Exception $e) {
-            $this->addFlash('error', 'An error occurred while adding the bid');
+            $this->logger->error('An error occurred while adding the bid: ' . $e->getMessage());
+            $this->addFlash('error', 'An error occurred while adding the bid: ' . $e->getMessage());
+            return $this->redirectToRoute('app_item_details', [
+                'id' => $betSessionId,
+            ]);
         }
     }
 }
