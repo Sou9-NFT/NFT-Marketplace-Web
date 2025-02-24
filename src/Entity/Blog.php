@@ -27,6 +27,9 @@ class Blog
     )]
     private ?string $title = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $translatedTitle = null;
+
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'Content cannot be empty')]
     #[Assert\Length(
@@ -35,6 +38,7 @@ class Blog
     )]
     private ?string $content = null;
 
+    
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull(message: 'Date cannot be empty')]
     #[Assert\Type("\DateTimeInterface")]
@@ -82,6 +86,17 @@ class Blog
         return $this;
     }
 
+    public function getTranslatedTitle(): ?string
+    {
+        return $this->translatedTitle;
+    }
+
+    public function setTranslatedTitle(?string $translatedTitle): static
+    {
+        $this->translatedTitle = $translatedTitle;
+        return $this;
+    }
+
     public function getContent(): ?string
     {
         return $this->content;
@@ -92,6 +107,8 @@ class Blog
         $this->content = trim($content);
         return $this;
     }
+
+   
 
     public function getDate(): ?\DateTimeInterface
     {

@@ -7,6 +7,7 @@ use App\Entity\Comment;
 use App\Form\BlogType;
 use App\Form\CommentType;
 use App\Repository\BlogRepository;
+use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,10 +15,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/blog')]
 class BlogController extends AbstractController
 {
+    private TranslationService $translationService;
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(
+        TranslationService $translationService,
+        EntityManagerInterface $entityManager
+    ) {
+        $this->translationService = $translationService;
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/', name: 'app_blog_index', methods: ['GET'])]
     public function index(BlogRepository $blogRepository): Response
     {
@@ -108,15 +121,24 @@ class BlogController extends AbstractController
     #[Route('/{id}', name: 'app_blog_show', methods: ['GET'])]
     public function show(Blog $blog): Response
     {
+        // Translate the title if not already translated
+        if (!$blog->getTranslatedTitle()) {
+            $translatedTitle = $this->translationService->translate($blog->getTitle());
+            if ($translatedTitle) {
+                $blog->setTranslatedTitle($translatedTitle);
+                $this->entityManager->flush();
+            }
+        }
+
         $comment = new Comment();
         $comment->setBlog($blog);
-        $commentForm = $this->createForm(CommentType::class, $comment, [
-            'action' => $this->generateUrl('app_blog_add_comment_to_blog', ['id' => $blog->getId()])
+        $form = $this->createForm(CommentType::class, $comment, [
+            'action' => $this->generateUrl('app_blog_add_comment', ['id' => $blog->getId()])
         ]);
 
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
-            'commentForm' => $commentForm->createView(),
+            'comment_form' => $form->createView(),
         ]);
     }
 
