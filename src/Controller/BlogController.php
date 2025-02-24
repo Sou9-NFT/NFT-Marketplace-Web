@@ -139,6 +139,7 @@ class BlogController extends AbstractController
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
             'comment_form' => $form->createView(),
+
         ]);
     }
 
@@ -249,4 +250,24 @@ class BlogController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index');
     }
+
+    #[Route('/{id}/translate', name: 'app_blog_translate', methods: ['POST'])]
+    public function translate(Blog $blog): Response
+    {
+        try {
+            $translatedTitle = $this->translationService->translate($blog->getTitle());
+            if ($translatedTitle) {
+                $blog->setTranslatedTitle($translatedTitle);
+                $this->entityManager->flush();
+                $this->addFlash('success', 'Title has been translated successfully.');
+            } else {
+                throw new \Exception('Translation service returned no result');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Translation failed: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
+    }
+
 }

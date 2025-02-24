@@ -37,6 +37,8 @@ class TranslationService
             ]);
 
             $result = $response->toArray();
+            // For debugging purposes
+            dump($result);
             return $result['data']['translatedText'] ?? null;
         } catch (\Exception $e) {
             // Log the error in production
