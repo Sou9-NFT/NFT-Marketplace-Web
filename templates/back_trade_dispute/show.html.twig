@@ -77,7 +77,7 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             <a href="{{ path('app_trade_dispute_back') }}" class="btn btn-secondary">Back to list</a>
-                            <a href="{{ path('app_back_trade_dispute_edit', {'id': trade_dispute.id}) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ path('app_admin_trade_dispute_edit', {'id': trade_dispute.id}) }}" class="btn btn-primary">Edit</a>
                             {{ include('back_trade_dispute/_delete_form.html.twig', {'trade_dispute': trade_dispute}) }}
                         </div>
                     </div>

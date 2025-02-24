@@ -10,6 +10,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Regex;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -41,11 +42,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[Assert\NotBlank(message: 'Password cannot be blank')]
     #[Assert\Length(
         min: 6,
         max: 50,
         minMessage: 'Your password must be at least {{ limit }} characters long',
         maxMessage: 'Your password cannot be longer than {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?=.*[A-Z])(?=.*\d).+$/',
+        message: 'Password must contain at least one uppercase letter and one number'
     )]
     private ?string $plainPassword = null;
 
@@ -60,15 +66,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Your name must be at least {{ limit }} characters long',
         maxMessage: 'Your name cannot be longer than {{ limit }} characters'
     )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s]+$/',
+        message: 'Name can only contain letters and spaces'
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Url(message: 'The profile picture must be a valid URL', groups: ['profile_picture_update'])]
     private ?string $profilePicture = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
-    #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
-    private ?float $balance = 0;
+    #[ORM\Column(length: 42, nullable: true)]
+    #[Assert\Length(exactly: 42, exactMessage: 'Ethereum address must be exactly {{ limit }} characters')]
+    #[Assert\Regex(
+        pattern: '/^0x[a-fA-F0-9]{40}$/',
+        message: 'Invalid Ethereum address format'
+    )]
+    private ?string $walletAddress = null;
 
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
@@ -82,7 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdRaffles = new ArrayCollection();
         $this->participations = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
-        $this->balance = 0; // Initialize balance to 0
+        $this->plainPassword = null; // Initialize plainPassword
     }
 
     public function getId(): ?int
@@ -208,15 +222,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getBalance(): ?float
+    public function getWalletAddress(): ?string
     {
-        return $this->balance;
+        return $this->walletAddress;
     }
 
-    public function setBalance(float $balance): static
+    public function setWalletAddress(?string $walletAddress): static
     {
-        $this->balance = $balance;
-
+        $this->walletAddress = $walletAddress;
         return $this;
     }
 

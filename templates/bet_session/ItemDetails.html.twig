@@ -1,7 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Item Detail
-{% endblock %}
+{% block title %}Item Detail{% endblock %}
 
 {% block body %}
 
@@ -38,7 +37,11 @@
 					<div class="col-12 col-lg-5">
 						<div class="item-info">
 							<div class="item-thumb text-center">
-								<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+								{% if bet_session.artwork.imageName %}
+									<img src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="" style="width: 450px; height: 450px;">
+								{% else %}
+									<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+								{% endif %}
 							</div>
 							<div class="card no-hover countdown-times my-4">
 								{% if bet_session.status == 'active' %}
@@ -73,7 +76,11 @@
 										<!-- Single Tab List -->
                                         {% for bid in bids %}
                                             <li class="single-tab-list d-flex align-items-center">
-                                                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+												{% if bid.author.profilePicture %}
+													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('uploads/profile_pictures/' ~ bid.author.profilePicture) }}" alt="">
+												{% else %}
+													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+												{% endif %}
                                                 <p class="m-0">Bid listed for
                                                     <strong>{{ bid.bidValue }} Dannous</strong>
 													{{ bid.bidTime|date('d M Y H:i:s') }}
@@ -90,7 +97,11 @@
 										<!-- Single Tab List -->
                                         {% for bid in bids %}
                                             <li class="single-tab-list d-flex align-items-center">
-                                                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_6.jpg') }}" alt="">
+                                              	{% if bid.author.profilePicture %}
+													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('uploads/profile_pictures/' ~ bid.author.profilePicture) }}" alt="">
+												{% else %}
+													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+												{% endif %}
                                                 <p class="m-0">Bid listed for
                                                     <strong>{{ bid.bidValue }} Dannous</strong>
                                                     {{ bid.bidTime|date('d M Y H:i:s') }}
@@ -125,30 +136,37 @@
 							<p>{{bet_session.artwork.description}}</p>
 							<!-- Owner -->
 							<div class="owner d-flex align-items-center">
-								<span>Owned By</span>
+							<span>Owned By</span>
 								<a class="owner-meta d-flex align-items-center ml-3" href="author.html">
-									<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-									<h6 class="ml-2">Themeland</h6>
+									{% if bet_session.artwork.owner.profilePicture %}
+										<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
+									{% else %}
+										<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+									{% endif %}
+									<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
 								</a>
 							</div>
 							<!-- Item Info List -->
 							<div class="item-info-list mt-4">
 								<div class="row items">
 									<div class="col-12 col-md-6 item px-lg-2 d-flex flex-column justify-content-center ">
-										<span>Initial Price
-											{{bet_session.initialPrice}}
-											Danous</span>
-										<span>Size 14000 x 14000 px</span>
+										<h6>Initial Price
+											<strong style="color: yellow;">{{ bet_session.initialPrice }}</strong>
+											Danous</h6>
 									</div>
 									<div class="col-12 col-md-6 item px-lg-2">
 										<div class="card no-hover">
 											<div class="single-seller d-flex align-items-center">
 												<a href="author.html">
-													<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+													{% if bet_session.artwork.creator.profilePicture %}
+														<img class="avatar-md rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.creator.profilePicture) }}" alt="">
+													{% else %}
+														<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+													{% endif %}
 												</a>
 												<!-- Seller Info -->
 												<div class="seller-info ml-3">
-													<a class="seller mb-2" href="author.html">@ArtNoxStudio</a>
+													<a class="seller mb-2" href="author.html">@{{bet_session.artwork.creator.name|capitalize}}</a>
 													<span>Creator</span>
 												</div>
 											</div>
@@ -159,7 +177,7 @@
 										<div class="card no-hover">
 											<h4 class="mt-0 mb-2">Highest Bid</h4>
 											<div class="price d-flex justify-content-between align-items-center">
-												<span>{{bet_session.currentPrice}}
+												<span class="text-success font-weight-bold">{{bet_session.currentPrice}}
 													Dannous</span>
 											</div>
 										</div>
@@ -191,16 +209,12 @@
 				</div>
 			</div>
 		</section>
-        <script>
-
-        </script>
-
 		<!-- ***** Item Details Area End ***** -->
 		{% if  live_bet_sessions|length==6  %}
 			<!-- ***** Live Auctions Area Start ***** -->
 			<section class="live-auctions-area pt-0">
 				<div class="container">
-					<div class="row">
+					<div class="row">	
 						<div
 							class="col-12">
 							<!-- Intro -->
@@ -228,7 +242,11 @@
 										<div class="card">
 											<div class="image-over">
 												<a href="{{ path('app_item_details', {'id': session.id}) }}">
-													<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+													{% if session.artwork.imageName %}
+														<img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="">
+													{% else %}
+														<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+													{% endif %}
 												</a>
 											</div>
 											<!-- Card Caption -->
@@ -245,7 +263,11 @@
 														<h5 class="mb-0">{{ session.artwork.title }}</h5>
 													</a>
 													<a class="seller d-flex align-items-center my-3" href="">
-														<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+														{% if session.author.profilePicture %}
+															<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session	.author.profilePicture) }}" alt="">
+														{% else %}
+															<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+														{% endif %}
 														<span class="ml-2">@Nessim</span>
 													</a>
 													<div class="card-bottom d-flex justify-content-between">
@@ -266,5 +288,32 @@
 			</section>
 			<!-- ***** Live Auctions Area End ***** -->
 		{% endif %}
+>
+</div>
 
-	{% endblock %}
+<script>
+    const eventSource = new EventSource('http://localhost:3000/.well-known/mercure?topic=https://example.com/bet_sessions/{{ bet_session.id }}');
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.status === 'updated') {
+            // Update the current price
+            document.querySelector('.price span').textContent = data.betSession.currentPrice + ' Dannous';
+
+            // Update the bids list
+            const bidsList = document.querySelector('.tab-content #nav-home ul');
+            const newBid = document.createElement('li');
+            newBid.classList.add('single-tab-list', 'd-flex', 'align-items-center');
+            newBid.innerHTML = `
+                <img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+                <p class="m-0">Bid listed for
+                    <strong>${data.bid.bidValue} ETH</strong>
+                    ${new Date(data.bid.bidTime).toLocaleString()}
+                    <br>by
+                    <a href="author.html">@${data.bid.author.name}</a>
+                </p>
+            `;
+            bidsList.insertBefore(newBid, bidsList.firstChild);
+        }
+    };
+</script>
+{% endblock %}

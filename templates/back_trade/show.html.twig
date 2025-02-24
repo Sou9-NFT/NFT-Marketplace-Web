@@ -8,7 +8,7 @@
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ path('app_back_trade') }}">Trade Offers</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_trade') }}">Trade Offers</a></li>
             <li class="breadcrumb-item active">View Trade Offer</li>
         </ol>
     </nav>
@@ -88,8 +88,8 @@
 
                     <div class="row mb-3">
                         <div class="col-12">
-                            <a href="{{ path('app_back_trade') }}" class="btn btn-secondary">Back to list</a>
-                            <a href="{{ path('app_back_trade_offer_edit', {'id': trade_offer.id}) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ path('app_admin_trade') }}" class="btn btn-secondary">Back to list</a>
+                            <a href="{{ path('app_admin_trade_offer_edit', {'id': trade_offer.id}) }}" class="btn btn-primary">Edit</a>
                             {{ include('back_trade/_delete_form.html.twig', {'trade_offer': trade_offer}) }}
                         </div>
                     </div>

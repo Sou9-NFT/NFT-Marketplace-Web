@@ -33,6 +33,9 @@ class CategoryController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+                // Set the current user as manager
+                $category->setManager($this->getUser());
+
                 if ($category->getType()) {
                     $category->setAllowedMimeTypes(Category::getAvailableMimeTypes($category->getType()));
                 }

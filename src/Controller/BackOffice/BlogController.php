@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/back/blog')]
+#[Route('/admin/blog')]
 #[IsGranted('ROLE_ADMIN')]
 class BlogController extends AbstractController
 {
-    #[Route('/', name: 'app_back_blog_index', methods: ['GET'])]
+    #[Route('/', name: 'app_admin_blog_index', methods: ['GET'])]
     public function index(BlogRepository $blogRepository): Response
     {
         $blogs = $blogRepository->findBy([], ['date' => 'DESC']);
@@ -25,7 +25,7 @@ class BlogController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_back_blog_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_blog_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $blog = new Blog();
@@ -40,7 +40,7 @@ class BlogController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Blog post created successfully!');
-            return $this->redirectToRoute('app_back_blog_index');
+            return $this->redirectToRoute('app_admin_blog_index');
         }
 
         return $this->render('blog_back/post_new.html.twig', [
@@ -49,7 +49,7 @@ class BlogController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_back_blog_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_blog_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(BlogType::class, $blog);
@@ -58,7 +58,7 @@ class BlogController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
             $this->addFlash('success', 'Blog post updated successfully!');
-            return $this->redirectToRoute('app_back_blog_index');
+            return $this->redirectToRoute('app_admin_blog_index');
         }
 
         return $this->render('blog_back/post_edit.html.twig', [
@@ -67,7 +67,7 @@ class BlogController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_back_blog_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_admin_blog_delete', methods: ['POST'])]
     public function delete(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$blog->getId(), $request->getPayload()->getString('_token'))) {
@@ -76,6 +76,6 @@ class BlogController extends AbstractController
             $this->addFlash('success', 'Blog post deleted successfully.');
         }
 
-        return $this->redirectToRoute('app_back_blog_index');
+        return $this->redirectToRoute('app_admin_blog_index');
     }
 }
