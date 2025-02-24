@@ -46,3 +46,11 @@ symfony console cache:clear
 Database Name : `Sou9_NFT`
 
 `DATABASE_URL="mysql://root:@127.0.0.1:3306/Sou9_NFT"`
+
+## How to Setup Oath (SSL)
+
+Type `php --ini` to get the path of php.ini file
+
+Then in your php.ini file insert or edit the following line: curl.cainfo = pathtothisfile\cacert.pem"
+
+[original issue](https://stackoverflow.com/questions/37997669/curl-error-60-ssl-certification-issue-when-attempting-to-use-symfony)

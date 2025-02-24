@@ -96,8 +96,9 @@ class OAuthAuthenticator extends OAuth2Authenticator implements AuthenticationEn
                 // Set GitHub-specific data
                 if ($client === 'github') {
                     $user->setGithubUsername($oauthUser->getNickname());
-                    // You can also store the avatar URL if you want
-                    $user->setProfilePicture($oauthUser->getAvatar());
+                    // Get avatar URL from the user data array
+                    $userData = $oauthUser->toArray();
+                    $user->setProfilePicture($userData['avatar_url'] ?? null);
                 }
 
                 $this->entityManager->persist($user);
