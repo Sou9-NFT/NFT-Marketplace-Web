@@ -118,8 +118,12 @@
 									<div class="owner-meta d-flex align-items-center mt-3">
 										<span>Owner</span>
 										<a class="owner d-flex align-items-center ml-2" href="author.html">
-											<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-											<h6 class="ml-2">Themeland</h6>
+											{% if bet_session.artwork.owner.profilePicture %}
+												<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
+											{% else %}
+												<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+											{% endif %}
+											<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
 										</a>
 									</div>
 									<p class="mt-2">Created :
@@ -288,10 +292,12 @@
 			</section>
 			<!-- ***** Live Auctions Area End ***** -->
 		{% endif %}
->
+
 </div>
 
 <script>
+	const MERCURE_URL = 'http://localhost:3000/.well-known/mercure';
+	const MERCURE_JWT = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwibWVyY3VyZSI6eyJwdWJsaXNoIjpbIioiXX0sImlhdCI6MTc0MDM4NjA2OC43MDMwNzZ9.1R9whLD9M7CnA8vaXE9yy7nL89G-B38QFDZHL_V4r88';
     const eventSource = new EventSource('http://localhost:3000/.well-known/mercure?topic=https://example.com/bet_sessions/{{ bet_session.id }}');
     eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);

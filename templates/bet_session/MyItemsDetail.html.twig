@@ -123,8 +123,12 @@
 									<div class="owner-meta d-flex align-items-center mt-3">
 										<span>Owner</span>
 										<a class="owner d-flex align-items-center ml-2" href="author.html">
-											<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-											<h6 class="ml-2">Themeland</h6>
+											{% if bet_session.artwork.owner.profilePicture %}
+												<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
+											{% else %}
+												<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+											{% endif %}
+											<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
 										</a>
 									</div>
 									<p class="mt-2">Created :

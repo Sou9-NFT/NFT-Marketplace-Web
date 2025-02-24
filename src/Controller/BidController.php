@@ -60,7 +60,7 @@ final class BidController extends AbstractController
             }
 
             if ($user->getBalance() < $bidValue) {
-                $this->addFlash('error', 'Insufficient balance Go Charge your wallet');
+                $this->addFlash('error_bid', 'Insufficient balance Go Charge your wallet');
                 return $this->redirectToRoute('app_item_details', [
                     'id' => $betSessionId,
                 ]);
@@ -83,13 +83,13 @@ final class BidController extends AbstractController
             );
             $this->hub->publish($update);
 
-            $this->addFlash('success', 'Bid added successfully');
+            $this->addFlash('success_bid', 'Bid added successfully');
             return $this->redirectToRoute('app_item_details', [
                 'id' => $betSessionId,
             ]);
         } catch (\Exception $e) {
             $this->logger->error('An error occurred while adding the bid: ' . $e->getMessage());
-            $this->addFlash('error', 'An error occurred while adding the bid: ' . $e->getMessage());
+            $this->addFlash('error_bid', 'An error occurred while adding the bid: ' . $e->getMessage());
             return $this->redirectToRoute('app_item_details', [
                 'id' => $betSessionId,
             ]);
