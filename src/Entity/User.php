@@ -84,6 +84,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $walletAddress = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $githubUsername = null;
+
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
 
@@ -230,6 +233,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setWalletAddress(?string $walletAddress): static
     {
         $this->walletAddress = $walletAddress;
+        return $this;
+    }
+
+    public function getGithubUsername(): ?string
+    {
+        return $this->githubUsername;
+    }
+
+    public function setGithubUsername(?string $githubUsername): static
+    {
+        $this->githubUsername = $githubUsername;
         return $this;
     }
 
