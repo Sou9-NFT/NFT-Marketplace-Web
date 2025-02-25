@@ -31,6 +31,13 @@
                         {{ form_errors(form.content) }}
                     </div>
 
+                    <div class="col-12">
+                        {{ form_label(form.imageFile, 'Blog Image', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+                        <small class="form-text text-muted">Upload an image for your blog post (JPEG, PNG, or GIF, max 1MB)</small>
+                        {{ form_errors(form.imageFile) }}
+                    </div>
+
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-plus-circle"></i> Create Post

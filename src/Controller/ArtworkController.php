@@ -36,6 +36,10 @@ class ArtworkController extends AbstractController
                 try {
                     $entityManager->beginTransaction();
                     
+                    // Set the current user as both creator and owner
+                    $artwork->setCreator($this->getUser());
+                    $artwork->setOwner($this->getUser());
+                    
                     $imageFile = $form->get('imageFile')->getData();
                     if ($imageFile) {
                         $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -53,6 +57,10 @@ class ArtworkController extends AbstractController
                             return $this->redirectToRoute('app_artwork_new');
                         }
                     }
+
+                    // Add creator/owner assignment in new action
+                    $artwork->setCreator($this->getUser());
+                    $artwork->setOwner($this->getUser());
                     
                     $entityManager->persist($artwork);
                     $entityManager->flush();

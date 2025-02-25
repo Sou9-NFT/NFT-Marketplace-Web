@@ -37,6 +37,8 @@
         "files": [
             "./config/packages/knpu_oauth2_client.yaml"
         ]
+    "knplabs/knp-time-bundle": {
+        "version": "v2.4.0"
     },
     "phpunit/phpunit": {
         "version": "9.6",
