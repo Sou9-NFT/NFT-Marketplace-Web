@@ -57,49 +57,62 @@
 
 {% block javascripts %}
 {{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
 <script>
-async function approveTopUp(button) {
-    const requestId = button.dataset.requestId;
-    const amount = button.dataset.amount;
-    const recipientAddress = button.dataset.wallet;
+    const tokenAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}];
 
-    if (!window.ethereum) {
-        alert('Please install MetaMask!');
-        return;
+    async function approveTopUp(button) {
+        const requestId = button.dataset.requestId;
+        const amount = parseFloat(button.dataset.amount);
+        const recipientAddress = button.dataset.wallet;
+
+        if (!window.ethereum) {
+            alert('Please install MetaMask!');
+            return;
+        }
+
+        try {
+            // Connect to Web3
+            const web3 = new Web3(window.ethereum);
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            
+            // Get the current account
+            const accounts = await web3.eth.getAccounts();
+            const adminAccount = accounts[0];
+
+            // Token contract setup
+            const tokenContract = new web3.eth.Contract(tokenAbi, '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801');
+            
+            // Convert amount to token units (considering decimals)
+            const decimals = await tokenContract.methods.decimals().call();
+            const amountInTokenUnits = web3.utils.toBN(Math.floor(amount * Math.pow(10, decimals)));
+
+            console.log('Sending transaction:', {
+                from: adminAccount,
+                to: recipientAddress,
+                amount: amountInTokenUnits.toString()
+            });
+
+            // Send the transaction
+            await tokenContract.methods.transfer(recipientAddress, amountInTokenUnits).send({ from: adminAccount });
+
+            // Update request status through backend
+            const response = await fetch(`{{ path('app_admin_topup_approve', {'id': 'REQUEST_ID'}) }}`.replace('REQUEST_ID', requestId), {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update request status');
+            }
+
+            // Reload the page to show updated status
+            location.reload();
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Transaction failed: ' + error.message);
+        }
     }
-
-    try {
-        // Connect to Web3
-        const web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        
-        // Get the current account
-        const accounts = await web3.eth.getAccounts();
-        const adminAccount = accounts[0];
-
-        // Token contract setup
-        const tokenContract = new web3.eth.Contract(tokenAbi, '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801');
-        
-        // Convert amount to token units (considering decimals)
-        const decimals = await tokenContract.methods.decimals().call();
-        const amountInTokenUnits = web3.utils.toBN(amount * Math.pow(10, decimals));
-
-        // Send the transaction
-        await tokenContract.methods.transfer(recipientAddress, amountInTokenUnits).send({ from: adminAccount });
-
-        // Update request status through backend
-        await fetch(`{{ path('app_admin_topup_approve', {'id': 'REQUEST_ID'}) }}`.replace('REQUEST_ID', requestId), {
-            method: 'POST',
-        });
-
-        // Reload the page to show updated status
-        location.reload();
-
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Transaction failed. See console for details.');
-    }
-}
 </script>
 {% endblock %}
 {% endblock %}
