@@ -36,6 +36,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
+    #[ORM\Column(type: 'decimal', precision: 20, scale: 8)]
+    #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
+    private float $balance = 0.0;
+
     /**
      * @var string The hashed password
      */
@@ -93,13 +97,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participant::class)]
     private Collection $participations;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: TopUpRequest::class)]
+    private Collection $topUpRequests;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->createdRaffles = new ArrayCollection();
         $this->participations = new ArrayCollection();
+        $this->topUpRequests = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
         $this->plainPassword = null; // Initialize plainPassword
+        $this->balance = 0.0; // Initialize balance
     }
 
     public function getId(): ?int
@@ -244,6 +253,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setGithubUsername(?string $githubUsername): static
     {
         $this->githubUsername = $githubUsername;
+        return $this;
+    }
+
+    public function getBalance(): float
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(float $balance): self
+    {
+        $this->balance = $balance;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TopUpRequest>
+     */
+    public function getTopUpRequests(): Collection
+    {
+        return $this->topUpRequests;
+    }
+
+    public function addTopUpRequest(TopUpRequest $topUpRequest): self
+    {
+        if (!$this->topUpRequests->contains($topUpRequest)) {
+            $this->topUpRequests->add($topUpRequest);
+            $topUpRequest->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeTopUpRequest(TopUpRequest $topUpRequest): self
+    {
+        if ($this->topUpRequests->removeElement($topUpRequest)) {
+            if ($topUpRequest->getUser() === $this) {
+                $topUpRequest->setUser(null);
+            }
+        }
         return $this;
     }
 
