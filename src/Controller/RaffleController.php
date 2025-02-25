@@ -130,12 +130,12 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/join', name: 'app_raffle_join', methods: ['GET'])]
-    public function join(Request $request, Raffle $raffle): Response
+    #[Route('/{id}/join', name: 'app_raffle_join', methods: ['POST'])]
+    public function join(Request $request, Raffle $raffle, string $recaptchaSecret): Response
     {
         // Check and update raffle status first
         $this->checkAndUpdateRaffleStatus($raffle);
-
+    
         // Check if user is authenticated
         /** @var User|null $user */
         $user = $this->getUser();
@@ -143,13 +143,20 @@ class RaffleController extends AbstractController
             $this->addFlash('error', 'You must be logged in to join a raffle');
             return $this->redirectToRoute('app_login');
         }
-
+    
         // Check if raffle is still active
         if ($raffle->getStatus() !== 'active') {
             $this->addFlash('error', 'This raffle is no longer active.');
             return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
         }
-
+    
+        // Verify Google reCAPTCHA
+        $recaptchaResponse = $request->request->get('g-recaptcha-response');
+        if (!$this->verifyRecaptcha($recaptchaResponse, $recaptchaSecret)) {
+            $this->addFlash('error', 'reCAPTCHA verification failed. Please try again.');
+            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
+        }
+    
         // Check if user has already joined
         foreach ($raffle->getParticipants() as $existingParticipant) {
             if ($existingParticipant->getUser() === $user) {
@@ -157,7 +164,7 @@ class RaffleController extends AbstractController
                 return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
             }
         }
-
+    
         // Automatically create participant with user's name
         $participant = new Participant();
         $participant->setRaffle($raffle);
@@ -169,12 +176,28 @@ class RaffleController extends AbstractController
         }
         $participant->setName($name);
         $participant->setJoinedAt(new \DateTime());
-        
+    
         $this->entityManager->persist($participant);
         $this->entityManager->flush();
-
+    
         $this->addFlash('success', 'You have successfully joined the raffle!');
         return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
+    }
+    
+    /**
+     * Verify the Google reCAPTCHA response.
+     */
+    private function verifyRecaptcha(string $recaptchaResponse, string $recaptchaSecret): bool
+    {
+        $verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+
+        $response = file_get_contents($verifyUrl . '?secret=' . $recaptchaSecret . '&response=' . $recaptchaResponse);
+        $responseData = json_decode($response);
+
+        // Debug: Log the reCAPTCHA verification response
+        error_log('reCAPTCHA verification response: ' . print_r($responseData, true));
+
+        return $responseData->success && $responseData->score > 0.5;
     }
 
     #[Route('/{id}/edit', name: 'app_raffle_edit', methods: ['GET', 'POST'])]
@@ -259,5 +282,4 @@ class RaffleController extends AbstractController
 
         return $this->redirectToRoute('app_raffle_index');
     }
-
 }
