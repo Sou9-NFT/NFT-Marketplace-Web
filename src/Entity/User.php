@@ -76,9 +76,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Url(message: 'The profile picture must be a valid URL', groups: ['profile_picture_update'])]
     private ?string $profilePicture = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
-    #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
-    private ?float $balance = 0;
+    #[ORM\Column(length: 42, nullable: true)]
+    #[Assert\Length(exactly: 42, exactMessage: 'Ethereum address must be exactly {{ limit }} characters')]
+    #[Assert\Regex(
+        pattern: '/^0x[a-fA-F0-9]{40}$/',
+        message: 'Invalid Ethereum address format'
+    )]
+    private ?string $walletAddress = null;
 
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
@@ -92,7 +96,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->createdRaffles = new ArrayCollection();
         $this->participations = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
-        $this->balance = 0; // Initialize balance to 0
         $this->plainPassword = null; // Initialize plainPassword
     }
 
@@ -219,15 +222,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getBalance(): ?float
+    public function getWalletAddress(): ?string
     {
-        return $this->balance;
+        return $this->walletAddress;
     }
 
-    public function setBalance(float $balance): static
+    public function setWalletAddress(?string $walletAddress): static
     {
-        $this->balance = $balance;
-
+        $this->walletAddress = $walletAddress;
         return $this;
     }
 

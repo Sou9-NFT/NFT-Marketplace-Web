@@ -1,63 +1,91 @@
-{% extends 'base_back.html.twig' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Access Denied{% endblock %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-{% block stylesheets %}
-{{ parent() }}
-<style>
-    .lock-icon {
-        font-size: 5rem;
-        color: #e74c3c;
-        margin-bottom: 1.5rem;
-    }
-    .access-denied-card {
-        background: #fff;
-        border-radius: 15px;
-        padding: 3rem 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        margin-top: 2rem;
-    }
-    .access-denied-title {
-        color: #e74c3c;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-    .access-denied-message {
-        color: #666;
-        margin-bottom: 2rem;
-    }
-    .btn-main-menu {
-        background: #2ecc71;
-        color: #fff;
-        padding: 12px 30px;
-        border-radius: 25px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-    .btn-main-menu:hover {
-        background: #27ae60;
-        color: #fff;
-        transform: translateY(-2px);
-    }
-</style>
-{% endblock %}
+  <title>Access Denied - ArtiTechs Admin</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
 
-{% block body %}
-<!-- ***** Access Denied Area Start ***** -->
-<section class="author-area">
+  <!-- Favicons -->
+  <link href="{{ asset('back_office/img/favicon.png') }}" rel="icon">
+  <link href="{{ asset('back_office/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{{ asset('back_office/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('back_office/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ asset('back_office/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('back_office/vendor/quill/quill.snow.css') }}" rel="stylesheet">
+  <link href="{{ asset('back_office/vendor/quill/quill.bubble.css') }}" rel="stylesheet">
+  <link href="{{ asset('back_office/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
+  <link href="{{ asset('back_office/vendor/simple-datatables/style.css') }}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{{ asset('back_office/css/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+  <main>
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-7">
-                <div class="access-denied-card text-center">
-                    <i class="fas fa-lock lock-icon"></i>
-                    <h2 class="access-denied-title">Access Denied</h2>
-                    <p class="access-denied-message">You don't have the required permissions to access the admin area. This section is restricted to administrators only.</p>
-                    <a href="{{ path('app_home_page') }}" class="btn-main-menu">
-                        <i class="fas fa-home me-2"></i>Go to Main Menu
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+              <div class="d-flex justify-content-center py-4">
+                <a href="{{ path('app_home_page') }}" class="logo d-flex align-items-center w-auto">
+                  <img src="{{ asset('back_office/img/logo.png') }}" alt="">
+                  <span class="d-none d-lg-block">ArtiTechs</span>
+                </a>
+              </div>
+
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="pt-4 pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Access Denied</h5>
+                    <p class="text-center small text-danger">You don't have permission to access this area</p>
+                  </div>
+
+                  <div class="text-center mb-4">
+                    <i class="bi bi-shield-lock text-danger" style="font-size: 4rem;"></i>
+                  </div>
+
+                  <p class="text-center text-muted mb-4">This section is restricted to administrators only. Please contact your administrator if you think this is a mistake.</p>
+
+                  <div class="col-12">
+                    <a href="{{ path('app_home_page') }}" class="btn btn-primary w-100">
+                      <i class="bi bi-house-door me-1"></i> Return to Homepage
                     </a>
+                  </div>
                 </div>
+              </div>
+
             </div>
+          </div>
         </div>
+      </section>
     </div>
-</section>
-{% endblock %}
+  </main>
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="{{ asset('back_office/vendor/apexcharts/apexcharts.min.js') }}"></script>
+  <script src="{{ asset('back_office/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('back_office/vendor/chart.js/chart.umd.js') }}"></script>
+  <script src="{{ asset('back_office/vendor/echarts/echarts.min.js') }}"></script>
+  <script src="{{ asset('back_office/vendor/quill/quill.js') }}"></script>
+  <script src="{{ asset('back_office/vendor/simple-datatables/simple-datatables.js') }}"></script>
+  <script src="{{ asset('back_office/vendor/tinymce/tinymce.min.js') }}"></script>
+  <script src="{{ asset('back_office/vendor/php-email-form/validate.js') }}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{{ asset('back_office/js/main.js') }}"></script>
+</body>
+</html>

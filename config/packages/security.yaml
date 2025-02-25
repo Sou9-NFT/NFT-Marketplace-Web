@@ -13,6 +13,9 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        access_denied:
+            pattern: ^/access-denied
+            security: false
         main:
             lazy: true
             provider: app_user_provider
@@ -42,11 +45,20 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        # Static assets and public resources
+        - { path: ^/access-denied, roles: PUBLIC_ACCESS }
+        - { path: ^/css, roles: PUBLIC_ACCESS }
+        - { path: ^/js, roles: PUBLIC_ACCESS }
+        - { path: ^/images, roles: PUBLIC_ACCESS }
+        - { path: ^/front_office, roles: PUBLIC_ACCESS }
+        - { path: ^/back_office, roles: PUBLIC_ACCESS }
+        
         # Allow access to login pages and registration
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
+        - { path: ^/security/access-denied$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
         - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
         - { path: ^/artwork, roles: PUBLIC_ACCESS }  # Allow public access to artwork
