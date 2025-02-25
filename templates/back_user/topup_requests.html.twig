@@ -1,0 +1,105 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Top-up Requests{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Top-up Requests</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            All Pending Requests
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Wallet Address</th>
+                        <th>Requested At</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in topup_requests %}
+                    <tr>
+                        <td>{{ request.id }}</td>
+                        <td>{{ request.user.name }} ({{ request.user.email }})</td>
+                        <td>{{ request.amount }} ESPRIT DAN</td>
+                        <td>{{ request.user.walletAddress }}</td>
+                        <td>{{ request.createdAt|date('Y-m-d H:i:s') }}</td>
+                        <td><span class="badge bg-{{ request.status == 'pending' ? 'warning' : (request.status == 'approved' ? 'success' : 'danger') }}">{{ request.status }}</span></td>
+                        <td>
+                            {% if request.status == 'pending' %}
+                            <button class="btn btn-sm btn-success approve-btn" 
+                                    data-request-id="{{ request.id }}"
+                                    data-amount="{{ request.amount }}"
+                                    data-wallet="{{ request.user.walletAddress }}"
+                                    onclick="approveTopUp(this)">
+                                Approve
+                            </button>
+                            <form method="post" action="{{ path('app_admin_topup_reject', {'id': request.id}) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+async function approveTopUp(button) {
+    const requestId = button.dataset.requestId;
+    const amount = button.dataset.amount;
+    const recipientAddress = button.dataset.wallet;
+
+    if (!window.ethereum) {
+        alert('Please install MetaMask!');
+        return;
+    }
+
+    try {
+        // Connect to Web3
+        const web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        
+        // Get the current account
+        const accounts = await web3.eth.getAccounts();
+        const adminAccount = accounts[0];
+
+        // Token contract setup
+        const tokenContract = new web3.eth.Contract(tokenAbi, '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801');
+        
+        // Convert amount to token units (considering decimals)
+        const decimals = await tokenContract.methods.decimals().call();
+        const amountInTokenUnits = web3.utils.toBN(amount * Math.pow(10, decimals));
+
+        // Send the transaction
+        await tokenContract.methods.transfer(recipientAddress, amountInTokenUnits).send({ from: adminAccount });
+
+        // Update request status through backend
+        await fetch(`{{ path('app_admin_topup_approve', {'id': 'REQUEST_ID'}) }}`.replace('REQUEST_ID', requestId), {
+            method: 'POST',
+        });
+
+        // Reload the page to show updated status
+        location.reload();
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Transaction failed. See console for details.');
+    }
+}
+</script>
+{% endblock %}
+{% endblock %}

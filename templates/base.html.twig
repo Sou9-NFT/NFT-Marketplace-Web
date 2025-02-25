@@ -141,6 +141,7 @@
                                     <li><a class="dropdown-item" href="{{ path('app_user_show', {'id': app.user.id}) }}">Profile</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_bet_session_mylist', {'userId': app.user.id}) }}">My Bet Sessions</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_wallet_connect') }}">Connect Wallet</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_user_topup_request') }}">Request Balance Top-up</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
                                 </ul>
@@ -338,11 +339,30 @@
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 if (accounts.length > 0) {
+                    await updateWalletAddress(accounts[0]); // Store wallet address only on explicit connect
                     updateTokenBalance(accounts[0]);
                 }
             } catch (error) {
                 console.error('Error connecting wallet:', error);
                 document.getElementById('walletBalance').textContent = 'Connection failed';
+            }
+        }
+
+        async function updateWalletAddress(address) {
+            try {
+                const response = await fetch('{{ path('app_user_update_wallet') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ walletAddress: address })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update wallet address');
+                }
+            } catch (error) {
+                console.error('Error updating wallet address:', error);
             }
         }
 
@@ -364,9 +384,10 @@
             
             if (typeof window.ethereum !== 'undefined') {
                 // Listen for account changes
-                window.ethereum.on('accountsChanged', function (accounts) {
+                window.ethereum.on('accountsChanged', async function (accounts) {
                     if (accounts.length > 0) {
                         updateTokenBalance(accounts[0]);
+                        document.getElementById('walletBalance').innerHTML = '<a href="#" onclick="connectWallet(); return false;" style="color: inherit;">Connect wallet</a>';
                     } else {
                         document.getElementById('walletBalance').innerHTML = '<a href="#" onclick="connectWallet(); return false;" style="color: inherit;">Connect wallet</a>';
                     }

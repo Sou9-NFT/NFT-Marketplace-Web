@@ -31,6 +31,7 @@ You are working on an **NFT Marketplace** using **Symfony (Web)**. The project i
   - `/user/{id}` (name: `app_user_show`) - View user profile
   - `/user/{id}/edit` (name: `app_user_edit`) - Edit user profile
   - `/user/{id}` (name: `app_user_delete`) - Delete user [POST]
+  - `/user/topup/request` (name: `app_user_topup_request`) - Request balance top-up [GET/POST]
 - Back Office:
   - `/admin/user` (name: `app_admin_user_index`) - Manage all users
   - `/admin/user/new` (name: `app_admin_user_new`) - Create new user
@@ -38,6 +39,9 @@ You are working on an **NFT Marketplace** using **Symfony (Web)**. The project i
   - `/admin/user/{id}/edit` (name: `app_admin_user_edit`) - Edit user
   - `/admin/user/{id}/roles` (name: `app_admin_user_roles`) - Manage user roles
   - `/admin/user/{id}` (name: `app_admin_user_delete`) - Delete user [POST]
+  - `/admin/topup-requests` (name: `app_admin_topup_index`) - Manage top-up requests
+  - `/admin/topup-requests/{id}` (name: `app_admin_topup_approve`) - Approve top-up request [POST]
+  - `/admin/topup-requests/{id}` (name: `app_admin_topup_reject`) - Reject top-up request [POST]
 
 #### **Development Best Practices**  
 - Validate **user forms only at the Entity level**.  
