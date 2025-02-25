@@ -54,3 +54,7 @@ Type `php --ini` to get the path of php.ini file
 Then in your php.ini file insert or edit the following line: curl.cainfo = pathtothisfile\cacert.pem"
 
 [original issue](https://stackoverflow.com/questions/37997669/curl-error-60-ssl-certification-issue-when-attempting-to-use-symfony)
+
+## `symfony.lock` or `composer.lock` errors
+
+you can delete them and execute `composer install`

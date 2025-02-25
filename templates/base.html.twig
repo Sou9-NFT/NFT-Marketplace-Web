@@ -314,23 +314,37 @@
         const tokenAddress = '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801';
         let web3;
 
-        window.addEventListener('load', async () => {
+        async function checkAndUpdateWallet() {
             if (typeof window.ethereum !== 'undefined') {
-                // Initialize Web3 with MetaMask provider
                 web3 = new Web3(window.ethereum);
-                
-                // Listen for account changes
-                window.ethereum.on('accountsChanged', function (accounts) {
+                try {
+                    // Check if already connected
+                    const accounts = await web3.eth.getAccounts();
                     if (accounts.length > 0) {
                         updateTokenBalance(accounts[0]);
                     } else {
-                        document.getElementById('walletBalance').textContent = 'Connect wallet';
+                        document.getElementById('walletBalance').innerHTML = '<a href="#" onclick="connectWallet(); return false;" style="color: inherit;">Connect wallet</a>';
                     }
-                });
+                } catch (error) {
+                    console.error('Error checking wallet:', error);
+                    document.getElementById('walletBalance').textContent = 'Error checking wallet';
+                }
             } else {
                 document.getElementById('walletBalance').textContent = 'Please install MetaMask';
             }
-        });
+        }
+
+        async function connectWallet() {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (accounts.length > 0) {
+                    updateTokenBalance(accounts[0]);
+                }
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                document.getElementById('walletBalance').textContent = 'Connection failed';
+            }
+        }
 
         async function updateTokenBalance(account) {
             try {
@@ -344,6 +358,26 @@
                 document.getElementById('walletBalance').textContent = 'Error loading balance';
             }
         }
+
+        window.addEventListener('load', async () => {
+            await checkAndUpdateWallet();
+            
+            if (typeof window.ethereum !== 'undefined') {
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    if (accounts.length > 0) {
+                        updateTokenBalance(accounts[0]);
+                    } else {
+                        document.getElementById('walletBalance').innerHTML = '<a href="#" onclick="connectWallet(); return false;" style="color: inherit;">Connect wallet</a>';
+                    }
+                });
+
+                // Listen for chain changes
+                window.ethereum.on('chainChanged', function () {
+                    checkAndUpdateWallet();
+                });
+            }
+        });
     </script>
     <script src="{{ asset('front_office/js/main.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/jquery.min.js') }}"></script>
