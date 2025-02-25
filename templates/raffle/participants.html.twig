@@ -2,6 +2,16 @@
 
 {% block title %}Raffle Participants{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Custom CSS to make text color white for Name and Joined At columns */
+        .table tbody td {
+            color: white;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="container mt-4">
         <div class="row">
