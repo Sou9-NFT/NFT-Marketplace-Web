@@ -58,3 +58,8 @@ Then in your php.ini file insert or edit the following line: curl.cainfo = patht
 ## `symfony.lock` or `composer.lock` errors
 
 you can delete them and execute `composer install`
+
+
+
+symfony server:start --allow-http --port=8000 
+http://your-local-ip:8000
