@@ -7,4 +7,3 @@ mercure:
                 secret: '%env(MERCURE_JWT_SECRET)%'
                 publish: '*'
 
-            

@@ -296,9 +296,13 @@
 </div>
 
 <script>
-	const MERCURE_URL = 'http://localhost:3000/.well-known/mercure';
-	const MERCURE_JWT = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwibWVyY3VyZSI6eyJwdWJsaXNoIjpbIioiXX0sImlhdCI6MTc0MDM4NjA2OC43MDMwNzZ9.1R9whLD9M7CnA8vaXE9yy7nL89G-B38QFDZHL_V4r88';
-    const eventSource = new EventSource('http://localhost:3000/.well-known/mercure?topic=https://example.com/bet_sessions/{{ bet_session.id }}');
+    const MERCURE_URL = 'http://localhost:3000/.well-known/mercure';
+    const MERCURE_JWT = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwibWVyY3VyZSI6eyJwdWJsaXNoIjpbIioiXX0sImlhdCI6MTc0MDM4NjA2OC43MDMwNzZ9.1R9whLD9M7CnA8vaXE9yy7nL89G-B38QFDZHL_V4r88';
+    const eventSource = new EventSource(MERCURE_URL + '?topic=https://example.com/bet_sessions/{{ bet_session.id }}', {
+        headers: {
+            'Authorization': 'Bearer ' + MERCURE_JWT
+        }
+    });
     eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
         if (data.status === 'updated') {

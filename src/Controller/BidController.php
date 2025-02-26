@@ -59,26 +59,26 @@ final class BidController extends AbstractController
                 ]);
             }
 
-            if ($user->getBalance() < $bidValue) {
+          /*  if ($user->getBalance() < $bidValue) {
                 $this->addFlash('error_bid', 'Insufficient balance Go Charge your wallet');
                 return $this->redirectToRoute('app_item_details', [
                     'id' => $betSessionId,
                 ]);
-            }
+            } */
 
             $bid->setBetSession($betSession);
             $bid->setBidValue($betSession->getCurrentPrice() + $bidValue);
             $betSession->setCurrentPrice($betSession->getCurrentPrice() + $bidValue);
-            $user->setBalance($user->getBalance() - $bidValue);
+           // $user->setBalance($user->getBalance() - $bidValue);
 
             $this->entityManager->persist($betSession);
             $this->entityManager->persist($bid);
-            $this->entityManager->persist($user);
+         //   $this->entityManager->persist($user);
             $this->entityManager->flush();
 
             // Publish update to Mercure hub
             $update = new Update(
-                'http://localhost:3000/.well-known/mercure?topic=https://example.com/bet_sessions/' . $betSession->getId(),
+                'https://example.com/bet_sessions/' . $betSession->getId(), // Topic URL
                 json_encode(['status' => 'updated', 'betSession' => $betSession, 'bid' => $bid])
             );
             $this->hub->publish($update);
