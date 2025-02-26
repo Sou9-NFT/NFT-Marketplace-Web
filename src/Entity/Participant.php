@@ -73,7 +73,7 @@ class Participant
         return $this;
     }
 
-    public function getJoinedAt(): ?\DateTimeInterface
+    public function getJoinedAt(): ?\DateTimeInterface 
     {
         return $this->joined_at;
     }
@@ -82,5 +82,10 @@ class Participant
     {
         $this->joined_at = $joined_at;
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name ?: $this->user?->getEmail() ?: 'Unknown Participant';
     }
 }

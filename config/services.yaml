@@ -6,6 +6,7 @@ parameters:
     blog_images_directory: '%kernel.project_dir%/public/uploads/blog_images'
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     recaptcha_secret: '%env(RECAPTCHA_SECRET)%'
+    app.recaptcha_secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
 
 services:
     _defaults:
@@ -34,3 +35,7 @@ services:
     App\Form\RecaptchaType:
         arguments:
             $siteKey: '%google_recaptcha_site_key%'
+
+    App\Controller\RaffleController:
+        arguments:
+            $recaptchaSecret: '%app.recaptcha_secret%'
