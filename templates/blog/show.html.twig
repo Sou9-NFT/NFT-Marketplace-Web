@@ -71,6 +71,18 @@
                 </div>
             {% endif %}
 
+            {% if blog.translatedContent %}
+                <div class="translation-container mb-5">
+                    <div class="translation-header">
+                        <i class="fas fa-language text-purple"></i>
+                        <span class="ml-2">Translated Content</span>
+                    </div>
+                    <div class="translation-content">
+                        <div class="translated-text lead">{{ blog.translatedContent|raw }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="translation-buttons mb-4">
                 <h5 class="text-purple mb-3">
                     <i class="fas fa-globe"></i>

@@ -118,12 +118,13 @@ class BlogController extends AbstractController
         ]);
     }
 
+
     #[Route('/{id}', name: 'app_blog_show', methods: ['GET'])]
     public function show(Blog $blog): Response
     {
         // Translate the title if not already translated
         if (!$blog->getTranslatedTitle()) {
-            $translatedTitle = $this->translationService->translate($blog->getTitle());
+            $translatedTitle = $this->translationService->translate($blog->getTitle(), 'fr');
             if ($translatedTitle) {
                 $blog->setTranslatedTitle($translatedTitle);
                 $this->entityManager->flush();
@@ -139,10 +140,31 @@ class BlogController extends AbstractController
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
             'comment_form' => $form->createView(),
-
+            'is_translated' => true
         ]);
     }
 
+    #[Route('/{id}/translate/{lang}', name: 'app_blog_translate', methods: ['POST'])]
+    public function translate(Blog $blog, string $lang): Response
+    {
+        try {
+            $translatedTitle = $this->translationService->translate($blog->getTitle(), $lang);
+            $translatedContent = $this->translationService->translate($blog->getContent(), $lang);
+            
+            if ($translatedTitle && $translatedContent) {
+                $blog->setTranslatedTitle($translatedTitle);
+                $blog->setTranslatedContent($translatedContent);
+                $this->entityManager->flush();
+                $this->addFlash('success', 'Blog has been translated successfully.');
+            } else {
+                throw new \Exception('Translation service returned no result');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Translation failed: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
+    }
     #[Route('/{id}/comment', name: 'app_blog_add_comment_to_blog', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function addCommentToBlog(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
@@ -251,23 +273,6 @@ class BlogController extends AbstractController
         return $this->redirectToRoute('app_blog_index');
     }
 
-    #[Route('/{id}/translate', name: 'app_blog_translate', methods: ['POST'])]
-    public function translate(Blog $blog): Response
-    {
-        try {
-            $translatedTitle = $this->translationService->translate($blog->getTitle());
-            if ($translatedTitle) {
-                $blog->setTranslatedTitle($translatedTitle);
-                $this->entityManager->flush();
-                $this->addFlash('success', 'Title has been translated successfully.');
-            } else {
-                throw new \Exception('Translation service returned no result');
-            }
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Translation failed: ' . $e->getMessage());
-        }
 
-        return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
-    }
 
 }

@@ -48,6 +48,34 @@ class Blog
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $translatedContent = null;
+
+    public function getTranslatedContent(): ?string
+    {
+        return $this->translatedContent;
+    }
+
+    public function setTranslatedContent(?string $translatedContent): static
+    {
+        $this->translatedContent = $translatedContent;
+        return $this;
+    }
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $translationLanguage = null;
+
+    public function getTranslationLanguage(): ?string
+    {
+        return $this->translationLanguage;
+    }
+
+    public function setTranslationLanguage(?string $translationLanguage): static
+    {
+        $this->translationLanguage = $translationLanguage;
+        return $this;
+    }
+
     /**
      * @var Collection<int, Comment>
      */

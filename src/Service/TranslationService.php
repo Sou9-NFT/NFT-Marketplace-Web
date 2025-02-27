@@ -14,7 +14,7 @@ class TranslationService
         $this->httpClient = $httpClient;
     }
 
-    public function translate(string $text, string $targetLang = 'fr', string $sourceLang = 'en'): ?string
+    public function translate(string $text, string $targetLang , string $sourceLang = 'en'): ?string
     {
         try {
             $response = $this->httpClient->request('GET', self::API_URL, [

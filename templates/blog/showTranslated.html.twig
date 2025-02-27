@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ blog.translatedTitle ?? blog.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="blog-container">
+        <div class="back-button-container mb-4">
+            <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Back to Original Post
+            </a>
+        </div>
+
+        <article class="blog-post mb-5">
+            <!-- Language Indicator -->
+            <div class="translation-badge mb-3">
+                <i class="fas fa-language"></i>
+                Translated to {{ blog.translationLanguage|upper }}
+            </div>
+
+            <h1 class="display-4 mb-4 text-purple">
+                {{ blog.translatedTitle }}
+                <small class="d-block text-muted" style="font-size: 0.6em;">
+                    Original: {{ blog.title }}
+                </small>
+            </h1>
+
+            <div class="meta-info mb-4">
+                <span class="meta-item">
+                    <i class="far fa-user text-purple"></i>
+                    <span class="ml-2">{{ blog.user ? blog.user.name : 'Anonymous' }}</span>
+                </span>
+                <span class="meta-divider">•</span>
+                <span class="meta-item">
+                    <i class="far fa-calendar-alt text-purple"></i>
+                    <span class="ml-2">{{ blog.date ? blog.date|date('F d, Y') : 'N/A' }}</span>
+                </span>
+            </div>
+
+            <div class="blog-content mb-5">
+                <div class="lead text-light">{{ blog.translatedContent|raw }}</div>
+            </div>
+
+            <!-- Original Content Toggle -->
+            <div class="original-content-toggle mb-4">
+                <button class="btn btn-outline-purple" type="button" data-toggle="collapse" data-target="#originalContent">
+                    <i class="fas fa-eye"></i> Show Original Content
+                </button>
+                <div class="collapse mt-3" id="originalContent">
+                    <div class="card card-body bg-dark">
+                        <h4 class="text-purple mb-3">Original Content</h4>
+                        <div class="text-light">{{ blog.content|raw }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Translation Options -->
+            <div class="translation-buttons mb-4">
+                <h5 class="text-purple mb-3">
+                    <i class="fas fa-globe"></i>
+                    Translate to another language:
+                </h5>
+                <div class="btn-group translation-group" role="group">
+                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'fr'}) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-purple">🇫🇷 French</button>
+                    </form>
+                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'es'}) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-purple">🇪🇸 Spanish</button>
+                    </form>
+                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'de'}) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-purple">🇩🇪 German</button>
+                    </form>
+                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'it'}) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-purple">🇮🇹 Italian</button>
+                    </form>
+                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'ar'}) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-purple">🇸🇦 Arabic</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .translation-badge {
+        background-color: var(--purple);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .blog-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .original-content-toggle .card {
+        border: 1px solid rgba(111, 66, 193, 0.2);
+    }
+
+    /* Reuse existing styles from show.html.twig */
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        background-color: #6f42c1;
+        color: #ffffff !important;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        background-color: #5a32a3;
+        transform: translateY(-2px);
+    }
+
+    .translation-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .btn-outline-purple {
+        color: var(--purple);
+        border-color: var(--purple);
+        background: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-purple:hover {
+        background: var(--purple);
+        color: white;
+    }
+</style>
+{% endblock %}
