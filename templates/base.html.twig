@@ -14,6 +14,8 @@
 
     <!-- Style css -->
     <link rel="stylesheet" href="{{ asset('front_office/css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
     {% block stylesheets %}{% endblock %}
 </head>
@@ -129,13 +131,18 @@
                             <li class="nav-item ml-3">
                                 <div class="dropdown">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{ app.user.profilePicture ? asset('uploads/profile_pictures/' ~ app.user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
+                                    {% if app.user.profilePicture starts with 'http' %}
+                                        <img src="{{ app.user.profilePicture }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
+                                    {% else %}
+                                        <img src="{{ app.user.profilePicture ? asset('uploads/profile_pictures/' ~ app.user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
+                                    {% endif %}
                                     <span class="ml-2">{{ app.user.name ?: app.user.email }}</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="{{ path('app_user_show', {'id': app.user.id}) }}">Profile</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_bet_session_mylist', {'userId': app.user.id}) }}">My Bet Sessions</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_wallet_connect') }}">Connect Wallet</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_user_topup_request') }}">Request Balance Top-up</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}">Logout</a></li>
                                 </ul>
@@ -309,23 +316,56 @@
         const tokenAddress = '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801';
         let web3;
 
-        window.addEventListener('load', async () => {
+        async function checkAndUpdateWallet() {
             if (typeof window.ethereum !== 'undefined') {
-                // Initialize Web3 with MetaMask provider
                 web3 = new Web3(window.ethereum);
-                
-                // Listen for account changes
-                window.ethereum.on('accountsChanged', function (accounts) {
+                try {
+                    // Check if already connected
+                    const accounts = await web3.eth.getAccounts();
                     if (accounts.length > 0) {
                         updateTokenBalance(accounts[0]);
                     } else {
-                        document.getElementById('walletBalance').textContent = 'Connect wallet';
+                        document.getElementById('walletBalance').innerHTML = '<a href="#" onclick="connectWallet(); return false;" style="color: inherit;">Connect wallet</a>';
                     }
-                });
+                } catch (error) {
+                    console.error('Error checking wallet:', error);
+                    document.getElementById('walletBalance').textContent = 'Error checking wallet';
+                }
             } else {
                 document.getElementById('walletBalance').textContent = 'Please install MetaMask';
             }
-        });
+        }
+
+        async function connectWallet() {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (accounts.length > 0) {
+                    await updateWalletAddress(accounts[0]); // Store wallet address only on explicit connect
+                    updateTokenBalance(accounts[0]);
+                }
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                document.getElementById('walletBalance').textContent = 'Connection failed';
+            }
+        }
+
+        async function updateWalletAddress(address) {
+            try {
+                const response = await fetch('{{ path('app_user_update_wallet') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ walletAddress: address })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update wallet address');
+                }
+            } catch (error) {
+                console.error('Error updating wallet address:', error);
+            }
+        }
 
         async function updateTokenBalance(account) {
             try {
@@ -339,6 +379,27 @@
                 document.getElementById('walletBalance').textContent = 'Error loading balance';
             }
         }
+
+        window.addEventListener('load', async () => {
+            await checkAndUpdateWallet();
+            
+            if (typeof window.ethereum !== 'undefined') {
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', async function (accounts) {
+                    if (accounts.length > 0) {
+                        updateTokenBalance(accounts[0]);
+                        document.getElementById('walletBalance').innerHTML = '<a href="#" onclick="connectWallet(); return false;" style="color: inherit;">Connect wallet</a>';
+                    } else {
+                        document.getElementById('walletBalance').innerHTML = '<a href="#" onclick="connectWallet(); return false;" style="color: inherit;">Connect wallet</a>';
+                    }
+                });
+
+                // Listen for chain changes
+                window.ethereum.on('chainChanged', function () {
+                    checkAndUpdateWallet();
+                });
+            }
+        });
     </script>
     <script src="{{ asset('front_office/js/main.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/jquery.min.js') }}"></script>

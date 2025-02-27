@@ -19,7 +19,10 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\Security\UserAuthAuthenticator
+            custom_authenticators:
+                - App\Security\UserAuthAuthenticator
+                - App\Security\OAuthAuthenticator
+            entry_point: App\Security\UserAuthAuthenticator
             logout:
                 path: app_logout
                 target: app_home_page
@@ -45,6 +48,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        # OAuth routes should be publicly accessible
+        - { path: ^/connect/, roles: PUBLIC_ACCESS }
+        
         # Static assets and public resources
         - { path: ^/access-denied, roles: PUBLIC_ACCESS }
         - { path: ^/css, roles: PUBLIC_ACCESS }
