@@ -94,7 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participant::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participant::class, orphanRemoval: true)]
     private Collection $participations;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: TopUpRequest::class)]

@@ -11,47 +11,40 @@
                         <h1 class="h3 mb-0 text-white">Edit Raffle #{{ raffle.id }}</h1>
                     </div>
                     <div class="card-body">
-                        {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                            <!-- Title -->
                             <div class="mb-3">
-                                {{ form_label(form.title, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
                                 {{ form_errors(form.title) }}
-                                <div class="form-text text-muted">
-                                    Title must be between 3 and 255 characters.
-                                </div>
                             </div>
 
+                            <!-- Creator Name -->
                             <div class="mb-3">
-                                {{ form_label(form.creator_name, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_label(form.creator_name, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.creator_name, {'attr': {'class': 'form-control'}}) }}
                                 {{ form_errors(form.creator_name) }}
-                                <div class="form-text text-muted">
-                                    Name must be between 2 and 255 characters.
-                                </div>
                             </div>
 
+                            <!-- Image -->
                             <div class="mb-3">
-                                {{ form_label(form.raffleDescription, null, {'label_attr': {'class': 'form-label text-white'}}) }}
-                                {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control', 'rows': 5}}) }}
-                                {{ form_errors(form.raffleDescription) }}
-                                <div class="form-text text-muted">
-                                    Description must be between 10 and 1000 characters.
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                {{ form_label(form.image, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
                                 {{ form_errors(form.image) }}
                                 {% if raffle.image %}
-                                    <div class="form-text text-white">
-                                        Current image: {{ raffle.image }}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Current image:</small><br>
+                                        <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" 
+                                             alt="Current raffle image" 
+                                             class="img-thumbnail mt-2" 
+                                             style="max-height: 100px">
                                     </div>
                                 {% endif %}
                             </div>
 
+                            <!-- End Time -->
                             <div class="mb-3">
-                                {{ form_label(form.endTime, null, {'label_attr': {'class': 'form-label text-white'}}) }}
+                                {{ form_label(form.endTime, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
                                 {{ form_errors(form.endTime) }}
                                 <div class="form-text text-muted">
@@ -59,9 +52,19 @@
                                 </div>
                             </div>
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Update Raffle</button>
-                                <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">Cancel</a>
+                            <!-- Raffle Description -->
+                            <div class="mb-3">
+                                {{ form_label(form.raffleDescription, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                                {{ form_errors(form.raffleDescription) }}
+                                <div class="form-text text-muted">
+                                    Describe your raffle
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="{{ path('app_raffle_show', {'id': raffle.id}) }}" class="btn btn-secondary">Back to raffle</a>
+                                <button type="submit" class="btn btn-primary">Save changes</button>
                             </div>
                         {{ form_end(form) }}
                     </div>
