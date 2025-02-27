@@ -20,6 +20,19 @@ php bin/console app:add-balance <email> <amount>
 php bin/console app:update-bet-session-status
 ```
 
+## Sync Wallet Balances
+
+To synchronize all user wallet balances with their blockchain balances, use:
+
+```sh
+php bin/console app:sync-wallet-balances
+```
+
+This command will:
+- Check all users with connected wallets
+- Fetch their current token balance from the blockchain using Etherscan API
+- Update the database if the blockchain balance differs from the stored balance
+
 ## Make User Role
 
 To assign a specific role to a user, use the following command:

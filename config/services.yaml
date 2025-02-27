@@ -42,5 +42,11 @@ services:
         arguments:
             $ethereumService: '@App\Service\EthereumService'
 
+    App\Service\EtherscanService:
+        arguments:
+            $apiUrl: '%env(ETHERSCAN_API_URL)%'
+            $apiKey: '%env(ETHERSCAN_API_KEY)%'
+            $contractAddress: '%env(ETHERSCAN_CONTRACT_ADDRESS)%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

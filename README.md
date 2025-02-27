@@ -58,3 +58,5 @@ Then in your php.ini file insert or edit the following line: curl.cainfo = patht
 ## `symfony.lock` or `composer.lock` errors
 
 you can delete them and execute `composer install`
+
+![meme](fluff/chrome_2a5vy6dUJf.png)

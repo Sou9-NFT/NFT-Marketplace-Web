@@ -36,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\Column(type: 'decimal', precision: 20, scale: 8)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 3)]
     #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
     private float $balance = 0.0;
 
