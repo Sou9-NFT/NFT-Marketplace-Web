@@ -36,6 +36,11 @@
         },
         "files": [
             "./config/packages/google_recaptcha.yaml"
+        ]
+    },
+    "knplabs/knp-time-bundle": {
+        "version": "v2.4.0"
+    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.18",
         "recipe": {
@@ -47,9 +52,6 @@
         "files": [
             "./config/packages/knpu_oauth2_client.yaml"
         ]
-    },
-    "knplabs/knp-time-bundle": {
-        "version": "v2.4.0"
     },
     "phpunit/phpunit": {
         "version": "9.6",
@@ -156,9 +158,6 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
-    },
-    "symfony/mercure-bundle": {
-        "version": "v0.3.9"
     },
     "symfony/messenger": {
         "version": "6.4",

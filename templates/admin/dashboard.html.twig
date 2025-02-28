@@ -1,0 +1,79 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid p-4">
+        <h1 class="mb-4">Dashboard</h1>
+        
+        <!-- Stats Cards Row -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bet Sessions</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalBetSessions }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Bids</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalBids }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card shadow mb-3">
+                    <div class="card-header py-2">
+                        <h6 class="m-0 font-weight-bold text-primary">Bet Sessions Status</h6>
+                    </div>
+                    <div class="card-body py-2">
+                        <canvas id="betSessionsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        
+
+    {% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Bet Sessions Status Chart
+        new Chart(document.getElementById('betSessionsChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Active', 'Pending', 'Ended'],
+                datasets: [{
+                    data: [{{ activeBetSessions }}, {{ pendingBetSessions }}, {{ endedBetSessions }}],
+                    backgroundColor: ['#36b9cc', '#f6c23e', '#e74a3b']
+                }]
+            }
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

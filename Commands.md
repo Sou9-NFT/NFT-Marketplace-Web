@@ -43,7 +43,9 @@ php bin/console app:make-user-role admin@admin.com --role=admin
 To run the Mercure service using Docker, use the following command:
 
 ```sh
-docker run -d -p 3000:80 -e MERCURE_PUBLISHER_JWT_KEY='2vJXFuJ1Y0iaYgwYdZP4MD6OHyyyP/k3uGNcG0b2h7E=' -e MERCURE_SUBSCRIBER_JWT_KEY='2vJXFuJ1Y0iaYgwYdZP4MD6OHyyyP/k3uGNcG0b2h7E=' dunglas/mercure
+docker run -d -p 3000:80 -e JWT_KEY='s3cUr3R@nd0mStr1ngTh@tIsV3ryL0ngAndH@rdToGu3ss' -e MERCURE_PUBLISHER_JWT_KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwibWVyY3VyZSI6eyJwdWJsaXNoIjpbIioiXX0sImlhdCI6MTc0MDM4NjA2OC43MDMwNzZ9.1R9whLD9M7CnA8vaXE9yy7nL89G-B38QFDZHL_V4r88' -e MERCURE_SUBSCRIBER_JWT_KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwibWVyY3VyZSI6eyJzdWJzY3JpYmUiOlsiKiJdfSwiaWF0IjoxNzQwMzg2MDY4LjcwMzA3Nn0.Qr36anxOcMdw2zF6bwPrPnQcJHfyfUqBD5qlHApceFI' -e ALLOW_ANONYMOUS=1 -e CORS_ALLOWED_ORIGINS='*' dunglas/mercure
 ```
 
 This command will start the Mercure service in detached mode, mapping port 3000 on your host to port 80 on the container, and setting the necessary JWT keys for publisher and subscriber.
+
+
