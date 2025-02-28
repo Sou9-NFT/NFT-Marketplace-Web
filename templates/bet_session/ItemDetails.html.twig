@@ -45,9 +45,9 @@
 							</div>
 							<div class="card no-hover countdown-times my-4">
 								{% if bet_session.status == 'active' %}
-									<div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d') }}"></div>
+									<div class='countdown d-flex justify-content-center' data-date="{{ bet_session.endTime|date('Y-m-d H:i:s') }}"></div>
 								{% elseif bet_session.status == 'pending' %}
-									<div class='countdown d-flex justify-content-center' data-date="{{ bet_session.startTime|date('Y-m-d') }}"></div>
+									<div class='countdown d-flex justify-content-center' data-date="{{ bet_session.startTime|date('Y-m-d H:i:s') }}"></div>
 								{% endif %}
 							</div>
 							<!-- Netstorm Tab -->
@@ -300,7 +300,7 @@
 														<div class="card-bottom d-flex justify-content-between">
 															<span>{{ session.currentPrice }}
 																Dannous</span>
-															<span>1 of 1</span>
+														
 														</div>
 													</div>
 												</div>

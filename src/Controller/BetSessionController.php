@@ -149,10 +149,12 @@ final class BetSessionController extends AbstractController
                 }
             } else {
                 $this->addFlash('error', 'You need to be authenticated to withdraw a bet session.');
+                return $this->redirectToRoute('app_login');
             }
         } catch (\Exception $e) {
             $this->addFlash('error', 'An error occurred while withdrawing the bet session: ' . $e->getMessage());
             error_log('An error occurred while withdrawing the bet session: ' . $e->getMessage());
+            return $this->redirectToRoute('app_bet_session_active');
         }
     }
 
@@ -276,9 +278,9 @@ final class BetSessionController extends AbstractController
                 $author = $betSession->getAuthor();
                 $author->setBalance($author->getBalance() + $betSession->getCurrentPrice());
                 // Update bet session status
-                $betSession->setStatus('finished');
+                $betSession->setStatus('ended');
             } else {
-                $betSession->setStatus('finished');
+                $betSession->setStatus('ended');
             }
             
             $entityManager->flush();
