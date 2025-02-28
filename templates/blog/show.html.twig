@@ -4,8 +4,7 @@
 {% block title %}{{ blog.title }}{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    {% for message in app.flashes('success') %}
+{% for message in app.flashes('success') %}
         <div class="alert alert-success bg-dark text-success border-success alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="close text-success" data-dismiss="alert" aria-label="Close">
@@ -23,36 +22,7 @@
         </div>
         <!-- Blog Post -->
         <article class="blog-post mb-5">
-        
-       <h1 class="display-4 mb-4 text-purple">
-           {{ blog.title }}
-       </h1>
-
-            <div class="meta-info mb-4">
-                <span class="meta-item">
-                    <i class="far fa-user text-purple"></i>
-                    <span class="ml-2">{{ blog.user ? blog.user.name : 'Anonymous' }}</span>
-                </span>
-                <span class="meta-divider">•</span>
-                <span class="meta-item">
-                    <i class="far fa-calendar-alt text-purple"></i>
-                    <span class="ml-2">{{ blog.date ? blog.date|date('F d, Y') : 'N/A' }}</span>
-                </span>
-                <span class="meta-divider">•</span>
-                <span class="meta-item">
-                    <i class="far fa-comments text-purple"></i>
-                    <span class="ml-2">
-                        {{ blog.comments|length }} 
-                        {% if blog.comments|length == 1 %}Comment{% else %}Comments{% endif %}
-                    </span>
-                </span>
-            </div>
-            
-            <div class="blog-content mb-5">
-                <div class="lead text-light">{{ blog.content|raw }}</div>
-            </div>
-
-            <!-- Translation Section -->
+            <h1 class="display-4 mb-4 text-purple">{{ blog.title }}</h1>
             <div class="translation-section mb-5">
                 <div class="translation-card">
                     <h5 class="translation-title">
@@ -94,7 +64,6 @@
                     </div>
                 </div>
             </div>
-
             {% if app.user and app.user == blog.user %}
                 <div class="author-actions mb-4">
                     <form method="post" action="{{ path('app_blog_delete', {'id': blog.id}) }}" onsubmit="return confirm('Are you sure you want to delete this post?');" style="display: inline-block;">
@@ -105,7 +74,6 @@
                     </form>
                 </div>
             {% endif %}
-
             <div class="share-section">
                 <span class="share-label">Share this post</span>
                 <div class="share-buttons">
@@ -121,7 +89,6 @@
                 </div>
             </div>
         </article>
-
         <!-- Comments Section -->
         <section class="comments-section">
             <div class="section-header">
@@ -133,8 +100,29 @@
                     </h3>
                 </div>
             </div>
+              <div class="blog-content mb-5">
+                <div class="lead text-light">{{ blog.content|raw }}</div>
+            </div>
 
-
+            {% if app.user %}
+                <div class="comment-form-container mb-4">
+                    {{ form_start(comment_form) }}
+                        <div class="mb-3">
+                            {{ form_label(comment_form.content, 'Write your comment', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(comment_form.content, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Share your thoughts...'}}) }}
+                            {{ form_errors(comment_form.content) }}
+                        </div>
+                        <button type="submit" class="btn btn-purple">
+                            <i class="fas fa-paper-plane"></i> Post Comment
+                        </button>
+                    {{ form_end(comment_form) }}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Please <a href="{{ path('app_login') }}" class="alert-link">login</a> to add a comment.
+                </div>
+            {% endif %}
             <div class="comments-container">
                 {% if blog.comments|length > 0 %}
                     {% for comment in blog.comments %}
@@ -181,16 +169,6 @@
         </section>
     </div>
 </div>
-{% for label, messages in app.flashes %}
-    {% for message in messages %}
-        <div class="alert alert-{{ label == 'error' ? 'danger' : label }} bg-dark text-{{ label == 'error' ? 'danger' : label }} border-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="close text-{{ label == 'error' ? 'danger' : label }}" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    {% endfor %}
-{% endfor %}
 
 {% endblock %}
 
@@ -599,15 +577,8 @@
     }
 </style>
 
-{% for message in app.flashes('success') %}
-        <div class="alert alert-success bg-dark text-success border-success alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="close text-success" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    {% endfor %}
 
+<<<<<<< HEAD
     <div class="blog-container">
         <div class="back-button-container mb-4">
             <a href="{{ path('app_blog_index') }}" class="btn-back">
@@ -770,4 +741,6 @@
         </section>
     </div>
 </div>
+=======
+>>>>>>> 651311b093174e78d7676abc1e49238a71a58b2c
 {% endblock %}
