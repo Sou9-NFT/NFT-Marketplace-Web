@@ -48,9 +48,9 @@
                             <div class="image-over position-relative">
                                 <a href="{{ path('app_item_details', {'id': bet_session.id}) }}">
                                     {% if bet_session.artwork.imageName %}
-                                        <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="">
+                                        <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="" style="height: 200px; object-fit: cover;">
                                     {% else %}
-                                        <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+                                        <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" style="height: 200px; object-fit: cover;">
                                     {% endif %}
                                 </a>
                                 <span class="badge badge-{{ bet_session.status == 'active' ? 'success' : (bet_session.status == 'pending' ? 'warning' : 'danger') }} position-absolute" style="top: 10px; left: 10px;">
@@ -89,7 +89,6 @@
                                     </a>
                                     <div class="card-bottom d-flex justify-content-between">
                                         <span>{{ bet_session.currentPrice }} Danous</span>
-                                        <span>4{#{{ bet_session.totalBids }}#} bids</span>
                                     </div>
                                 </div>
                             </div>
