@@ -1,0 +1,5 @@
+smtp.gmail.com
+port: 465
+
+username:linuxattack69@gmail.com
+pass: baky hlgy aqqa eojb
