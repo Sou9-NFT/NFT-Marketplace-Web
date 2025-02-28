@@ -41,7 +41,7 @@ class Raffle
     #[ORM\Column(nullable: true)]
     private ?int $winner_id = null;
 
-    #[ORM\OneToMany(mappedBy: 'raffle', targetEntity: Participant::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'raffle', targetEntity: Participant::class, cascade: ['persist', 'remove'])]
     private Collection $participants;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -69,14 +69,11 @@ class Raffle
     )]
     private ?string $raffleDescription = null;
 
-
-
-    
     public function __construct()
     {
-        $this->created_at = new \DateTime();
-        $this->start_time = new \DateTime(); // Set start_time to the current time
         $this->participants = new ArrayCollection();
+        $this->created_at = new \DateTime();
+        $this->start_time = new \DateTime();
     }
 
     public function getId(): ?int

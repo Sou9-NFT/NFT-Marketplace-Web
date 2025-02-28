@@ -35,6 +35,19 @@ class RaffleType extends AbstractType
                     ]),
                 ],
             ])
+            ->add('creator_name', TextType::class, [
+                'label' => 'Creator Name',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter the creator name',
+                    ]),
+                    new Length([
+                        'max' => 255,
+                        'maxMessage' => 'Creator name cannot be longer than {{ limit }} characters',
+                    ]),
+                ],
+            ])
             ->add('raffleDescription', TextareaType::class, [
                 'label' => 'Description',
                 'required' => true,
@@ -50,19 +63,6 @@ class RaffleType extends AbstractType
                         'max' => 1000,
                         'minMessage' => 'Description should be at least {{ limit }} characters long',
                         'maxMessage' => 'Description cannot be longer than {{ limit }} characters',
-                    ]),
-                ],
-            ])
-            ->add('creator_name', TextType::class, [
-                'label' => 'Creator Name',
-                'required' => true,
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter the creator name',
-                    ]),
-                    new Length([
-                        'max' => 255,
-                        'maxMessage' => 'Creator name cannot be longer than {{ limit }} characters',
                     ]),
                 ],
             ])
