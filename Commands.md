@@ -51,6 +51,27 @@ To assign the admin role to a user with email `admin@admin.com`, use:
 php bin/console app:make-user-role admin@admin.com --role=admin
 ```
 
+## Test SMTP Email
+
+To test the SMTP email configuration and send a test email, use:
+
+```sh
+php bin/console app:test-smtp-email <recipient_email>
+```
+
+This command will send a test email using the configured SMTP settings:
+- SMTP Server: smtp.gmail.com
+- Port: 465
+- Username: linuxattack69@gmail.com
+
+The command will attempt to send a test email to the specified recipient and report success or failure.
+
+### Example
+
+```sh
+php bin/console app:test-smtp-email test@example.com
+```
+
 ## Run Mercure
 
 To run the Mercure service using Docker, use the following command:
