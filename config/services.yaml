@@ -37,18 +37,19 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
     App\Service\EtherscanService:
         arguments:
-            $apiUrl: '%env(ETHERSCAN_API_URL)%'
-            $apiKey: '%env(ETHERSCAN_API_KEY)%'
-            $contractAddress: '%env(ETHERSCAN_CONTRACT_ADDRESS)%'
+            $httpClient: '@http_client'
+            $apiUrl: '%etherscan.api_url%'
+            $apiKey: '%etherscan.api_key%'
+            $contractAddress: '%etherscan.contract_address%'
+            $logger: '@logger'
 
     App\Service\PasswordResetService:
         arguments:
             $mailer: '@mailer'
             $entityManager: '@doctrine.orm.entity_manager'
+
     App\Form\RecaptchaType:
         arguments:
             $siteKey: '%google_recaptcha_site_key%'
@@ -62,11 +63,3 @@ services:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
-
-    App\Service\EtherscanService:
-        arguments:
-            $httpClient: '@http_client'
-            $apiUrl: '%etherscan.api_url%'
-            $apiKey: '%etherscan.api_key%'
-            $contractAddress: '%etherscan.contract_address%'
-            $logger: '@logger'
