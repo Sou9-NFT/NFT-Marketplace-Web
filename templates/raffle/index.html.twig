@@ -12,7 +12,7 @@
         <div class="row">
             {% for raffle in raffles %}
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 raffle-card">
                         <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" class="card-img-top" alt="Raffle Image" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title">Raffle #{{ raffle.id }}</h5>
@@ -49,4 +49,329 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-button" id="chatButton">
+        <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    
+    <div class="chat-widget hidden" id="chatWidget">
+        <div class="chat-header" id="chatHeader">
+            <span><i class="bi bi-robot"></i> Raffle Assistant</span>
+            <button class="close-btn" id="closeChat">×</button>
+        </div>
+        <div class="chat-body">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    👋 Hi! I'm your raffle assistant. I can help you with:
+                    <ul>
+                        <li>How to join raffles</li>
+                        <li>Raffle rules and status</li>
+                        <li>Participation process</li>
+                        <li>Winner selection</li>
+                    </ul>
+                    What would you like to know?
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Ask about raffles...">
+                <button id="sendMessage">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .raffle-card {
+            background: linear-gradient(145deg, #2a2a2a, #333333);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border-radius: 15px;
+            border: none;
+            margin: 1rem auto;
+            width: 100%;
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+
+        .raffle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+        }
+
+        .raffle-card .card-body {
+            background: transparent;
+        }
+
+        .raffle-card .card-footer {
+            background: rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Chat Button Styles */
+        .chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #4e73df, #3756b5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(78,115,223,0.3);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: scale(0);
+        }
+
+        .chat-button.show {
+            transform: scale(1);
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 16px rgba(78,115,223,0.4);
+        }
+
+        /* Chat Widget Styles */
+        .chat-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            z-index: 999;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+        }
+
+        .chat-widget.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .chat-header {
+            background: linear-gradient(145deg, #4e73df, #3756b5);
+            color: white;
+            padding: 15px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header i {
+            margin-right: 8px;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: #4e73df #1a1a1a;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: #4e73df;
+            border-radius: 3px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 15px;
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: messageAppear 0.3s ease;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message ul {
+            margin: 8px 0 0 0;
+            padding-left: 20px;
+        }
+
+        .message li {
+            margin-bottom: 4px;
+        }
+
+        .message.bot {
+            background: #2d2d2d;
+            color: #fff;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.user {
+            background: #4e73df;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            background: #2d2d2d;
+            border-top: 1px solid #3d3d3d;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #3d3d3d;
+            border-radius: 20px;
+            background: #1a1a1a;
+            color: white;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 2px rgba(78,115,223,0.2);
+        }
+
+        .chat-input button {
+            background: #4e73df;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background: #3756b5;
+            transform: scale(1.1);
+        }
+
+        @keyframes messageAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    {% block javascripts %}
+    {{ parent() }}
+    <script>
+        window.addEventListener('load', function() {
+            const chatButton = document.getElementById('chatButton');
+            const chatWidget = document.getElementById('chatWidget');
+            const closeChat = document.getElementById('closeChat');
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendMessage');
+
+            // Show chat button with animation
+            setTimeout(() => {
+                chatButton.classList.add('show');
+            }, 1000);
+
+            chatButton.addEventListener('click', () => {
+                chatWidget.classList.remove('hidden');
+                chatWidget.classList.add('show');
+                userInput.focus();
+            });
+
+            closeChat.addEventListener('click', () => {
+                chatWidget.classList.remove('show');
+                setTimeout(() => {
+                    chatWidget.classList.add('hidden');
+                }, 300);
+            });
+
+            function addMessage(message, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+                messageDiv.innerHTML = message.replace(/\n/g, '<br>');
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            async function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                addMessage(message, true);
+                userInput.value = '';
+                userInput.setAttribute('disabled', 'disabled');
+                sendButton.setAttribute('disabled', 'disabled');
+
+                try {
+                    const response = await fetch('{{ path('app_raffle_chat') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message })
+                    });
+
+                    const data = await response.json();
+                    if (data.error) {
+                        addMessage('Sorry, I encountered an error. Please try asking about raffles again.');
+                    } else {
+                        addMessage(data.response);
+                    }
+                } catch (error) {
+                    addMessage('Sorry, I encountered an error. Please try asking about raffles again.');
+                } finally {
+                    userInput.removeAttribute('disabled');
+                    sendButton.removeAttribute('disabled');
+                    userInput.focus();
+                }
+            }
+
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Close chat if clicking outside
+            document.addEventListener('click', (e) => {
+                if (!chatWidget.contains(e.target) && !chatButton.contains(e.target)) {
+                    chatWidget.classList.remove('show');
+                    setTimeout(() => {
+                        chatWidget.classList.add('hidden');
+                    }, 300);
+                }
+            });
+        });
+    </script>
+    {% endblock %}
 {% endblock %}

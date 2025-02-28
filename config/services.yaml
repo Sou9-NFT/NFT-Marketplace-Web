@@ -7,6 +7,7 @@ parameters:
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     recaptcha_secret: '%env(RECAPTCHA_SECRET)%'
     app.recaptcha_secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
+    gemini_api_key: '%env(GEMINI_API_KEY)%'
 
 services:
     _defaults:
@@ -35,6 +36,16 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Service\EtherscanService:
+        arguments:
+            $apiUrl: '%env(ETHERSCAN_API_URL)%'
+            $apiKey: '%env(ETHERSCAN_API_KEY)%'
+            $contractAddress: '%env(ETHERSCAN_CONTRACT_ADDRESS)%'
+
+    App\Service\PasswordResetService:
+        arguments:
+            $mailer: '@mailer'
+            $entityManager: '@doctrine.orm.entity_manager'
     App\Form\RecaptchaType:
         arguments:
             $siteKey: '%google_recaptcha_site_key%'
@@ -42,3 +53,7 @@ services:
     App\Controller\RaffleController:
         arguments:
             $recaptchaSecret: '%app.recaptcha_secret%'
+
+    App\Service\GeminiService:
+        arguments:
+            $geminiApiKey: '%gemini_api_key%'
