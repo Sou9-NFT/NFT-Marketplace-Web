@@ -6,6 +6,7 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use League\OAuth2\Client\Provider\GithubUser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,13 +17,9 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
-use Symfony\Component\Security\Http\Util\TargetPathTrait;
-use Symfony\Component\Security\Http\SecurityRequestAttributes;
 
 class OAuthAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
-    use TargetPathTrait;
-
     public function __construct(
         private ClientRegistry $clientRegistry,
         private EntityManagerInterface $entityManager,
@@ -32,21 +29,12 @@ class OAuthAuthenticator extends OAuth2Authenticator implements AuthenticationEn
 
     public function supports(Request $request): ?bool
     {
-        return $request->attributes->get('_route') === 'connect_google_check'
-            || $request->attributes->get('_route') === 'connect_github_check'
-            || $request->attributes->get('_route') === 'connect_facebook_check';
+        return $request->attributes->get('_route') === 'connect_github_check';
     }
 
     public function authenticate(Request $request): Passport
     {
-        $route = $request->attributes->get('_route');
-        $client = match ($route) {
-            'connect_google_check' => 'google',
-            'connect_github_check' => 'github',
-            'connect_facebook_check' => 'facebook',
-            default => throw new \LogicException('Unknown OAuth provider'),
-        };
-
+        $client = 'github';
         $oauthClient = $this->clientRegistry->getClient($client);
         
         try {
@@ -56,13 +44,13 @@ class OAuthAuthenticator extends OAuth2Authenticator implements AuthenticationEn
         }
 
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($accessToken, $oauthClient, $client) {
-                $oauthUser = $oauthClient->fetchUserFromToken($accessToken);
+            new UserBadge($accessToken->getToken(), function () use ($accessToken, $oauthClient) {
+                /** @var GithubUser $githubUser */
+                $githubUser = $oauthClient->fetchUserFromToken($accessToken);
                 
-                // Get email from OAuth provider
-                $email = $oauthUser->getEmail();
+                $email = $githubUser->getEmail();
                 if (!$email) {
-                    throw new AuthenticationException('No email provided by OAuth provider.');
+                    throw new AuthenticationException('No email provided by GitHub.');
                 }
 
                 // Check if user exists
@@ -70,9 +58,10 @@ class OAuthAuthenticator extends OAuth2Authenticator implements AuthenticationEn
                     ->findOneBy(['email' => $email]);
 
                 if ($existingUser) {
-                    // Update existing user's GitHub info if needed
-                    if ($client === 'github') {
-                        $existingUser->setGithubUsername($oauthUser->getNickname());
+                    $existingUser->setGithubUsername($githubUser->getNickname());
+                    $userData = $githubUser->toArray();
+                    if (isset($userData['avatar_url'])) {
+                        $existingUser->setProfilePicture($userData['avatar_url']);
                     }
                     $this->entityManager->flush();
                     return $existingUser;
@@ -83,24 +72,16 @@ class OAuthAuthenticator extends OAuth2Authenticator implements AuthenticationEn
                 $user->setEmail($email);
                 $user->setRoles(['ROLE_USER']);
                 $user->setPassword(bin2hex(random_bytes(16)));
+                $user->setGithubUsername($githubUser->getNickname());
+                $user->setName($githubUser->getName() ?? $githubUser->getNickname() ?? explode('@', $email)[0]);
                 
-                // Set name based on OAuth provider data
-                $name = match($client) {
-                    'google' => $oauthUser->getFirstName() . ' ' . $oauthUser->getLastName(),
-                    'github' => $oauthUser->getName() ?: $oauthUser->getNickname(),
-                    'facebook' => $oauthUser->getName(),
-                    default => $oauthUser->getEmail(),
-                };
-                $user->setName($name);
-                
-                // Set GitHub-specific data
-                if ($client === 'github') {
-                    $user->setGithubUsername($oauthUser->getNickname());
-                    // Get avatar URL from the user data array
-                    $userData = $oauthUser->toArray();
-                    $user->setProfilePicture($userData['avatar_url'] ?? null);
+                $userData = $githubUser->toArray();
+                if (isset($userData['avatar_url'])) {
+                    $user->setProfilePicture($userData['avatar_url']);
                 }
-
+                
+                $user->setCreatedAt(new \DateTimeImmutable());
+                
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
 
@@ -111,33 +92,14 @@ class OAuthAuthenticator extends OAuth2Authenticator implements AuthenticationEn
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        // Check if there was an intended destination
-        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            return new RedirectResponse($targetPath);
-        }
-
-        // Check if user is admin and trying to access admin area
-        $isAdminArea = str_starts_with($request->getPathInfo(), '/admin');
-        $isAdmin = in_array('ROLE_ADMIN', $token->getRoleNames());
-
-        if ($isAdminArea) {
-            if ($isAdmin) {
-                return new RedirectResponse($this->router->generate('app_home_page_back'));
-            }
-            return new RedirectResponse($this->router->generate('app_access_denied'));
-        }
-
-        // Default redirect to homepage
         return new RedirectResponse($this->router->generate('app_home_page'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        if ($request->hasSession()) {
-            $request->getSession()->set(SecurityRequestAttributes::AUTHENTICATION_ERROR, $exception);
-        }
+        $message = strtr($exception->getMessageKey(), $exception->getMessageData());
 
-        return new RedirectResponse($this->router->generate('app_login'));
+        return new Response($message, Response::HTTP_FORBIDDEN);
     }
 
     public function start(Request $request, AuthenticationException $authException = null): Response
