@@ -25,7 +25,7 @@ php bin/console app:update-bet-session-status
 To assign a specific role to a user, use the following command:
 
 ```sh
-php bin/console app:make-user-role <email> --role=<role>
+
 ```
 
 This command will add the specified role (admin, seller, author) to the user. If the user already has the role, it will show a warning message.
