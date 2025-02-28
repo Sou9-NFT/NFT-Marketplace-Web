@@ -242,4 +242,50 @@ final class BetSessionController extends AbstractController
             'bids' => $bids,
         ]);
     }
+
+    #[Route('/{id}/end', name: 'app_bet_session_end', methods: ['GET', 'PUT'])]
+    public function end(BetSession $betSession, EntityManagerInterface $entityManager, BidRepository $bidRepository): Response
+    {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        try {
+            if ($betSession->getEndTime() > new \DateTime()) {
+                throw new \Exception('Auction has not ended yet.');
+            }
+
+            // Get all bids for this session ordered by amount DESC
+            $bids = $bidRepository->findBy(['betSession' => $betSession], ['bidValue' => 'DESC']);
+            
+            // Get winning bid (highest amount)
+            $winningBid = !empty($bids) ? $bids[0] : null;
+
+            // Process refunds for non-winning bids
+            foreach ($bids as $bid) {
+                if ($bid !== $winningBid) {
+                    $bidder = $bid->getAuthor();
+                    $bidder->setBalance($bidder->getBalance() + $bid->getBidValue());
+                }
+            }
+
+            if ($winningBid) {
+                // Transfer artwork ownership to winner
+                $artwork = $betSession->getArtwork();
+                $artwork->setOwner($winningBid->getAuthor());
+                $author = $betSession->getAuthor();
+                $author->setBalance($author->getBalance() + $betSession->getCurrentPrice());
+                // Update bet session status
+                $betSession->setStatus('finished');
+            } else {
+                $betSession->setStatus('finished');
+            }
+            
+            $entityManager->flush();
+            return $this->redirectToRoute('app_home_page');
+
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
 }
