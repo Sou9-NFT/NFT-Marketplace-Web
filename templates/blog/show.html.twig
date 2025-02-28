@@ -53,28 +53,45 @@
             </div>
 
             <!-- Translation Section -->
-
-            <div class="translation-buttons mb-4">
-                <h5 class="text-purple mb-3">
-                    <i class="fas fa-globe"></i>
-                    Translate to:
-                </h5>
-                <div class="btn-group translation-group" role="group">
-                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'fr'}) }}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-outline-purple">🇫🇷 French</button>
-                    </form>
-                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'es'}) }}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-outline-purple">🇪🇸 Spanish</button>
-                    </form>
-                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'de'}) }}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-outline-purple">🇩🇪 German</button>
-                    </form>
-                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'it'}) }}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-outline-purple">🇮🇹 Italian</button>
-                    </form>
-                    <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'ar'}) }}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-outline-purple">🇸🇦 Arabic</button>
-                    </form>
+            <div class="translation-section mb-5">
+                <div class="translation-card">
+                    <h5 class="translation-title">
+                        <i class="fas fa-globe translation-icon"></i>
+                        Translate this post
+                    </h5>
+                    <p class="translation-description mb-3">Choose your preferred language:</p>
+                    <div class="language-buttons">
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'fr'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇫🇷</span>
+                                <span class="language-name">French</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'es'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇪🇸</span>
+                                <span class="language-name">Spanish</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'de'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇩🇪</span>
+                                <span class="language-name">German</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'it'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇮🇹</span>
+                                <span class="language-name">Italian</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'ar'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇸🇦</span>
+                                <span class="language-name">Arabic</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -182,23 +199,34 @@
     .translated-text {
         color: rgba(255, 255, 255, 0.9);
     }
-    .translation-buttons {
-        margin-top: 2rem;
-    }
-    .translation-group {
+    .language-buttons {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        justify-content: flex-start;
     }
-    .btn-outline-purple {
-        color: var(--purple);
-        border-color: var(--purple);
+    .btn-language {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
         background: transparent;
+        border: 1px solid var(--purple);
+        color: var(--purple);
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         transition: all 0.3s ease;
     }
-    .btn-outline-purple:hover {
+    .btn-language:hover {
         background: var(--purple);
         color: white;
+        transform: translateY(-1px);
+    }
+    .btn-language:active {
+        transform: translateY(0);
+    }
+    .language-form {
+        margin: 0;
     }
 </style>
 <style>
@@ -492,8 +520,7 @@
     }
 </style>
 
-<style>
-    {% for message in app.flashes('success') %}
+<style>{% for message in app.flashes('success') %}
         <div class="alert alert-success bg-dark text-success border-success alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="close text-success" data-dismiss="alert" aria-label="Close">
@@ -512,31 +539,47 @@
         <!-- Blog Post -->
         <article class="blog-post mb-5">
             <h1 class="display-4 mb-4 text-purple">{{ blog.title }}</h1>
-            
-            <div class="meta-info mb-4">
-                <span class="meta-item">
-                    <i class="far fa-user text-purple"></i>
-                    <span class="ml-2">{{ blog.user ? blog.user.name : 'Anonymous' }}</span>
-                </span>
-                <span class="meta-divider">•</span>
-                <span class="meta-item">
-                    <i class="far fa-calendar-alt text-purple"></i>
-                    <span class="ml-2">{{ blog.date ? blog.date|date('F d, Y') : 'N/A' }}</span>
-                </span>
-                <span class="meta-divider">•</span>
-                <span class="meta-item">
-                    <i class="far fa-comments text-purple"></i>
-                    <span class="ml-2">
-                        {{ blog.comments|length }} 
-                        {% if blog.comments|length == 1 %}Comment{% else %}Comments{% endif %}
-                    </span>
-                </span>
+            <div class="translation-section mb-5">
+                <div class="translation-card">
+                    <h5 class="translation-title">
+                        <i class="fas fa-globe translation-icon"></i>
+                        Translate this post
+                    </h5>
+                    <p class="translation-description mb-3">Choose your preferred language:</p>
+                    <div class="language-buttons">
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'fr'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇫🇷</span>
+                                <span class="language-name">French</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'es'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇪🇸</span>
+                                <span class="language-name">Spanish</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'de'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇩🇪</span>
+                                <span class="language-name">German</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'it'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇮🇹</span>
+                                <span class="language-name">Italian</span>
+                            </button>
+                        </form>
+                        <form action="{{ path('app_blog_translate', {'id': blog.id, 'lang': 'ar'}) }}" method="post" class="language-form">
+                            <button type="submit" class="btn btn-language">
+                                <span class="flag">🇸🇦</span>
+                                <span class="language-name">Arabic</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            
-            <div class="blog-content mb-5">
-                <div class="lead text-light">{{ blog.content|raw }}</div>
-            </div>
-
             {% if app.user and app.user == blog.user %}
                 <div class="author-actions mb-4">
                     <form method="post" action="{{ path('app_blog_delete', {'id': blog.id}) }}" onsubmit="return confirm('Are you sure you want to delete this post?');" style="display: inline-block;">
@@ -547,7 +590,6 @@
                     </form>
                 </div>
             {% endif %}
-
             <div class="share-section">
                 <span class="share-label">Share this post</span>
                 <div class="share-buttons">
@@ -563,7 +605,6 @@
                 </div>
             </div>
         </article>
-
         <!-- Comments Section -->
         <section class="comments-section">
             <div class="section-header">
@@ -575,7 +616,6 @@
                     </h3>
                 </div>
             </div>
-
             {% if app.user %}
                 <div class="comment-form-container mb-4">
                     {{ form_start(comment_form) }}
@@ -595,7 +635,6 @@
                     Please <a href="{{ path('app_login') }}" class="alert-link">login</a> to add a comment.
                 </div>
             {% endif %}
-
             <div class="comments-container">
                 {% if blog.comments|length > 0 %}
                     {% for comment in blog.comments %}
