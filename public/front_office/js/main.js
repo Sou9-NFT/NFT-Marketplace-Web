@@ -28,7 +28,10 @@
     'use strict';
 
     $(window).on('load', function() {
-        $('#netstorm-preloader').addClass('loaded');
+        $('.netstorm-preloader').fadeOut('slow');
+        setTimeout(function() {
+            $('.netstorm-preloader').remove();
+        }, 1000);
     })
 
 }(jQuery));
