@@ -154,16 +154,22 @@ class BlogController extends AbstractController
             if ($translatedTitle && $translatedContent) {
                 $blog->setTranslatedTitle($translatedTitle);
                 $blog->setTranslatedContent($translatedContent);
+                $blog->setTranslationLanguage($lang); // Store the language
                 $this->entityManager->flush();
                 $this->addFlash('success', 'Blog has been translated successfully.');
+                
+                // Redirect to the translated view page
+                return $this->render('blog/showTranslated.html.twig', [
+                    'blog' => $blog,
+                    'is_translated' => true
+                ]);
             } else {
                 throw new \Exception('Translation service returned no result');
             }
         } catch (\Exception $e) {
             $this->addFlash('error', 'Translation failed: ' . $e->getMessage());
+            return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
         }
-
-        return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
     }
     #[Route('/{id}/comment', name: 'app_blog_add_comment_to_blog', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -272,7 +278,6 @@ class BlogController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index');
     }
-
 
 
 }

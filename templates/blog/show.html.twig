@@ -26,11 +26,6 @@
         
        <h1 class="display-4 mb-4 text-purple">
            {{ blog.title }}
-           {% if blog.translatedTitle %}
-               <small class="d-block text-muted" style="font-size: 0.6em;">
-                   {{ blog.translatedTitle }}
-               </small>
-           {% endif %}
        </h1>
 
             <div class="meta-info mb-4">
@@ -58,30 +53,6 @@
             </div>
 
             <!-- Translation Section -->
-            {% if blog.translatedTitle and blog.translationLanguage %}
-                <div class="translation-container mb-5">
-                    <div class="translation-header">
-                        <i class="fas fa-language text-purple"></i>
-                        <span class="ml-2">Translated to {{ blog.translationLanguage|upper }}</span>
-                    </div>
-                    <div class="translation-content">
-                        <h2 class="translated-title text-purple">{{ blog.translatedTitle }}</h2>
-                        <div class="translated-text lead">{{ blog.translatedContent|raw }}</div>
-                    </div>
-                </div>
-            {% endif %}
-
-            {% if blog.translatedContent %}
-                <div class="translation-container mb-5">
-                    <div class="translation-header">
-                        <i class="fas fa-language text-purple"></i>
-                        <span class="ml-2">Translated Content</span>
-                    </div>
-                    <div class="translation-content">
-                        <div class="translated-text lead">{{ blog.translatedContent|raw }}</div>
-                    </div>
-                </div>
-            {% endif %}
 
             <div class="translation-buttons mb-4">
                 <h5 class="text-purple mb-3">
