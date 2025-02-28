@@ -23,6 +23,9 @@
         <!-- Blog Post -->
         <article class="blog-post mb-5">
             <h1 class="display-4 mb-4 text-purple">{{ blog.title }}</h1>
+                     <div class="blog-content mb-5">
+                <div class="lead text-light">{{ blog.content|raw }}</div>
+            </div>
             <div class="translation-section mb-5">
                 <div class="translation-card">
                     <h5 class="translation-title">
@@ -100,9 +103,7 @@
                     </h3>
                 </div>
             </div>
-              <div class="blog-content mb-5">
-                <div class="lead text-light">{{ blog.content|raw }}</div>
-            </div>
+     
 
             {% if app.user %}
                 <div class="comment-form-container mb-4">
@@ -578,7 +579,6 @@
 </style>
 
 
-<<<<<<< HEAD
     <div class="blog-container">
         <div class="back-button-container mb-4">
             <a href="{{ path('app_blog_index') }}" class="btn-back">
@@ -666,25 +666,7 @@
                     </h3>
                 </div>
             </div>
-            {% if app.user %}
-                <div class="comment-form-container mb-4 bg-dark rounded p-4">
-                    {{ form_start(comment_form) }}
-                        <div class="mb-3">
-                            {{ form_label(comment_form.content, 'Write your comment', {'label_attr': {'class': 'form-label text-light'}}) }}
-                            {{ form_widget(comment_form.content, {'attr': {'class': 'form-control bg-darker text-light', 'rows': 4, 'placeholder': 'Share your thoughts...', 'style': 'border-color: #6f42c1'}}) }}
-                            {{ form_errors(comment_form.content) }}
-                        </div>
-                        <button type="submit" class="btn btn-purple hover-lift">
-                            <i class="fas fa-paper-plane me-2"></i> Post Comment
-                        </button>
-                    {{ form_end(comment_form) }}
-                </div>
-            {% else %}
-                <div class="alert alert-purple border-0 d-flex align-items-center">
-                    <i class="fas fa-info-circle me-3 fa-lg"></i>
-                    Please <a href="{{ path('app_login') }}" class="alert-link mx-2">login</a> to add a comment.
-                </div>
-            {% endif %}
+          
             <div class="comments-container">
                 {% if blog.comments|length > 0 %}
                     {% for comment in blog.comments %}
@@ -741,6 +723,4 @@
         </section>
     </div>
 </div>
-=======
->>>>>>> 651311b093174e78d7676abc1e49238a71a58b2c
 {% endblock %}
