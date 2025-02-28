@@ -1,0 +1,128 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Blog Post Details{% endblock %}
+
+{% block body %}
+<div class="pagetitle">
+    <h1>Blog Post Details</h1>
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home_page_back') }}">Home</a></li>
+            <li class="breadcrumb-item">Blogs</li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_blog_index') }}">Posts</a></li>
+            <li class="breadcrumb-item active">Details</li>
+        </ol>
+    </nav>
+</div>
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Post Information</h5>
+
+                    <div class="row mb-4">
+                        <div class="col-lg-8">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 200px;">ID</th>
+                                        <td>{{ blog.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Title</th>
+                                        <td>{{ blog.title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Content</th>
+                                        <td>{{ blog.content|raw }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Created At</th>
+                                        <td>{{ blog.date ? blog.date|date('Y-m-d H:i:s') : '' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Comments</th>
+                                        <td>{{ blog.comments|length }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if blog.imageFilename %}
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Featured Image</h5>
+                                    <img src="{{ asset('uploads/blog_images/' ~ blog.imageFilename) }}" class="img-fluid" alt="Blog Image">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if blog.comments|length > 0 %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="card-title">Comments</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Author</th>
+                                            <th>Content</th>
+                                            <th>Created At</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for comment in blog.comments %}
+                                        <tr>
+                                            <td>{{ comment.user ? comment.user.name : 'Anonymous' }}</td>
+                                            <td>{{ comment.content|length > 50 ? comment.content|slice(0, 50) ~ '...' : comment.content }}</td>
+                                            <td>{{ comment.createdAt|date('Y-m-d H:i') }}</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ path('app_comment_back_show', {'id': comment.id}) }}" class="btn btn-info btn-sm" title="View Details">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('app_comment_back_edit', {'id': comment.id}) }}" class="btn btn-warning btn-sm" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <form method="post" action="{{ path('app_comment_back_delete', {'id': comment.id}) }}" onsubmit="return confirm('Are you sure you want to delete this comment?');" style="display: inline-block;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+                                                        <button class="btn btn-danger btn-sm" title="Delete">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_admin_blog_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                        <a href="{{ path('app_admin_blog_edit', {'id': blog.id}) }}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <form method="post" action="{{ path('app_admin_blog_delete', {'id': blog.id}) }}" onsubmit="return confirm('Are you sure you want to delete this blog post?');" style="display: inline-block;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ blog.id) }}">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

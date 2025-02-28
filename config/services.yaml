@@ -15,11 +15,8 @@ services:
         autoconfigure: true
 
     App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Tests,Kernel.php}'
 
     App\Service\FileUploader:
         arguments:
@@ -33,6 +30,12 @@ services:
         arguments:
             $ethereumService: '@App\Service\EthereumService'
 
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
     App\Service\EtherscanService:
         arguments:
             $apiUrl: '%env(ETHERSCAN_API_URL)%'
