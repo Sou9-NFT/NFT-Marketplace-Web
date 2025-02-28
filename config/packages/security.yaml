@@ -44,6 +44,19 @@ security:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
+        password_reset:
+            pattern: ^/reset-password
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\UserAuthAuthenticator
+            entry_point: App\Security\UserAuthAuthenticator
+            logout:
+                path: app_logout
+                target: app_home_page
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
@@ -69,6 +82,7 @@ security:
         - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
         - { path: ^/artwork, roles: PUBLIC_ACCESS }  # Allow public access to artwork
         - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
+        - { path: ^/reset-password, roles: PUBLIC_ACCESS }
         
         # Back office requires admin role
         - { path: ^/admin, roles: ROLE_ADMIN }

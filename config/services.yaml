@@ -33,6 +33,16 @@ services:
         arguments:
             $ethereumService: '@App\Service\EthereumService'
 
+    App\Service\EtherscanService:
+        arguments:
+            $apiUrl: '%env(ETHERSCAN_API_URL)%'
+            $apiKey: '%env(ETHERSCAN_API_KEY)%'
+            $contractAddress: '%env(ETHERSCAN_CONTRACT_ADDRESS)%'
+
+    App\Service\PasswordResetService:
+        arguments:
+            $mailer: '@mailer'
+            $entityManager: '@doctrine.orm.entity_manager'
     App\Form\RecaptchaType:
         arguments:
             $siteKey: '%google_recaptcha_site_key%'

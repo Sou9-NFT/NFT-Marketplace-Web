@@ -42,23 +42,18 @@
                         <div class="col-12">
                             <button class="btn w-100 mt-3 mt-sm-4" type="submit">Sign In</button>
                         </div>
+                        <div class="col-12 text-center mt-3">
+                            <a href="{{ path('app_reset_password_request') }}">Forgot your password?</a>
+                        </div>
                         <div class="col-12">
                             <hr>
                             <div class="other-option">
                                 <span class="d-block text-center mb-4">Or Login With</span>
                                 <!-- Social Icons -->
-                                <div class="social-icons d-flex justify-content-center">
-                                    <a href="{{ path('connect_google') }}" class="google-plus">
-                                        <i class="fab fa-google"></i>
-                                        <i class="fab fa-google"></i>
-                                    </a>
-                                    <a href="{{ path('connect_github') }}" class="github">
+                                <div class="social-icons">
+                                    <a href="{{ path('connect_github') }}" class="github-button">
                                         <i class="fab fa-github"></i>
-                                        <i class="fab fa-github"></i>
-                                    </a>
-                                    <a href="{{ path('connect_facebook') }}" class="facebook">
-                                        <i class="fab fa-facebook-f"></i>
-                                        <i class="fab fa-facebook-f"></i>
+                                        <span>Connect with GitHub</span>
                                     </a>
                                 </div>
                             </div>
