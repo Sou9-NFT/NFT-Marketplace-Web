@@ -36,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\Column(type: 'decimal', precision: 20, scale: 8)]
+    #[ORM\Column(type: 'decimal', precision: 20, scale: 3)]
     #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
     private float $balance = 0.0;
 
@@ -99,6 +99,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: TopUpRequest::class)]
     private Collection $topUpRequests;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $passwordResetTokenExpiresAt = null;
 
     public function __construct()
     {
@@ -353,5 +359,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-    
+
+    public function getPasswordResetToken(): ?string
+    {
+        return $this->passwordResetToken;
+    }
+
+    public function setPasswordResetToken(?string $passwordResetToken): self
+    {
+        $this->passwordResetToken = $passwordResetToken;
+        return $this;
+    }
+
+    public function getPasswordResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->passwordResetTokenExpiresAt;
+    }
+
+    public function setPasswordResetTokenExpiresAt(?\DateTimeInterface $passwordResetTokenExpiresAt): self
+    {
+        $this->passwordResetTokenExpiresAt = $passwordResetTokenExpiresAt;
+        return $this;
+    }
 }

@@ -13,22 +13,16 @@
         </div>
     {% endfor %}
 
-    <div class="blog-container">
-        <div class="back-button-container mb-4">
-            <a href="{{ path('app_blog_index') }}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>
-                Back to Posts
-            </a>
-        </div>
+    <div class="blog-container mt-7">
         <!-- Blog Post -->
-        <article class="blog-post mb-5">
-            <h1 class="display-4 mb-4 text-purple">{{ blog.title }}</h1>
+        <article class="blog-post mb-5 pt-5">
+            <h1 class="display-4 mb-4 text-purple font-weight-bold">{{ blog.title }}</h1>
                      <div class="blog-content mb-5">
                 <div class="lead text-light">{{ blog.content|raw }}</div>
             </div>
-            <div class="translation-section mb-5">
+            <div class="translation-section comments-section mb-5">
                 <div class="translation-card">
-                    <h5 class="translation-title">
+                    <h5 class="translation-title section-title">
                         <i class="fas fa-globe translation-icon"></i>
                         Translate this post
                     </h5>
@@ -104,26 +98,6 @@
                 </div>
             </div>
      
-
-            {% if app.user %}
-                <div class="comment-form-container mb-4">
-                    {{ form_start(comment_form) }}
-                        <div class="mb-3">
-                            {{ form_label(comment_form.content, 'Write your comment', {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(comment_form.content, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Share your thoughts...'}}) }}
-                            {{ form_errors(comment_form.content) }}
-                        </div>
-                        <button type="submit" class="btn btn-purple">
-                            <i class="fas fa-paper-plane"></i> Post Comment
-                        </button>
-                    {{ form_end(comment_form) }}
-                </div>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i>
-                    Please <a href="{{ path('app_login') }}" class="alert-link">login</a> to add a comment.
-                </div>
-            {% endif %}
             <div class="comments-container">
                 {% if blog.comments|length > 0 %}
                     {% for comment in blog.comments %}
@@ -168,6 +142,13 @@
                 {% endif %}
             </div>
         </section>
+        
+        <div class="back-button-container mt-4 mb-4">
+            <a href="{{ path('app_blog_index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Back to Posts
+            </a>
+        </div>
     </div>
 </div>
 
@@ -184,57 +165,45 @@
     .bg-darker {
         background-color: #141414;
     }
-    
     .bg-purple {
         background-color: #6f42c1;
     }
-    
     .hover-lift {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    
     .hover-lift:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(111, 66, 193, 0.15);
     }
-    
     .alert-purple {
         background-color: rgba(111, 66, 193, 0.1);
         color: #6f42c1;
     }
-    
     .alert-purple .alert-link {
         color: #6f42c1;
         text-decoration: none;
         font-weight: 600;
     }
-    
     .alert-purple .alert-link:hover {
         text-decoration: underline;
     }
-    
     .comment-form-container .form-control:focus {
         border-color: #6f42c1;
         box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
     }
-    
     .avatar-placeholder {
         background: linear-gradient(45deg, #6f42c1, #8250df);
     }
-    
     .badge.bg-purple {
         background-color: #6f42c1;
         font-weight: 500;
         font-size: 0.85rem;
         padding: 0.35em 0.65em;
     }
-    
-    /* Container styles */
     .blog-container {
         max-width: 800px;
         margin: 0 auto;
     }
-    /* Translation styles */
     .translation-container {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 10px;
@@ -288,14 +257,12 @@
     }
 </style>
 <style>
-    /* Container styles */
     .blog-container {
         max-width: 800px;
         margin: 0 auto;
         padding: 2rem 0;
     }
 
-    /* Blog post styles */
     .blog-post {
         margin-bottom: 4rem;
     }
@@ -322,8 +289,11 @@
         line-height: 1.8;
         color: #e0e0e0;
     }
+    
+    .blog-content h1 {
+        font-weight: bold;
+    }
 
-    /* Share section */
     .share-section {
         display: flex;
         align-items: center;
@@ -360,7 +330,6 @@
         color: white;
     }
 
-    /* Comments section */
     .comments-section {
         background-color: #1a1a1a;
         border-radius: 16px;

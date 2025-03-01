@@ -17,7 +17,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
-    {% block stylesheets %}{% endblock %}
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
 </head>
 
 <body>
@@ -410,6 +412,7 @@
     <script src="{{ asset('front_office/js/vendor/countdown.min.js') }}"></script>
     <script src="{{ asset('front_office/js/vendor/shuffle.min.js') }}"></script>
     <script src="{{ asset('front_office/js/main.js') }}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     {% endblock %}
 </body>
 </html>
