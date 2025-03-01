@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator\NoProfanity;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -26,6 +27,7 @@ class Comment
         minMessage: 'Comment must be at least {{ limit }} characters long',
         maxMessage: 'Comment cannot exceed {{ limit }} characters'
     )]
+    #[NoProfanity]
     private ?string $content = null;
 
     #[ORM\Column]
