@@ -20,6 +20,19 @@ php bin/console app:add-balance <email> <amount>
 php bin/console app:update-bet-session-status
 ```
 
+## Sync Wallet Balances
+
+To synchronize all user wallet balances with their blockchain balances, use:
+
+```sh
+php bin/console app:sync-wallet-balances
+```
+
+This command will:
+- Check all users with connected wallets
+- Fetch their current token balance from the blockchain using Etherscan API
+- Update the database if the blockchain balance differs from the stored balance
+
 ## Make User Role
 
 To assign a specific role to a user, use the following command:
@@ -36,6 +49,27 @@ To assign the admin role to a user with email `admin@admin.com`, use:
 
 ```sh
 php bin/console app:make-user-role admin@admin.com --role=admin
+```
+
+## Test SMTP Email
+
+To test the SMTP email configuration and send a test email, use:
+
+```sh
+php bin/console app:test-smtp-email <recipient_email>
+```
+
+This command will send a test email using the configured SMTP settings:
+- SMTP Server: smtp.gmail.com
+- Port: 465
+- Username: linuxattack69@gmail.com
+
+The command will attempt to send a test email to the specified recipient and report success or failure.
+
+### Example
+
+```sh
+php bin/console app:test-smtp-email test@example.com
 ```
 
 ## Run Mercure

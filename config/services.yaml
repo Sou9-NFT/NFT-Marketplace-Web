@@ -7,6 +7,10 @@ parameters:
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     recaptcha_secret: '%env(RECAPTCHA_SECRET)%'
     app.recaptcha_secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
+    gemini_api_key: '%env(GEMINI_API_KEY)%'
+    etherscan.api_url: 'https://api-sepolia.etherscan.io/api'
+    etherscan.api_key: '%env(ETHERSCAN_API_KEY)%'
+    etherscan.contract_address: '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801'
 
 services:
     _defaults:
@@ -14,11 +18,8 @@ services:
         autoconfigure: true
 
     App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Tests,Kernel.php}'
 
     App\Service\FileUploader:
         arguments:
@@ -32,6 +33,23 @@ services:
         arguments:
             $ethereumService: '@App\Service\EthereumService'
 
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    App\Service\EtherscanService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiUrl: '%etherscan.api_url%'
+            $apiKey: '%etherscan.api_key%'
+            $contractAddress: '%etherscan.contract_address%'
+            $logger: '@logger'
+
+    App\Service\PasswordResetService:
+        arguments:
+            $mailer: '@mailer'
+            $entityManager: '@doctrine.orm.entity_manager'
+
     App\Form\RecaptchaType:
         arguments:
             $siteKey: '%google_recaptcha_site_key%'
@@ -39,3 +57,13 @@ services:
     App\Controller\RaffleController:
         arguments:
             $recaptchaSecret: '%app.recaptcha_secret%'
+
+    App\Service\GeminiService:
+        arguments:
+            $httpClient: '@http_client'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
+            $entityManager: '@doctrine.orm.entity_manager'
+
+
+    App\Service\ProfanityFilter:
+        autowire: true

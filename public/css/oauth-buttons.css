@@ -1,71 +1,41 @@
-/* OAuth Buttons */
-.social-icons .github {
-    background-color: #24292e;
+/* GitHub Button */
+.github-button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    padding: 12px 24px !important;
+    background-color: #24292e !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    margin: 10px 0 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
 }
 
-.social-icons .github:hover {
-    background-color: #2f363d;
+.github-button:hover {
+    background-color: #2f363d !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
 }
 
-.social-icons .google-plus {
-    background-color: #dd4b39;
+.github-button i {
+    flex: 0 0 16.666% !important;
+    font-size: 20px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin-right: 0 !important;
 }
 
-.social-icons .google-plus:hover {
-    background-color: #e74b37;
-}
-
-.social-icons .facebook {
-    background-color: #3b5998;
-}
-
-.social-icons .facebook:hover {
-    background-color: #4c70ba;
-}
-
-.social-icons a {
-    width: 40px;
-    height: 40px;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    background: #111;
-    color: #fff;
-    border-radius: 50%;
-    margin: 0 5px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.social-icons a:hover {
-    transform: translateY(-2px);
-}
-
-.social-icons a i:first-child {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    transition: all 0.3s ease;
-}
-
-.social-icons a i:last-child {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, 100%);
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.social-icons a:hover i:first-child {
-    transform: translate(-50%, -150%);
-    opacity: 0;
-}
-
-.social-icons a:hover i:last-child {
-    transform: translate(-50%, -50%);
-    opacity: 1;
+.github-button span {
+    flex: 1 !important;
+    text-align: left !important;
+    padding-left: 10% !important;
+    color: #ffffff !important;
 }

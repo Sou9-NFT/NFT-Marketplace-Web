@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\BlogRepository;
+use App\Validator\NoProfanity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -25,7 +26,11 @@ class Blog
         minMessage: 'Title must be at least {{ limit }} characters long',
         maxMessage: 'Title cannot be longer than {{ limit }} characters'
     )]
+    #[NoProfanity]
     private ?string $title = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $translatedTitle = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'Content cannot be empty')]
@@ -33,8 +38,10 @@ class Blog
         min: 10,
         minMessage: 'Content must be at least {{ limit }} characters long'
     )]
+    #[NoProfanity]
     private ?string $content = null;
 
+    
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull(message: 'Date cannot be empty')]
     #[Assert\Type("\DateTimeInterface")]
@@ -43,6 +50,34 @@ class Blog
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $translatedContent = null;
+
+    public function getTranslatedContent(): ?string
+    {
+        return $this->translatedContent;
+    }
+
+    public function setTranslatedContent(?string $translatedContent): static
+    {
+        $this->translatedContent = $translatedContent;
+        return $this;
+    }
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $translationLanguage = null;
+
+    public function getTranslationLanguage(): ?string
+    {
+        return $this->translationLanguage;
+    }
+
+    public function setTranslationLanguage(?string $translationLanguage): static
+    {
+        $this->translationLanguage = $translationLanguage;
+        return $this;
+    }
 
     /**
      * @var Collection<int, Comment>
@@ -82,6 +117,17 @@ class Blog
         return $this;
     }
 
+    public function getTranslatedTitle(): ?string
+    {
+        return $this->translatedTitle;
+    }
+
+    public function setTranslatedTitle(?string $translatedTitle): static
+    {
+        $this->translatedTitle = $translatedTitle;
+        return $this;
+    }
+
     public function getContent(): ?string
     {
         return $this->content;
@@ -92,6 +138,8 @@ class Blog
         $this->content = trim($content);
         return $this;
     }
+
+   
 
     public function getDate(): ?\DateTimeInterface
     {

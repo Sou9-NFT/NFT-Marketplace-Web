@@ -1,25 +1,8 @@
 knpu_oauth2_client:
     clients:
-        google:
-            type: google
-            client_id: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
-            client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
-            redirect_route: connect_google_check
-            redirect_params: {}
         github:
-            # These will use the defaults from config/packages/knpu_oauth2_client.yaml
             type: github
             client_id: '%env(OAUTH_GITHUB_CLIENT_ID)%'
             client_secret: '%env(OAUTH_GITHUB_CLIENT_SECRET)%'
-            # the route that you're redirected to after
             redirect_route: connect_github_check
             redirect_params: {}
-            # whether to check OAuth2 "state": defaults to true
-            # use_state: true
-        facebook:
-            type: facebook
-            client_id: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
-            client_secret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
-            redirect_route: connect_facebook_check
-            redirect_params: {}
-            graph_api_version: v8.0

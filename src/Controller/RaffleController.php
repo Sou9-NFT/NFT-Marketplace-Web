@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\Service\GeminiService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/raffle')]
 class RaffleController extends AbstractController
@@ -66,6 +68,11 @@ class RaffleController extends AbstractController
     #[Route('/new', name: 'app_raffle_new', methods: ['GET', 'POST'])]
     public function new(Request $request, SluggerInterface $slugger): Response
     {
+        // Check if user is authenticated and redirect to login if not
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         $raffle = new Raffle();
         $form = $this->createForm(RaffleType::class, $raffle);
         $form->handleRequest($request);
@@ -113,6 +120,24 @@ class RaffleController extends AbstractController
             'raffle' => $raffle,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/chat', name: 'app_raffle_chat', methods: ['POST'])]
+    public function chat(Request $request, GeminiService $geminiService): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $userMessage = $data['message'] ?? '';
+
+        if (empty($userMessage)) {
+            return new JsonResponse(['error' => 'Message is required'], 400);
+        }
+
+        try {
+            $response = $geminiService->generateResponse($userMessage);
+            return new JsonResponse(['response' => $response]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], 500);
+        }
     }
 
     #[Route('/{id}', name: 'app_raffle_show', methods: ['GET'])]

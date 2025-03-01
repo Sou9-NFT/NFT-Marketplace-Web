@@ -1,0 +1,14 @@
+# Run wallet balance sync every hour
+0 * * * * cd /path/to/your/project && php bin/console app:sync-wallet-balances >> var/log/wallet-sync.log 2>&1
+
+# Instructions:
+# 1. Replace /path/to/your/project with your actual project path
+# 2. To install this crontab, run:
+#    crontab -e
+# 3. Paste the above line (without #) and save
+#
+# The command will:
+# - Run every hour at minute 0
+# - Change to the project directory
+# - Execute the sync command
+# - Log output to var/log/wallet-sync.log
