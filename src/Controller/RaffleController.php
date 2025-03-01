@@ -68,6 +68,11 @@ class RaffleController extends AbstractController
     #[Route('/new', name: 'app_raffle_new', methods: ['GET', 'POST'])]
     public function new(Request $request, SluggerInterface $slugger): Response
     {
+        // Check if user is authenticated and redirect to login if not
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         $raffle = new Raffle();
         $form = $this->createForm(RaffleType::class, $raffle);
         $form->handleRequest($request);
