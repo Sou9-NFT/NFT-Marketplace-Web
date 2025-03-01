@@ -22,15 +22,14 @@ class ActivityController extends AbstractController
     #[Route('/activity', name: 'app_activity')]
     public function index(): Response
     {
-        // Token address from the existing code in base.html.twig
-        $tokenAddress = '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801';
-        
-        // Get etherscan API key or use a free tier (limited requests)
-        $apiKey = $this->getParameter('etherscan_api_key') ?? 'YourApiKey'; // Add this to your .env or parameters
+        // Get token address and API key from environment variables
+        $tokenAddress = $this->getParameter('etherscan_contract_address');
+        $apiKey = $this->getParameter('etherscan_api_key');
+        $apiUrl = $this->getParameter('etherscan_api_url');
         
         try {
             // Make API call to Etherscan to get token transfer events
-            $response = $this->httpClient->request('GET', 'https://api.etherscan.io/api', [
+            $response = $this->httpClient->request('GET', $apiUrl, [
                 'query' => [
                     'module' => 'account',
                     'action' => 'tokentx',
