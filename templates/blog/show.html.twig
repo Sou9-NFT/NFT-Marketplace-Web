@@ -16,7 +16,7 @@
     <div class="blog-container mt-7">
         <!-- Blog Post -->
         <article class="blog-post mb-5 pt-5">
-            <h1 class="display-4 mb-4 text-purple">{{ blog.title }}</h1>
+            <h1 class="display-4 mb-4 text-purple font-weight-bold">{{ blog.title }}</h1>
                      <div class="blog-content mb-5">
                 <div class="lead text-light">{{ blog.content|raw }}</div>
             </div>
@@ -288,6 +288,10 @@
         font-size: 1.1rem;
         line-height: 1.8;
         color: #e0e0e0;
+    }
+    
+    .blog-content h1 {
+        font-weight: bold;
     }
 
     .share-section {
