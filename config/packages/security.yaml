@@ -82,6 +82,7 @@ security:
         - { path: ^/blog, roles: PUBLIC_ACCESS }  # Allow public access to blog
         - { path: ^/artwork, roles: PUBLIC_ACCESS }  # Allow public access to artwork
         - { path: ^/auctions, roles: PUBLIC_ACCESS }  # Allow public access to auctions
+        - { path: ^/raffle, roles: PUBLIC_ACCESS }  # Allow public access to raffles
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
         
         # Back office requires admin role
