@@ -7,6 +7,7 @@ use App\Entity\Comment;
 use App\Form\BlogType;
 use App\Form\CommentType;
 use App\Repository\BlogRepository;
+use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,10 +15,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/blog')]
 class BlogController extends AbstractController
 {
+    private TranslationService $translationService;
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(
+        TranslationService $translationService,
+        EntityManagerInterface $entityManager
+    ) {
+        $this->translationService = $translationService;
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/', name: 'app_blog_index', methods: ['GET'])]
     public function index(BlogRepository $blogRepository): Response
     {
@@ -113,21 +126,59 @@ class BlogController extends AbstractController
         ]);
     }
 
+
     #[Route('/{id}', name: 'app_blog_show', methods: ['GET'])]
     public function show(Blog $blog): Response
     {
+        // Translate the title if not already translated
+        if (!$blog->getTranslatedTitle()) {
+            $translatedTitle = $this->translationService->translate($blog->getTitle(), 'fr');
+            if ($translatedTitle) {
+                $blog->setTranslatedTitle($translatedTitle);
+                $this->entityManager->flush();
+            }
+        }
+
         $comment = new Comment();
         $comment->setBlog($blog);
-        $commentForm = $this->createForm(CommentType::class, $comment, [
-            'action' => $this->generateUrl('app_blog_add_comment_to_blog', ['id' => $blog->getId()])
+        $form = $this->createForm(CommentType::class, $comment, [
+            'action' => $this->generateUrl('app_blog_add_comment', ['id' => $blog->getId()])
         ]);
 
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
-            'commentForm' => $commentForm->createView(),
+            'comment_form' => $form->createView(),
+            'is_translated' => true
         ]);
     }
 
+    #[Route('/{id}/translate/{lang}', name: 'app_blog_translate', methods: ['POST'])]
+    public function translate(Blog $blog, string $lang): Response
+    {
+        try {
+            $translatedTitle = $this->translationService->translate($blog->getTitle(), $lang);
+            $translatedContent = $this->translationService->translate($blog->getContent(), $lang);
+            
+            if ($translatedTitle && $translatedContent) {
+                $blog->setTranslatedTitle($translatedTitle);
+                $blog->setTranslatedContent($translatedContent);
+                $blog->setTranslationLanguage($lang); // Store the language
+                $this->entityManager->flush();
+                $this->addFlash('success', 'Blog has been translated successfully.');
+                
+                // Redirect to the translated view page
+                return $this->render('blog/showTranslated.html.twig', [
+                    'blog' => $blog,
+                    'is_translated' => true
+                ]);
+            } else {
+                throw new \Exception('Translation service returned no result');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Translation failed: ' . $e->getMessage());
+            return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
+        }
+    }
     #[Route('/{id}/comment', name: 'app_blog_add_comment_to_blog', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function addCommentToBlog(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
@@ -153,6 +204,22 @@ class BlogController extends AbstractController
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
             'commentForm' => $commentForm->createView(),
+        ]);
+    }
+
+    #[Route('/admin/blog', name: 'app_admin_blog_index', methods: ['GET'])]
+    public function backendIndex(BlogRepository $blogRepository): Response
+    {
+        return $this->render('blog_back/posts.html.twig', [
+            'blogs' => $blogRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/admin/blog/{id}/show', name: 'app_blog_back_show', methods: ['GET'])]
+    public function backendShow(Blog $blog): Response
+    {
+        return $this->render('blog_back/show.html.twig', [
+            'blog' => $blog,
         ]);
     }
 
@@ -219,4 +286,6 @@ class BlogController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index');
     }
+
+
 }
