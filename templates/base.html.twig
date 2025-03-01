@@ -150,9 +150,12 @@
     </div>
     {% endblock %}
 
-        {% block body %}
-        <!-- Default content for body block -->
-        {% endblock %}
+    {# Flash Messages Block - Empty by default, will be overridden by specific pages #}
+    {% block flash_messages %}{% endblock %}
+
+    {% block body %}
+    <!-- Default content for body block -->
+    {% endblock %}
 
     <!-- Footer Block -->
     {% block footer %}
