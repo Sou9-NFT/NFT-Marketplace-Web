@@ -2,17 +2,16 @@
 
 namespace App\Validator;
 
+use App\Service\PurgoMalumService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class NoProfanityValidator extends ConstraintValidator
 {
-    private const PROFANITY_LIST = [
-        'fuck', 'shit', 'ass', 'bitch', 'damn', 'cunt', 'dick', 'cock', 'pussy', 'whore',
-        'slut', 'bastard', 'piss', 'nigger', 'faggot', 'retard', 'asshole', 'motherfucker',
-        // Add more profanity words as needed
-    ];
+    public function __construct(
+        private PurgoMalumService $purgoMalumService
+    ) {}
 
     public function validate($value, Constraint $constraint)
     {
@@ -28,15 +27,9 @@ class NoProfanityValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $valueLower = strtolower($value);
-        
-        foreach (self::PROFANITY_LIST as $word) {
-            if (str_contains($valueLower, $word)) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ word }}', $word)
-                    ->addViolation();
-                return;
-            }
+        if ($this->purgoMalumService->containsProfanity($value)) {
+            $this->context->buildViolation($constraint->message)
+                ->addViolation();
         }
     }
 }
