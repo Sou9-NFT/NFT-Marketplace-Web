@@ -50,7 +50,7 @@
                             <div class="other-option">
                                 <span class="d-block text-center mb-4">Or Login With</span>
                                 <!-- Social Icons -->
-                                <div class="social-icons">
+                                <div class="social-icons d-flex justify-content-center">
                                     <a href="{{ path('connect_github') }}" class="github-button">
                                         <i class="fab fa-github"></i>
                                         <span>Connect with GitHub</span>
@@ -68,4 +68,9 @@
     </div>
 </section>
 <!-- ***** Login Area End ***** -->
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('css/oauth-buttons.css') }}">
 {% endblock %}
