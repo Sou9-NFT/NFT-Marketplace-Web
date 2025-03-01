@@ -3,6 +3,26 @@
 {% block title %}{{ blog.title }}{% endblock %}
 
 {% block body %}
+<!-- ***** Breadcrumb Area Start ***** -->
+<section class="breadcrumb-area overlay-dark d-flex align-items-center" 
+         style="background-image: url('{{ asset('uploads/blog_images/' ~ blog.imageFilename) }}')">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Breadcrumb Content -->
+                <div class="breadcrumb-content text-center">
+                    <h2 class="m-0">Blog Details</h2>
+                    <ol class="breadcrumb d-flex justify-content-center">
+                        <li class="breadcrumb-item"><a href="{{ path('app_blog_index') }}">Blog</a></li>
+                        <li class="breadcrumb-item active">{{ blog.title }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ***** Breadcrumb Area End ***** -->
+
 {% for message in app.flashes('success') %}
         <div class="alert alert-success bg-dark text-success border-success alert-dismissible fade show" role="alert">
             {{ message }}
@@ -674,6 +694,55 @@
     .tts-controls .btn-danger:hover {
         background-color: #bb2d3b;
         border-color: #bb2d3b;
+    }
+
+    /* Update breadcrumb background styles */
+    .breadcrumb-area {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 100px 0;
+        position: relative;
+    }
+
+    .overlay-dark::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3); /* Changed from 0.7 to 0.3 for less darkness */
+    }
+
+    .breadcrumb-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .breadcrumb-content h2 {
+        color: #fff;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        margin: 0;
+        padding: 0;
+    }
+
+    .breadcrumb-item,
+    .breadcrumb-item a {
+        color: #fff;
+    }
+
+    .breadcrumb-item.active {
+        color: #6f42c1;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: #fff;
     }
 </style>
 
