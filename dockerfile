@@ -25,7 +25,7 @@ RUN chown -R www-data:www-data /var/www/symfony
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/symfony/public|g' /etc/apache2/sites-available/000-default.conf
 
 # Expose the default web server port
-EXPOSE 8080
+EXPOSE 80
 
 # Run Composer install
 RUN composer install --no-interaction --optimize-autoloader --no-dev
