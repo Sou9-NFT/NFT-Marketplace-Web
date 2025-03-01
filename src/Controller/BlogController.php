@@ -53,9 +53,13 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{id}/comment', name: 'app_blog_add_comment', methods: ['POST'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function addComment(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
     {
+        // Check if user is authenticated
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         $comment = new Comment();
         $comment->setBlog($blog);
         $comment->setUser($this->getUser());
@@ -77,9 +81,13 @@ class BlogController extends AbstractController
     }
 
     #[Route('/new', name: 'app_blog_new', methods: ['GET', 'POST'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
+        // Check if user is authenticated and redirect to login if not
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         $blog = new Blog();
         $blog->setUser($this->getUser());
         $blog->setDate(new \DateTime());
