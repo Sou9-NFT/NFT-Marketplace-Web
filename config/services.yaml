@@ -63,3 +63,7 @@ services:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
+
+
+    App\Service\ProfanityFilter:
+        autowire: true

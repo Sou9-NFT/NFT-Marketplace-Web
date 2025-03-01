@@ -1,9 +1,28 @@
-
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ blog.title }}{% endblock %}
 
 {% block body %}
+<!-- ***** Breadcrumb Area Start ***** -->
+<section class="breadcrumb-area overlay-dark d-flex align-items-center" 
+         style="background-image: url('{{ asset('uploads/blog_images/' ~ blog.imageFilename) }}')">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Breadcrumb Content -->
+                <div class="breadcrumb-content text-center">
+                    <h2 class="m-0">Blog Details</h2>
+                    <ol class="breadcrumb d-flex justify-content-center">
+                        <li class="breadcrumb-item"><a href="{{ path('app_blog_index') }}">Blog</a></li>
+                        <li class="breadcrumb-item active">{{ blog.title }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ***** Breadcrumb Area End ***** -->
+
 {% for message in app.flashes('success') %}
         <div class="alert alert-success bg-dark text-success border-success alert-dismissible fade show" role="alert">
             {{ message }}
@@ -61,6 +80,21 @@
                     </div>
                 </div>
             </div>
+            <!-- Text-to-Speech Controls -->
+            <div class="tts-controls mb-4">
+                <button id="ttsButton" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    <span>Listen to Article</span>
+                </button>
+                <button id="ttsPauseButton" class="btn btn-secondary d-none">
+                    <i class="fas fa-pause"></i>
+                    <span>Pause</span>
+                </button>
+                <button id="ttsStopButton" class="btn btn-danger d-none">
+                    <i class="fas fa-stop"></i>
+                    <span>Stop</span>
+                </button>
+            </div>
             {% if app.user and app.user == blog.user %}
                 <div class="author-actions mb-4">
                     <form method="post" action="{{ path('app_blog_delete', {'id': blog.id}) }}" onsubmit="return confirm('Are you sure you want to delete this post?');" style="display: inline-block;">
@@ -86,6 +120,67 @@
                 </div>
             </div>
         </article>
+        <!-- Text-to-Speech Script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const ttsButton = document.getElementById('ttsButton');
+                const ttsPauseButton = document.getElementById('ttsPauseButton');
+                const ttsStopButton = document.getElementById('ttsStopButton');
+                const blogContent = document.querySelector('.blog-content').textContent;
+                
+                let speech = null;
+                let isPaused = false;
+
+                // Check if browser supports speech synthesis
+                if ('speechSynthesis' in window) {
+                    ttsButton.addEventListener('click', function() {
+                        if (!speech) {
+                            speech = new SpeechSynthesisUtterance(blogContent);
+                            speech.lang = 'en-US';
+                            speech.rate = 1;
+                            speech.pitch = 1;
+
+                            speech.onend = function() {
+                                resetButtons();
+                            };
+
+                            speechSynthesis.speak(speech);
+                            ttsButton.classList.add('d-none');
+                            ttsPauseButton.classList.remove('d-none');
+                            ttsStopButton.classList.remove('d-none');
+                        }
+                    });
+
+                    ttsPauseButton.addEventListener('click', function() {
+                        if (!isPaused) {
+                            speechSynthesis.pause();
+                            ttsPauseButton.innerHTML = '<i class="fas fa-play"></i><span>Resume</span>';
+                            isPaused = true;
+                        } else {
+                            speechSynthesis.resume();
+                            ttsPauseButton.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+                            isPaused = false;
+                        }
+                    });
+
+                    ttsStopButton.addEventListener('click', function() {
+                        speechSynthesis.cancel();
+                        resetButtons();
+                    });
+
+                    function resetButtons() {
+                        speech = null;
+                        isPaused = false;
+                        ttsButton.classList.remove('d-none');
+                        ttsPauseButton.classList.add('d-none');
+                        ttsStopButton.classList.add('d-none');
+                        ttsPauseButton.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+                    }
+                } else {
+                    ttsButton.style.display = 'none';
+                }
+            });
+        </script>
         <!-- Comments Section -->
         <section class="comments-section">
             <div class="section-header">
@@ -544,6 +639,110 @@
 
     .btn-back i {
         font-size: 1rem;
+    }
+
+    .tts-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+    }
+
+    .tts-controls .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .tts-controls .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .tts-controls .btn i {
+        font-size: 1rem;
+    }
+
+    .tts-controls .btn-primary {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+    }
+
+    .tts-controls .btn-primary:hover {
+        background-color: #5a32a3;
+        border-color: #5a32a3;
+    }
+
+    .tts-controls .btn-secondary {
+        background-color: #2a2a2a;
+        border-color: #2a2a2a;
+    }
+
+    .tts-controls .btn-secondary:hover {
+        background-color: #3a3a3a;
+        border-color: #3a3a3a;
+    }
+
+    .tts-controls .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .tts-controls .btn-danger:hover {
+        background-color: #bb2d3b;
+        border-color: #bb2d3b;
+    }
+
+    /* Update breadcrumb background styles */
+    .breadcrumb-area {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 100px 0;
+        position: relative;
+    }
+
+    .overlay-dark::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3); /* Changed from 0.7 to 0.3 for less darkness */
+    }
+
+    .breadcrumb-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .breadcrumb-content h2 {
+        color: #fff;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        margin: 0;
+        padding: 0;
+    }
+
+    .breadcrumb-item,
+    .breadcrumb-item a {
+        color: #fff;
+    }
+
+    .breadcrumb-item.active {
+        color: #6f42c1;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: #fff;
     }
 </style>
 
