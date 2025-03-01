@@ -1,25 +1,24 @@
-# Use official PHP image with Apache
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Set working directory
-WORKDIR /var/www/html
-
-# Install necessary PHP extensions
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git \
-    && docker-php-ext-install zip pdo pdo_mysql
-
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+    libicu-dev \
+    libpq-dev \
+    && docker-php-ext-install intl pdo pdo_mysql opcache
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
-COPY . /var/www/html
+# Set working directory
+WORKDIR /var/www
 
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html
+# Copy Symfony project
+COPY . /var/www
 
-# Expose the default web server port
-EXPOSE 80
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Expose the port for PHP-FPM
+EXPOSE 9000
+
+CMD ["php-fpm"]
