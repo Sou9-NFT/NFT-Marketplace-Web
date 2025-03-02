@@ -23,10 +23,10 @@
 </section>
 <!-- ***** Breadcrumb Area End ***** -->
 
-{% for message in app.flashes('success') %}
-        <div class="alert alert-success bg-dark text-success border-success alert-dismissible fade show" role="alert">
+{% for message in app.flashes('success_blog') %}
+        <div class="alert alert-success_blog bg-dark text-success_blog border-success_blog alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="close text-success" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="close text-success_blog" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -36,6 +36,17 @@
         <!-- Blog Post -->
         <article class="blog-post mb-5 pt-5">
             <h1 class="display-4 mb-4 text-purple font-weight-bold">{{ blog.title }}</h1>
+            
+            <!-- Vote Buttons -->
+            <div class="vote-buttons" data-blog-id="{{ blog.id }}">
+                <button class="vote-button like-button" title="Like">
+                    <i class="fas fa-thumbs-up"></i> <span class="likes-count">0</span>
+                </button>
+                <button class="vote-button dislike-button" title="Dislike">
+                    <i class="fas fa-thumbs-down"></i> <span class="dislikes-count">0</span>
+                </button>
+            </div>
+
                      <div class="blog-content mb-5">
                 <div class="lead text-light">{{ blog.content|raw }}</div>
             </div>
@@ -210,6 +221,17 @@
                                         </span>
                                     </div>
                                 </div>
+
+                                <!-- Vote Buttons for Comment -->
+                                <div class="vote-buttons" data-comment-id="{{ comment.id }}">
+                                    <button class="vote-button like-button" title="Like">
+                                        <i class="fas fa-thumbs-up"></i> <span class="likes-count">0</span>
+                                    </button>
+                                    <button class="vote-button dislike-button" title="Dislike">
+                                        <i class="fas fa-thumbs-down"></i> <span class="dislikes-count">0</span>
+                                    </button>
+                                </div>
+
                                 {% if app.user and comment.user and app.user.id == comment.user.id %}
                                     <div class="comment-actions">
                                         <form method="post" action="{{ path('app_comment_delete', {'id': comment.id}) }}" 
@@ -350,8 +372,94 @@
     .language-form {
         margin: 0;
     }
-</style>
-<style>
+    .vote-buttons {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+        background: rgba(111, 66, 193, 0.03);
+        padding: 0.5rem;
+        border-radius: 50px;
+        border: 1px solid rgba(111, 66, 193, 0.1);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .vote-button {
+        position: relative;
+        border: none;
+        background: rgba(111, 66, 193, 0.05);
+        cursor: pointer;
+        padding: 0.75rem 1.5rem;
+        color: #888;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-radius: 25px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 500;
+    }
+
+    .vote-button i {
+        font-size: 1.1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .vote-button:hover {
+        background: rgba(111, 66, 193, 0.1);
+        color: #6f42c1;
+        transform: translateY(-1px);
+    }
+
+    .vote-button.active {
+        background: rgba(111, 66, 193, 0.15);
+        color: #6f42c1;
+    }
+
+    .vote-button.active i {
+        transform: scale(1.1);
+    }
+
+    .vote-button .likes-count,
+    .vote-button .dislikes-count {
+        font-size: 0.9rem;
+        font-weight: 600;
+        min-width: 20px;
+        background: rgba(111, 66, 193, 0.1);
+        padding: 2px 8px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .vote-button.active .likes-count,
+    .vote-button.active .dislikes-count {
+        background: rgba(111, 66, 193, 0.2);
+    }
+
+    .vote-button:not(:last-child) {
+        margin-right: 0.5rem;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+        100% { transform: scale(1); }
+    }
+
+    .vote-button.just-clicked i {
+        animation: pulse 0.4s cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
+    @media (max-width: 768px) {
+        .vote-buttons {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .vote-button {
+            padding: 0.6rem 1rem;
+        }
+    }
     .blog-container {
         max-width: 800px;
         margin: 0 auto;
@@ -747,4 +855,96 @@
 </style>
 
 
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function initializeVoting(container) {
+        const buttons = container.querySelectorAll('.vote-button');
+        const blogId = container.dataset.blogId;
+        const commentId = container.dataset.commentId;
+        const type = blogId ? 'blog' : 'comment';
+        const id = blogId || commentId;
+
+        function updateVoteCounts(data, container) {
+            container.querySelector('.likes-count').textContent = data.likes || '';
+            container.querySelector('.dislikes-count').textContent = data.dislikes || '';
+        }
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const voteType = this.classList.contains('like-button') ? 'like' : 'dislike';
+                
+                // Add animation class
+                this.classList.add('just-clicked');
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    this.classList.remove('just-clicked');
+                }, 400);
+
+                fetch(`/api/vote/${type}/${id}/${voteType}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            window.location.href = '/login';
+                            return;
+                        }
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    updateVoteCounts(data, container);
+                    
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    const clickedType = this.classList.contains('like-button') ? 'likes' : 'dislikes';
+                    if (data[clickedType] > 0) {
+                        this.classList.add('active');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // Initial vote count fetch
+        fetch(`/api/vote/${type}/${id}/counts`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateVoteCounts(data, container);
+            // Set initial active states
+            const likeButton = container.querySelector('.like-button');
+            const dislikeButton = container.querySelector('.dislike-button');
+            if (data.likes > 0) likeButton.classList.add('active');
+            if (data.dislikes > 0) dislikeButton.classList.add('active');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Initialize voting for blog post
+    const blogVoteContainer = document.querySelector('.vote-buttons[data-blog-id]');
+    if (blogVoteContainer) {
+        initializeVoting(blogVoteContainer);
+    }
+
+    // Initialize voting for all comments
+    const commentVoteContainers = document.querySelectorAll('.vote-buttons[data-comment-id]');
+    commentVoteContainers.forEach(container => {
+        initializeVoting(container);
+    });
+});
+</script>
 {% endblock %}
