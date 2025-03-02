@@ -770,10 +770,6 @@
         transform: translateY(-2px);
     }
 
-    .tts-controls .btn i {
-        font-size: 1rem;
-    }
-
     .tts-controls .btn-primary {
         background-color: #6f42c1;
         border-color: #6f42c1;
@@ -852,6 +848,91 @@
     .breadcrumb-item + .breadcrumb-item::before {
         color: #fff;
     }
+
+    /* Auth Modal Styles */
+    .auth-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .auth-modal-overlay.show {
+        opacity: 1;
+    }
+
+    .auth-modal {
+        background: #1a1a1a;
+        border-radius: 16px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+        border: 1px solid rgba(111, 66, 193, 0.2);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .auth-modal-overlay.show .auth-modal {
+        transform: translateY(0);
+    }
+
+    .auth-modal-content {
+        text-align: center;
+    }
+
+    .auth-modal h3 {
+        color: #fff;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-modal p {
+        color: #888;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-auth {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        background: #6f42c1;
+        color: #fff !important;
+        border: none;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        background: #5a32a3;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2);
+    }
+
+    .btn-auth i {
+        color: #fff;
+    }
 </style>
 
 
@@ -873,13 +954,52 @@ document.addEventListener('DOMContentLoaded', function() {
             container.querySelector('.dislikes-count').textContent = data.dislikes || '';
         }
 
+        function showAuthModal() {
+            const modalHtml = `
+                <div class="auth-modal">
+                    <div class="auth-modal-content">
+                        <h3>Join the Discussion!</h3>
+                        <p>Please log in or sign up to vote on posts and comments.</p>
+                        <div class="auth-buttons">
+                            <a href="{{ path('app_login') }}" class="btn-auth btn-login">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                            <a href="{{ path('app_register') }}" class="btn-auth btn-signup">
+                                <i class="fas fa-user-plus"></i> Sign Up
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.createElement('div');
+            modal.className = 'auth-modal-overlay';
+            modal.innerHTML = modalHtml;
+            document.body.appendChild(modal);
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            // Add animation class after a small delay
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+
         buttons.forEach(button => {
             button.addEventListener('click', function() {
+                {% if not app.user %}
+                    showAuthModal();
+                    return;
+                {% endif %}
+
                 const voteType = this.classList.contains('like-button') ? 'like' : 'dislike';
                 
-                // Add animation class
                 this.classList.add('just-clicked');
-                // Remove animation class after animation completes
                 setTimeout(() => {
                     this.classList.remove('just-clicked');
                 }, 400);
@@ -894,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => {
                     if (!response.ok) {
                         if (response.status === 401) {
-                            window.location.href = '/login';
+                            showAuthModal();
                             return;
                         }
                         throw new Error('Network response was not ok');
@@ -902,12 +1022,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(data => {
-                    updateVoteCounts(data, container);
-                    
-                    buttons.forEach(btn => btn.classList.remove('active'));
-                    const clickedType = this.classList.contains('like-button') ? 'likes' : 'dislikes';
-                    if (data[clickedType] > 0) {
-                        this.classList.add('active');
+                    if (data) {
+                        updateVoteCounts(data, container);
+                        buttons.forEach(btn => btn.classList.remove('active'));
+                        const clickedType = this.classList.contains('like-button') ? 'likes' : 'dislikes';
+                        if (data[clickedType] > 0) {
+                            this.classList.add('active');
+                        }
                     }
                 })
                 .catch(error => console.error('Error:', error));
@@ -925,7 +1046,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             updateVoteCounts(data, container);
-            // Set initial active states
             const likeButton = container.querySelector('.like-button');
             const dislikeButton = container.querySelector('.dislike-button');
             if (data.likes > 0) likeButton.classList.add('active');
