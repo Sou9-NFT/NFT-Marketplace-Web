@@ -14,8 +14,13 @@ class TradeDispute
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "reporter", referencedColumnName: "id", nullable: false)]
+    #[Assert\NotNull(message: 'Reporter cannot be null')]
+    private ?User $reporter = null;
+
     #[ORM\ManyToOne(targetEntity: TradeOffer::class)]
-    #[ORM\JoinColumn(name: "trade_id", referencedColumnName: "id", nullable: false)]
+    #[ORM\JoinColumn(name: "trade_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     #[Assert\NotNull(message: 'Please select a trade offer')]
     private ?TradeOffer $trade_id = null;
 
@@ -41,6 +46,17 @@ class TradeDispute
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getReporter(): ?User
+    {
+        return $this->reporter;
+    }
+
+    public function setReporter(?User $reporter): static
+    {
+        $this->reporter = $reporter;
+        return $this;
     }
 
     public function getTradeId(): ?TradeOffer

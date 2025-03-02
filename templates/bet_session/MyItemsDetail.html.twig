@@ -123,8 +123,12 @@
 									<div class="owner-meta d-flex align-items-center mt-3">
 										<span>Owner</span>
 										<a class="owner d-flex align-items-center ml-2" href="author.html">
-											<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-											<h6 class="ml-2">Themeland</h6>
+											{% if bet_session.artwork.owner.profilePicture %}
+												<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
+											{% else %}
+												<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+											{% endif %}
+											<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
 										</a>
 									</div>
 									<p class="mt-2">Created :
@@ -212,5 +216,75 @@
 				</div>
 			</section>
 			<!-- ***** Item Details Area End ***** -->
+{% if bet_session.status == 'active' %}
+		<script>
+    function fetchLatestData() {
+        $.ajax({
+			
+            url: '{{ path("app_bet_session_latest", {"id": bet_session.id}) }}',
+            method: 'GET',
+            success: function(data) {
+                // Update the current price
+                document.querySelector('.price span').textContent = data.currentPrice + ' Dannous';
+
+                // Update the bids list
+                const bidsList = document.querySelector('.tab-content #nav-home ul');
+                bidsList.innerHTML = ''; // Clear the existing bids
+                data.bids.forEach(bid => {
+                    const newBid = document.createElement('li');
+                    newBid.classList.add('single-tab-list', 'd-flex', 'align-items-center');
+                    newBid.innerHTML = `
+                        <img class="avatar-sm rounded-circle mr-3" src="${bid.author.profilePicture ? '{{ asset('uploads/profile_pictures/') }}' + bid.author.profilePicture : '{{ asset('front_office/img/content/avatar_1.jpg') }}'}" alt="">
+                        <p class="m-0">Bid listed for
+                            <strong>${bid.bidValue} Dannous</strong>
+                            ${new Date(bid.bidTime).toLocaleString()}
+                            <br>by
+                            <a href="author.html">@${bid.author.name}</a>
+                        </p>
+                    `;
+                    bidsList.insertBefore(newBid, bidsList.firstChild);
+                });
+            },
+            error: function(error) {
+                console.error('Error fetching latest data:', error);
+            }
+        });
+    }
+
+    // Fetch the latest data every second
+    setInterval(fetchLatestData, 1000);
+
+    // Handle form submission with AJAX
+    $('#bidForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting the traditional way
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: $(this).attr('method'),
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    // Display success message
+                    $('#flash-messages').html('<div class="alert alert-success mt-2">Bid added successfully</div>');
+
+                    // Clear the bid value input
+                    $('#bidValue').val('');
+
+                    // Fetch the latest data to update the bids list and current price
+                    fetchLatestData();
+                } else if (response.error) {
+                    // Display error message
+                    $('#flash-messages').html('<div class="alert alert-danger mt-2">' + response.error + '</div>');
+                }
+            },
+            error: function(xhr) {
+                // Display error message
+                $('#flash-messages').html('<div class="alert alert-danger mt-2">An error occurred while adding the bid: ' + xhr.responseText + '</div>');
+            }
+        });
+    });
+</script>
+
+{% endif %}
 
 		{% endblock %}

@@ -9,3 +9,13 @@ controllers:
     #   controller: App\Controller\ErrorController::routeNotFound
     #   requirements:
     #       url: ".+"
+
+reset_password_request:
+    path: /reset-password-request
+    controller: App\Controller\SecurityController::requestPasswordReset
+    methods: [GET, POST]
+
+reset_password:
+    path: /reset-password/{token}
+    controller: App\Controller\SecurityController::resetPassword
+    methods: [GET, POST]

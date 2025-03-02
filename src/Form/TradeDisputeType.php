@@ -19,101 +19,67 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class TradeDisputeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
-        // Only show trade_id field if not in admin edit mode
-        if (!($options['is_admin'] && $options['is_edit'])) {
-            $builder->add('trade_id', EntityType::class, [
-                'class' => TradeOffer::class,
-                'choice_label' => function (TradeOffer $tradeOffer) {
-                    return sprintf('Trade #%d', $tradeOffer->getId());
-                },
-                'placeholder' => 'Select a trade offer',
-                'required' => true,
-            ]);
-        }
-
-        $builder->add('reason', TextType::class, [
-            'required' => true,
-            'attr' => [
-                'placeholder' => 'Enter the reason for your dispute',
+{
+    if ($options['is_admin'] && $options['is_edit']) {
+        // Admin edit form - only show status field
+        $builder->add('status', ChoiceType::class, [
+            'choices' => [
+                'Pending' => 'pending',
+                'Resolved' => 'resolved',
+                'Rejected' => 'rejected'
             ],
+            'required' => true,
         ]);
-
-        // Only add evidence field if not admin edit mode
-        if (!($options['is_admin'] && $options['is_edit'])) {
-            // Build constraints array based on whether we're editing
-            $constraints = [
-                new Image([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'image/jpeg',
-                        'image/png',
-                        'image/gif'
-                    ],
-                    'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, GIF)',
-                ])
-            ];
-
-            // Add NotBlank constraint only for new disputes
-            if (!$options['is_edit']) {
-                $constraints[] = new NotBlank([
-                    'message' => 'Please upload an evidence image for your dispute'
-                ]);
-            }
-
-            $builder->add('evidence', FileType::class, [
-                'label' => 'Evidence (Image)',
-                'mapped' => false,
-                'required' => !$options['is_edit'],
-                'constraints' => $constraints,
-                'attr' => [
-                    'accept' => 'image/*',
-                ],
-            ]);
-
-            // Add form event to set the current filename
-            $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                $tradeDispute = $event->getData();
-                $form = $event->getForm();
-
-                if ($tradeDispute && $tradeDispute->getEvidence()) {
-                    $form->add('evidence', FileType::class, [
-                        'label' => 'Evidence (Image)',
-                        'mapped' => false,
-                        'required' => false,
-                        'constraints' => [
-                            new Image([
-                                'maxSize' => '5M',
-                                'mimeTypes' => [
-                                    'image/jpeg',
-                                    'image/png',
-                                    'image/gif'
-                                ],
-                                'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, GIF)',
-                            ])
-                        ],
-                        'attr' => [
-                            'accept' => 'image/*',
-                        ],
-                        'help' => 'Current file: ' . $tradeDispute->getEvidence(),
-                        'help_html' => true,
-                    ]);
-                }
-            });
-        }
-
-        // Only add status field for admin users
-        if ($options['is_admin']) {
-            $builder->add('status', ChoiceType::class, [
-                'choices' => [
-                    'Pending' => 'pending',
-                    'Resolved' => 'resolved',
-                    'Rejected' => 'rejected'
-                ],
-                'required' => true,
-            ]);
-        }
+        return;
     }
+
+    // Remove trade_id field since it's now set in the controller
+    $builder->add('reason', TextType::class, [
+        'required' => true,
+        'attr' => [
+            'placeholder' => 'Enter the reason for your dispute',
+        ],
+    ]);
+
+    // Only add evidence field if not in admin edit mode
+    if (!($options['is_admin'] && $options['is_edit'])) {
+        $constraints = [
+            new Image([
+                'maxSize' => '5M',
+                'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],
+                'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, GIF)',
+            ])
+        ];
+
+        // Require evidence only for new disputes
+        if (!$options['is_edit']) {
+            $constraints[] = new NotBlank([
+                'message' => 'Please upload an evidence image for your dispute'
+            ]);
+        }
+
+        $builder->add('evidence', FileType::class, [
+            'label' => 'Evidence (Image)',
+            'mapped' => false,
+            'required' => !$options['is_edit'],
+            'constraints' => $constraints,
+            'attr' => ['accept' => 'image/*'],
+        ]);
+    }
+
+    // Add status field for admin users managing disputes
+    if ($options['is_admin'] && !$options['is_edit']) {
+        $builder->add('status', ChoiceType::class, [
+            'choices' => [
+                'Pending' => 'pending',
+                'Resolved' => 'resolved',
+                'Rejected' => 'rejected'
+            ],
+            'required' => true,
+        ]);
+    }
+}
+
 
     public function configureOptions(OptionsResolver $resolver): void
     {
