@@ -12,7 +12,30 @@
         </ol>
     </nav>
 </div>
+<!-- Search, Status Filter, and Sort Form -->
+    <form method="get" action="{{ path('app_admin_trade_dispute_index') }}" class="text-center">
+        <div class="input-group" style="max-width: 700px; margin: auto; display: flex; align-items: center; justify-content: center;">
+            <!-- Search input for received item -->
+            <input type="text" class="form-control form-control-sm" name="search" value="{{ search }}" placeholder="Search by received item" style="margin-right: 10px;">
+            
+            <!-- Status search select -->
+            <select name="status" class="form-control form-control-sm" style="margin-right: 10px;">
+                <option value="" {% if status is empty %}selected{% endif %}>All Status</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="Resolved" {% if status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
 
+            <!-- Sort select for timestamp -->
+            <select name="sort" class="form-control form-control-sm" style="margin-right: 10px;">
+                <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Sort by Date (Descending)</option>
+                <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Sort by Date (Ascending)</option>
+            </select>
+
+            <!-- Submit button -->
+            <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+        </div>
+    </form>
 <section class="section">
     <div class="row">
         <div class="col-lg-12">
@@ -25,8 +48,8 @@
                             <tr>
                                 <th>Id</th>
                                 <th>Trade Offer id</th>
-                                <th>Offered Item</th>
                                 <th>Received Item</th>
+                                <th>Offered Item</th>
                                 <th>Reason</th>
                                 <th>Evidence</th>
                                 <th>Timestamp</th>
@@ -39,8 +62,8 @@
                             <tr>
                                 <td>{{ trade_dispute.id }}</td>
                                 <td>{{ trade_dispute.tradeId }}</td>
-                                <td>{{ trade_dispute.OfferedItem }}</td>
                                 <td>{{ trade_dispute.ReceivedItem }}</td>
+                                <td>{{ trade_dispute.OfferedItem }}</td>
                                 <td>{{ trade_dispute.reason }}</td>
                                 <td>{{ trade_dispute.evidence }}</td>
                                 <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : '' }}</td>

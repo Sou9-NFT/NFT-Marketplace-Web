@@ -36,6 +36,10 @@ class BackArtworkController extends AbstractController
                 try {
                     $entityManager->beginTransaction();
                     
+                    // Set the current user as both creator and owner
+                    $artwork->setCreator($this->getUser());
+                    $artwork->setOwner($this->getUser());
+                    
                     $imageFile = $form->get('imageFile')->getData();
                     if ($imageFile) {
                         $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);

@@ -8,50 +8,71 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="h3 mb-0 text-white">Raffle #{{ raffle.id }}</h1>
+                        <h1 class="h3 mb-0 text-white">{{ raffle.title }}</h1>
                     </div>
                     <div class="card-body">
-                        {% if raffle.image %}
-                            <div class="mb-4 text-center">
-                                <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" alt="Raffle Image" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% if raffle.artwork.imageName %}
+                                    <div class="mb-4 text-center">
+                                        <img src="{{ asset('uploads/artworks/' ~ raffle.artwork.imageName) }}" 
+                                             alt="Artwork" 
+                                             class="img-fluid rounded" 
+                                             style="max-height: 400px; object-fit: contain;">
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
-
-                        <div class="mb-4">
-                            {% set statusClass = raffle.status == 'active' ? 'success' : 'danger' %}
-                            <div class="alert alert-{{ statusClass }} mb-4">
-                                <strong>Status:</strong> {{ raffle.status|title }}
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Creator:</strong> {{ raffle.creator.email }}</p>
-                                    <p><strong>Start Time:</strong> {{ raffle.startTime ? raffle.startTime|date('Y-m-d H:i:s') : '' }}</p>
-                                    <p><strong>End Time:</strong> {{ raffle.endTime ? raffle.endTime|date('Y-m-d H:i:s') : '' }}</p>
-                                    <p><strong>Participants:</strong> {{ raffle.participants|length }}</p>
-                                    
-                                    {% if raffle.status == 'ended' and winner is defined and winner %}
-                                        <div class="alert alert-success mt-3">
-                                            <h5 class="alert-heading">🎉 Winner Announced!</h5>
-                                            <p class="mb-0">Congratulations to <strong>{{ winner.name }}</strong>!</p>
-                                        </div>
-                                    {% endif %}
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    {% set statusClass = raffle.status == 'active' ? 'success' : 'danger' %}
+                                    <div class="alert alert-{{ statusClass }} mb-4">
+                                        <strong>Status:</strong> {{ raffle.status|title }}
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <p><strong>Description:</strong></p>
+
+                                <h5>Artwork Details</h5>
+                                <p><strong>Title:</strong> {{ raffle.artwork.title }}</p>
+                                <p><strong>Creator:</strong> {{ raffle.artwork.creator.name ?: raffle.artwork.creator.email }}</p>
+                                <p><strong>Category:</strong> {{ raffle.artwork.category.name }}</p>
+                                <p><strong>Original Price:</strong> ${{ raffle.artwork.price }}</p>
+                                <hr>
+                                
+                                <h5>Raffle Details</h5>
+                                <p><strong>Creator:</strong> {{ raffle.creator.name ?: raffle.creator.email }}</p>
+                                <p><strong>Start Time:</strong> {{ raffle.startTime ? raffle.startTime|date('Y-m-d H:i:s') : '' }}</p>
+                                <p><strong>End Time:</strong> {{ raffle.endTime ? raffle.endTime|date('Y-m-d H:i:s') : '' }}</p>
+                                <p><strong>Participants:</strong> {{ raffle.participants|length }}</p>
+                                
+                                {% if raffle.status == 'ended' and winner is defined and winner %}
+                                    <div class="alert alert-success mt-3">
+                                        <h5 class="alert-heading">🎉 Winner Announced!</h5>
+                                        <p class="mb-0">Congratulations to <strong>{{ winner.name }}</strong>!</p>
+                                        <small class="text-muted">The artwork ownership has been transferred to the winner.</small>
+                                    </div>
+                                {% endif %}
+
+                                <div class="mt-4">
+                                    <h5>Description</h5>
                                     <p>{{ raffle.raffleDescription }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{{ path('app_raffle_index') }}" class="btn btn-secondary">Back to list</a>
-                            
-                            <div class="d-flex gap-2">
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{{ path('app_raffle_index') }}" class="btn btn-secondary btn-fixed-sm">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Back</span>
+                            </a>
+
+                            <div class="action-buttons">
                                 {% if app.user %}
-                                    <a href="{{ path('app_raffle_participants', {'id': raffle.id}) }}" class="btn btn-info">
-                                        View Participants ({{ raffle.participants|length }})
+                                    <a href="{{ path('app_raffle_participants', {'id': raffle.id}) }}" 
+                                       class="btn btn-info btn-fixed-md" 
+                                       title="View participants">
+                                        <i class="fas fa-users me-2"></i>
+                                        <span>Participants ({{ raffle.participants|length }})</span>
                                     </a>
+
                                     {% set hasJoined = false %}
                                     {% for participant in raffle.participants %}
                                         {% if participant.user == app.user %}
@@ -60,32 +81,56 @@
                                     {% endfor %}
 
                                     {% if raffle.status == 'active' %}
-                                        {% if not hasJoined %}
-                                            <a href="{{ path('app_raffle_join', {'id': raffle.id}) }}" class="btn btn-primary">
-                                                Join Raffle
-                                            </a>
+                                        {% if app.user != raffle.creator %}
+                                            {% if not hasJoined %}
+                                                <button id="join-raffle-btn" class="btn btn-primary btn-fixed-md ms-2">
+                                                    <i class="fas fa-plus me-2"></i>Join Raffle
+                                                </button>
+
+                                                <!-- Join form -->
+                                                <form id="join-raffle-form" action="{{ path('app_raffle_join', {'id': raffle.id}) }}" method="post" style="display:none;">
+                                                    <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('join_raffle_' ~ raffle.id) }}">
+                                                </form>
+                                            {% else %}
+                                                <span class="btn btn-success btn-fixed-md ms-2">
+                                                    <i class="fas fa-check me-2"></i>Joined
+                                                </span>
+                                            {% endif %}
                                         {% else %}
-                                            <span class="btn btn-secondary disabled">
-                                                Already Joined
+                                            <span class="btn btn-secondary btn-fixed-md ms-2">
+                                                <i class="fas fa-ban me-2"></i>Your Raffle
                                             </span>
                                         {% endif %}
                                     {% else %}
-                                        <span class="btn btn-secondary disabled">
-                                            Raffle Ended
+                                        <span class="btn btn-secondary btn-fixed-md" title="Raffle ended">
+                                            <i class="fas fa-lock"></i>
+                                            <span>Closed</span>
                                         </span>
                                     {% endif %}
-                                {% else %}
-                                    <a href="{{ path('app_login') }}" class="btn btn-primary">
-                                        Login to Join
-                                    </a>
-                                {% endif %}
 
-                                {% if app.user == raffle.creator %}
-                                    <a href="{{ path('app_raffle_edit', {'id': raffle.id}) }}" class="btn btn-warning">Edit</a>
-                                    <form method="post" action="{{ path('app_raffle_delete', {'id': raffle.id}) }}" onsubmit="return confirm('Are you sure you want to delete this raffle?');" style="display: inline;">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
-                                        <button class="btn btn-danger">Delete</button>
-                                    </form>
+                                    {% if app.user == raffle.creator %}
+                                        <div class="btn-group-actions">
+                                            <a href="{{ path('app_raffle_edit', {'id': raffle.id}) }}" 
+                                               class="btn btn-warning btn-fixed-md">
+                                                <i class="fas fa-edit me-2"></i>Edit
+                                            </a>
+                                            <form method="post" 
+                                                  action="{{ path('app_raffle_delete', {'id': raffle.id}) }}" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this raffle?');" 
+                                                  style="display: inline-block;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
+                                                <button type="submit" class="btn btn-danger btn-fixed-md ms-2">
+                                                    <i class="fas fa-trash-alt me-2"></i>Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{{ path('app_login') }}" class="btn btn-primary btn-fixed-lg">
+                                        <i class="fas fa-sign-in-alt me-2"></i>
+                                        <span>Login to Join</span>
+                                    </a>
                                 {% endif %}
                             </div>
                         </div>
@@ -94,4 +139,235 @@
             </div>
         </div>
     </div>
+
+    <!-- Load reCAPTCHA script -->
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+
+    <style>
+        /* Button base styles */
+        .btn {
+            min-width: 42px;
+            height: 38px;
+            padding: 0.5rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        /* Button width classes */
+        .btn-fixed-sm { min-width: 90px; }
+        .btn-fixed-md { min-width: 120px; }
+        .btn-fixed-lg { min-width: 150px; }
+
+        /* Rest of existing button styles... */
+
+        /* Update button container styles */
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;  /* Slightly increased gap */
+            align-items: center;
+            height: 38px;
+            flex-wrap: nowrap;
+        }
+
+        .btn-group-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            height: 38px;
+            border-left: 1px solid rgba(0,0,0,0.1);
+            margin-left: 0.75rem;
+            padding-left: 0.75rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn i {
+            font-size: 1rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        .btn span {
+            line-height: 1;
+        }
+
+        .btn-group-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            height: 38px;
+        }
+
+        .btn-group-actions form {
+            margin: 0;
+            height: 100%;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            height: 38px;
+        }
+
+        /* Specific button hover effects */
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.show {
+            opacity: 1;
+        }
+
+        .modal-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal-container.show {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .modal-body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+    <!-- Modal structure for reCAPTCHA -->
+    <div class="modal-backdrop"></div>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h5>Please verify you're human</h5>
+        </div>
+        <div class="modal-body">
+            <div class="g-recaptcha" 
+                 data-sitekey="6LfqY-IqAAAAACttpfdbUpyENp14x6CiTFe_6hig"
+                 data-callback="onRecaptchaSubmit"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const joinButton = document.getElementById('join-raffle-btn');
+            const modal = document.querySelector('.modal-container');
+            const backdrop = document.querySelector('.modal-backdrop');
+            const form = document.getElementById('join-raffle-form');
+            
+            if (joinButton) {
+                joinButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Show elements first
+                    backdrop.style.display = 'block';
+                    modal.style.display = 'block';
+                    // Force reflow
+                    modal.offsetHeight;
+                    // Add show class for animation
+                    backdrop.classList.add('show');
+                    modal.classList.add('show');
+                    // Reset reCAPTCHA if needed
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset();
+                    }
+                });
+            }
+
+            // Close modal if clicking outside
+            backdrop.addEventListener('click', function() {
+                closeModal();
+            });
+
+            // Prevent closing when clicking inside modal
+            modal.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            function closeModal() {
+                backdrop.classList.remove('show');
+                modal.classList.remove('show');
+                // Wait for animation to finish before hiding
+                setTimeout(() => {
+                    backdrop.style.display = 'none';
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        });
+
+        // Callback for successful reCAPTCHA verification
+        function onRecaptchaSubmit(token) {
+            if (token) {
+                console.log('reCAPTCHA verified, submitting form...');
+                // Set the token
+                document.getElementById('g-recaptcha-response').value = token;
+                // Submit form
+                document.getElementById('join-raffle-form').submit();
+            }
+        }
+    </script>
 {% endblock %}

@@ -75,6 +75,10 @@ class Category
     #[ORM\Column(type: Types::JSON)]
     private array $allowedMimeTypes = [];
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $manager = null;
+
     public function __construct()
     {
         $this->artworks = new ArrayCollection();
@@ -187,6 +191,17 @@ class Category
     public function setAllowedMimeTypes(array $mimeTypes): self
     {
         $this->allowedMimeTypes = $mimeTypes;
+        return $this;
+    }
+
+    public function getManager(): ?User
+    {
+        return $this->manager;
+    }
+
+    public function setManager(?User $manager): static
+    {
+        $this->manager = $manager;
         return $this;
     }
 

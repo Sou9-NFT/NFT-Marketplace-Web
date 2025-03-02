@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ArtworkRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -58,16 +60,22 @@ class Artwork
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $creator = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
+
     #[ORM\ManyToOne(inversedBy: 'artworks')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: 'Please select a category')]
     private ?Category $category = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
+    
+
+    
 
     #[ORM\PreUpdate]
     public function setUpdatedAtValue(): void
@@ -187,6 +195,28 @@ class Artwork
         return $this;
     }
 
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): static
+    {
+        $this->creator = $creator;
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
+        return $this;
+    }
+
     public function getCategory(): ?Category
     {
         return $this->category;
@@ -197,4 +227,6 @@ class Artwork
         $this->category = $category;
         return $this;
     }
+
+    
 }

@@ -98,9 +98,23 @@ final class BetSessionController extends AbstractController
         }
 
         $betSession = new BetSession();
-        $form = $this->createForm(BetSessionType::class, $betSession);
+        $form = $this->createForm(BetSessionType::class, $betSession, [
+            'user' => $this->getUser(),
+        ]);
         $form->handleRequest($request);
+        $existingBetSession = $entityManager->getRepository(BetSession::class)
+            ->createQueryBuilder('b')
+            ->where('b.artwork = :artwork')
+            ->andWhere('b.status IN (:statuses)')
+            ->setParameter('artwork', $betSession->getArtwork())
+            ->setParameter('statuses', ['active', 'pending'])
+            ->getQuery()
+            ->getOneOrNullResult();
 
+        if ($existingBetSession) {
+            $this->addFlash('error_new_betsession', 'This artwork is already in an active or pending auction.');
+            return $this->redirectToRoute('app_bet_session_new');
+        }
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var User $user */
             $user = $this->getUser();
@@ -135,10 +149,12 @@ final class BetSessionController extends AbstractController
                 }
             } else {
                 $this->addFlash('error', 'You need to be authenticated to withdraw a bet session.');
+                return $this->redirectToRoute('app_login');
             }
         } catch (\Exception $e) {
             $this->addFlash('error', 'An error occurred while withdrawing the bet session: ' . $e->getMessage());
             error_log('An error occurred while withdrawing the bet session: ' . $e->getMessage());
+            return $this->redirectToRoute('app_bet_session_active');
         }
     }
 
@@ -227,5 +243,51 @@ final class BetSessionController extends AbstractController
             'live_bet_sessions' => $activeBetSessions,
             'bids' => $bids,
         ]);
+    }
+
+    #[Route('/{id}/end', name: 'app_bet_session_end', methods: ['GET', 'PUT'])]
+    public function end(BetSession $betSession, EntityManagerInterface $entityManager, BidRepository $bidRepository): Response
+    {
+        if (!$this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        try {
+            if ($betSession->getEndTime() > new \DateTime()) {
+                throw new \Exception('Auction has not ended yet.');
+            }
+
+            // Get all bids for this session ordered by amount DESC
+            $bids = $bidRepository->findBy(['betSession' => $betSession], ['bidValue' => 'DESC']);
+            
+            // Get winning bid (highest amount)
+            $winningBid = !empty($bids) ? $bids[0] : null;
+
+            // Process refunds for non-winning bids
+            foreach ($bids as $bid) {
+                if ($bid !== $winningBid) {
+                    $bidder = $bid->getAuthor();
+                    $bidder->setBalance($bidder->getBalance() + $bid->getBidValue());
+                }
+            }
+
+            if ($winningBid) {
+                // Transfer artwork ownership to winner
+                $artwork = $betSession->getArtwork();
+                $artwork->setOwner($winningBid->getAuthor());
+                $author = $betSession->getAuthor();
+                $author->setBalance($author->getBalance() + $betSession->getCurrentPrice());
+                // Update bet session status
+                $betSession->setStatus('ended');
+            } else {
+                $betSession->setStatus('ended');
+            }
+            
+            $entityManager->flush();
+            return $this->redirectToRoute('app_home_page');
+
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
     }
 }

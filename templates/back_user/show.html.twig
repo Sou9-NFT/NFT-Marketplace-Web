@@ -55,8 +55,8 @@
                                             <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                                         </tr>
                                         <tr>
-                                            <th>Balance</th>
-                                            <td>{{ user.balance|default(0) }} ETH</td>
+                                            <th>Wallet Address</th>
+                                            <td>{{ user.walletAddress ?: 'Not connected' }}</td>
                                         </tr>
                                     </tbody>
                                 </table>

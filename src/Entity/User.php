@@ -36,6 +36,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
+    #[ORM\Column(type: 'decimal', precision: 20, scale: 3)]
+    #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
+    private float $balance = 0.0;
+
     /**
      * @var string The hashed password
      */
@@ -76,24 +80,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Url(message: 'The profile picture must be a valid URL', groups: ['profile_picture_update'])]
     private ?string $profilePicture = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0])]
-    #[Assert\PositiveOrZero(message: 'Balance cannot be negative')]
-    private ?float $balance = 0;
+    #[ORM\Column(length: 42, nullable: true)]
+    #[Assert\Length(exactly: 42, exactMessage: 'Ethereum address must be exactly {{ limit }} characters')]
+    #[Assert\Regex(
+        pattern: '/^0x[a-fA-F0-9]{40}$/',
+        message: 'Invalid Ethereum address format'
+    )]
+    private ?string $walletAddress = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $githubUsername = null;
 
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Raffle::class)]
     private Collection $createdRaffles;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participant::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participant::class, orphanRemoval: true)]
     private Collection $participations;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: TopUpRequest::class)]
+    private Collection $topUpRequests;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $passwordResetTokenExpiresAt = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->createdRaffles = new ArrayCollection();
         $this->participations = new ArrayCollection();
+        $this->topUpRequests = new ArrayCollection();
         $this->roles = ['ROLE_USER']; // Assign ROLE_USER by default
-        $this->balance = 0; // Initialize balance to 0
         $this->plainPassword = null; // Initialize plainPassword
+        $this->balance = 0.0; // Initialize balance
     }
 
     public function getId(): ?int
@@ -219,15 +240,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getBalance(): ?float
+    public function getWalletAddress(): ?string
+    {
+        return $this->walletAddress;
+    }
+
+    public function setWalletAddress(?string $walletAddress): static
+    {
+        $this->walletAddress = $walletAddress;
+        return $this;
+    }
+
+    public function getGithubUsername(): ?string
+    {
+        return $this->githubUsername;
+    }
+
+    public function setGithubUsername(?string $githubUsername): static
+    {
+        $this->githubUsername = $githubUsername;
+        return $this;
+    }
+
+    public function getBalance(): float
     {
         return $this->balance;
     }
 
-    public function setBalance(float $balance): static
+    public function setBalance(float $balance): self
     {
         $this->balance = $balance;
+        return $this;
+    }
 
+    /**
+     * @return Collection<int, TopUpRequest>
+     */
+    public function getTopUpRequests(): Collection
+    {
+        return $this->topUpRequests;
+    }
+
+    public function addTopUpRequest(TopUpRequest $topUpRequest): self
+    {
+        if (!$this->topUpRequests->contains($topUpRequest)) {
+            $this->topUpRequests->add($topUpRequest);
+            $topUpRequest->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeTopUpRequest(TopUpRequest $topUpRequest): self
+    {
+        if ($this->topUpRequests->removeElement($topUpRequest)) {
+            if ($topUpRequest->getUser() === $this) {
+                $topUpRequest->setUser(null);
+            }
+        }
         return $this;
     }
 
@@ -288,6 +357,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    public function getPasswordResetToken(): ?string
+    {
+        return $this->passwordResetToken;
+    }
+
+    public function setPasswordResetToken(?string $passwordResetToken): self
+    {
+        $this->passwordResetToken = $passwordResetToken;
+        return $this;
+    }
+
+    public function getPasswordResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->passwordResetTokenExpiresAt;
+    }
+
+    public function setPasswordResetTokenExpiresAt(?\DateTimeInterface $passwordResetTokenExpiresAt): self
+    {
+        $this->passwordResetTokenExpiresAt = $passwordResetTokenExpiresAt;
         return $this;
     }
 }

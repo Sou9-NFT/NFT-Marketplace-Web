@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}TradeDispute{% endblock %}
+{% block title %}Trade Offer{% endblock %}
 
 {% block body %}
 <br><br><br><br><br>
@@ -15,39 +15,48 @@
                 <td>{{ trade_offer.id }}</td>
             </tr>
             <tr>
-                <th>Trade_id</th>
-                <td>{{ trade_offer.receiverName? trade_offer.receiverName.getName() : 'N/A'  }}</td>
+                <th>Receiver</th>
+                <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A' }}</td>
             </tr>
             <tr>
-                <th>Item</th>
-                <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A'  }}</td>
+                <th>Offered Item</th>
+                <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getTitle() : 'N/A' }}</td>
             </tr>
             <tr>
-                <th>Item</th>
-                <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A' }}</td>
+                <th>Received Item</th>
+                <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getTitle() : 'N/A' }}</td>
             </tr>
             <tr>
                 <th>Description</th>
                 <td>{{ trade_offer.description }}</td>
             </tr>
             <tr>
-                <th>creation Date</th>
+                <th>Creation Date</th>
                 <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
             <tr>
                 <th>Status</th>
                 <td>{{ trade_offer.status }}</td>
             </tr>
-            <td><a href="{{ path('app_trade_offer_index') }}">Back to list</a> </td>
-            <td><a href="{{ path('app_trade_offer_edit', {'id': trade_offer.id}) }}">Edit</a></td>
-            
-
         </tbody>
     </table>
+
+    <div class="mt-3">
+        <a href="{{ path('app_trade_offer_index') }}" class="btn btn-secondary">Back to list</a>
+
+        
+            
+
+            {% if not trade_offer.hasDisputes() and trade_offer.status == 'pending' %}
+            <a href="{{ path('app_trade_offer_edit', {'id': trade_offer.id}) }}" class="btn btn-warning">Edit</a>
+            
+            {% endif %}
+            {% if trade_offer.status != 'pending' and not trade_offer.hasDisputes() %}
+    <a href="{{ path('app_trade_dispute_new', {'trade_id': trade_offer.id}) }}" class="btn btn-warning">Report</a>
+{% endif %}
+{{ include('trade/_delete_form.html.twig') }}
+
+       
+    </div>
 </center>
-<div class="text-center mt-3">
-
-    {{ include('trade/_delete_form.html.twig') }}
-</div>
-
 {% endblock %}

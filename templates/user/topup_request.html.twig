@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Request Balance Top-up{% endblock %}
+
+{% block body %}
+<section class="author-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <div class="intro text-center">
+                    <h3 class="my-4">Request Balance Top-up</h3>
+                </div>
+                <!-- Top-up Request Form -->
+                <div class="card">
+                    <div class="card-body">
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'item-form'}}) }}
+                        <div class="form-group">
+                            {{ form_label(form.amount, 'Amount (ESPRIT DAN)', {'label_attr': {'class': 'font-weight-bold'}}) }}
+                            {{ form_widget(form.amount, {'attr': {'class': 'form-control', 'placeholder': 'Enter amount'}}) }}
+                            {{ form_errors(form.amount) }}
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-bordered-white">Submit Request</button>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

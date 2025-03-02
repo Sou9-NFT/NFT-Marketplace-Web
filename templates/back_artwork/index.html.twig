@@ -99,7 +99,7 @@
                                                           onsubmit="return confirm('Are you sure you want to delete this artwork?');" 
                                                           style="display: inline-block;">
                                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ artwork.id) }}">
-                                                        <button class="btn btn-danger btn-sm" title="Delete">
+                                                        <button class="btn btn-sm btn-danger" title="Delete">
                                                             <i class="bi bi-trash"></i>
                                                         </button>
                                                     </form>
