@@ -9,10 +9,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BetSessionRepository::class)]
 class BetSession
 {
-
-   
-    
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
