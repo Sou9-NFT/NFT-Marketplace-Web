@@ -8,6 +8,7 @@ class GeminiService
 {
     private $apiKey;
     private $httpClient;
+    private $entityManager;
     private const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
     // Common raffle questions and their predefined answers
@@ -46,7 +47,10 @@ class GeminiService
         'help', 'assist', 'support', 'guide', 'info', 'information',
         'hi', 'hello', 'hey', 'morning', 'afternoon', 'evening', 'hola', 'bonjour',
         'good', 'greetings', 'sup', 'yo', 'thanks', 'thank', 'bye', 'goodbye',
-        'explain', 'tell', 'show', 'work', 'mean', 'detail', 'more', 'about'
+        'explain', 'tell', 'show', 'work', 'mean', 'detail', 'more', 'about',
+        'created', 'by', 'creator', 'made', 'user', 'list', 'find', 'search', 'from',
+        'id', 'number', 'specific', 'this', 'that', 'active', 'inactive', 'status',
+        'check', 'verify', 'is', 'does', 'available', 'open', 'closed'
     ];
 
     private const THANK_YOU_RESPONSES = [
@@ -61,10 +65,12 @@ class GeminiService
 
     public function __construct(
         HttpClientInterface $httpClient,
-        string $geminiApiKey
+        string $geminiApiKey,
+        \Doctrine\ORM\EntityManagerInterface $entityManager
     ) {
         $this->httpClient = $httpClient;
         $this->apiKey = $geminiApiKey;
+        $this->entityManager = $entityManager;
     }
 
     private function isRaffleRelated(string $message): bool
@@ -159,26 +165,235 @@ class GeminiService
         return self::THANK_YOU_RESPONSES['thank']; // Default thank you response
     }
 
+    private function getRaffleData(): array
+    {
+        $raffleRepository = $this->entityManager->getRepository(\App\Entity\Raffle::class);
+        $activeRaffles = $raffleRepository->findBy(['status' => 'active']);
+        
+        $raffleInfo = [];
+        foreach ($activeRaffles as $raffle) {
+            $raffleInfo[] = [
+                'title' => $raffle->getTitle(),
+                'status' => $raffle->getStatus(),
+                'endTime' => $raffle->getEndTime()?->format('Y-m-d H:i:s'),
+                'participantCount' => $raffle->getParticipants()->count()
+            ];
+        }
+        
+        return $raffleInfo;
+    }
+
+    private function findRafflesByCreator(string $creatorName): array
+    {
+        $raffleRepository = $this->entityManager->getRepository(\App\Entity\Raffle::class);
+        $qb = $raffleRepository->createQueryBuilder('r')
+            ->join('r.creator', 'u')
+            ->where('LOWER(u.name) LIKE LOWER(:creatorName)')
+            ->orWhere('LOWER(u.email) LIKE LOWER(:creatorName)')
+            ->setParameter('creatorName', '%' . strtolower($creatorName) . '%')
+            ->orderBy('r.created_at', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    private function isCreatorQuery(string $message): bool
+    {
+        $message = strtolower($message);
+        $patterns = [
+            '/raffles? (created|made) by/',
+            '/show.*raffles?.*(by|from)/',
+            '/list.*raffles?.*(by|from)/',
+            '/find.*raffles?.*(by|from)/',
+            '/(created|made).*(by|from).*raffles?/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $message)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function extractCreatorName(string $message): ?string
+    {
+        $message = strtolower($message);
+        $patterns = [
+            '/(?:raffles? (?:created|made) by) ([a-zA-Z0-9@._-]+)/',
+            '/(?:show.*raffles?.*(?:by|from)) ([a-zA-Z0-9@._-]+)/',
+            '/(?:list.*raffles?.*(?:by|from)) ([a-zA-Z0-9@._-]+)/',
+            '/(?:find.*raffles?.*(?:by|from)) ([a-zA-Z0-9@._-]+)/',
+            '/(?:created|made).*(?:by|from) ([a-zA-Z0-9@._-]+).*raffles?/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $message, $matches)) {
+                return trim($matches[1]);
+            }
+        }
+        return null;
+    }
+
+    private function findRaffleById(int $id): ?\App\Entity\Raffle
+    {
+        return $this->entityManager->getRepository(\App\Entity\Raffle::class)->find($id);
+    }
+
+    private function findRaffleByTitle(string $title): ?\App\Entity\Raffle
+    {
+        return $this->entityManager->getRepository(\App\Entity\Raffle::class)
+            ->createQueryBuilder('r')
+            ->where('LOWER(r.title) LIKE LOWER(:title)')
+            ->setParameter('title', '%' . strtolower($title) . '%')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    private function isRaffleStatusQuery(string $message): bool
+    {
+        $patterns = [
+            '/raffle (?:number |#)?(\d+)/',
+            '/is raffle (?:number |#)?(\d+)/',
+            '/status of raffle (?:number |#)?(\d+)/',
+            '/check raffle (?:number |#)?(\d+)/',
+            '/raffle (?:named |called |titled )?["\'](.*?)["\']/',
+            '/is (.*?) raffle/',
+            '/status of (.*?) raffle/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, strtolower($message))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function extractRaffleIdentifier(string $message): array
+    {
+        $message = strtolower($message);
+        
+        // Check for ID patterns
+        $idPatterns = [
+            '/raffle (?:number |#)?(\d+)/',
+            '/is raffle (?:number |#)?(\d+)/',
+            '/status of raffle (?:number |#)?(\d+)/',
+            '/check raffle (?:number |#)?(\d+)/',
+        ];
+
+        foreach ($idPatterns as $pattern) {
+            if (preg_match($pattern, $message, $matches)) {
+                return ['type' => 'id', 'value' => (int)$matches[1]];
+            }
+        }
+
+        // Check for title patterns
+        $titlePatterns = [
+            '/raffle (?:named |called |titled )?["\'](.*?)["\']/',
+            '/is (.*?) raffle/',
+            '/status of (.*?) raffle/',
+        ];
+
+        foreach ($titlePatterns as $pattern) {
+            if (preg_match($pattern, $message, $matches)) {
+                return ['type' => 'title', 'value' => trim($matches[1])];
+            }
+        }
+
+        return ['type' => null, 'value' => null];
+    }
+
+    private function getRaffleStatusResponse(\App\Entity\Raffle $raffle): string
+    {
+        $status = "🎯 Raffle: {$raffle->getTitle()} (ID: {$raffle->getId()})\n";
+        $status .= "   • Status: " . ($raffle->getStatus() === 'active' ? '🟢 Active' : '⚫ Ended') . "\n";
+        
+        if ($raffle->getStatus() === 'active') {
+            $status .= "   • Ends: {$raffle->getEndTime()?->format('Y-m-d H:i:s')}\n";
+            $status .= "   • Current Participants: {$raffle->getParticipants()->count()}\n";
+            $status .= "\nYou can still join this raffle! Click 'View' and then 'Join Raffle' to participate.";
+        } else {
+            $status .= "   • Ended: {$raffle->getEndTime()?->format('Y-m-d H:i:s')}\n";
+            $status .= "   • Total Participants: {$raffle->getParticipants()->count()}\n";
+            $status .= "\nThis raffle has ended. Check other active raffles to participate!";
+        }
+
+        return $status;
+    }
+
     public function generateResponse(string $userMessage): string
     {
+        // Check for specific raffle status query
+        if ($this->isRaffleStatusQuery($userMessage)) {
+            $identifier = $this->extractRaffleIdentifier($userMessage);
+            $raffle = null;
+
+            if ($identifier['type'] === 'id') {
+                $raffle = $this->findRaffleById($identifier['value']);
+            } elseif ($identifier['type'] === 'title') {
+                $raffle = $this->findRaffleByTitle($identifier['value']);
+            }
+
+            if ($raffle) {
+                return $this->getRaffleStatusResponse($raffle);
+            } else {
+                return "🔍 Sorry, I couldn't find that raffle. Please check the ID or title and try again.";
+            }
+        }
+
+        // Check if this is a creator query
+        if ($this->isCreatorQuery($userMessage)) {
+            $creatorName = $this->extractCreatorName($userMessage);
+            if ($creatorName) {
+                $raffles = $this->findRafflesByCreator($creatorName);
+                if (!empty($raffles)) {
+                    $response = "📋 Raffles created by {$creatorName}:\n\n";
+                    foreach ($raffles as $raffle) {
+                        $response .= "🎯 ID: {$raffle->getId()} - {$raffle->getTitle()}\n";
+                        $response .= "   • Status: {$raffle->getStatus()}\n";
+                        $response .= "   • Created: {$raffle->getCreatedAt()->format('Y-m-d')}\n";
+                    }
+                    return $response;
+                } else {
+                    return "🔍 No raffles found created by {$creatorName}. Make sure the name is correct!";
+                }
+            }
+        }
+
+        // Get current raffle data for the standard response
+        $raffleData = $this->getRaffleData();
+        $raffleStatus = "📊 Current Active Raffles:\n";
+        
+        if (empty($raffleData)) {
+            $raffleStatus .= "No active raffles at the moment.\n\n";
+        } else {
+            foreach ($raffleData as $raffle) {
+                $raffleStatus .= "🎯 {$raffle['title']}\n";
+                $raffleStatus .= "   • Ends: {$raffle['endTime']}\n";
+                $raffleStatus .= "   • Participants: {$raffle['participantCount']}\n";
+            }
+            $raffleStatus .= "\n";
+        }
+
         // Check for thank you messages first
         if ($this->isThankYou($userMessage)) {
-            return $this->getThankYouResponse($userMessage);
+            return $raffleStatus . $this->getThankYouResponse($userMessage);
         }
 
         // Check for greetings next
         if ($this->isGreeting($userMessage)) {
-            return $this->getGreetingResponse($userMessage);
+            return $raffleStatus . $this->getGreetingResponse($userMessage);
         }
 
         if (!$this->isRaffleRelated($userMessage)) {
-            return "👋 Hi! While I'd love to chat, I'm specifically here to help with raffles. Feel free to ask me about joining raffles, rules, or anything raffle-related!";
+            return $raffleStatus . "👋 Hi! While I'd love to chat, I'm specifically here to help with raffles. Feel free to ask me about joining raffles, rules, or anything raffle-related!";
         }
 
         // Check for predefined answers first
         $predefinedAnswer = $this->findMatchingPredefinedAnswer($userMessage);
         if ($predefinedAnswer !== null) {
-            return $predefinedAnswer;
+            return $raffleStatus . $predefinedAnswer;
         }
 
         try {
@@ -231,16 +446,16 @@ class GeminiService
                 // Clean up the response
                 $answer = str_replace(['Question:', 'Response:', 'Answer:'], '', $answer);
                 $answer = trim($answer);
-                return $answer;
+                return $raffleStatus . $answer;
             }
             
             // If API response is invalid, return a default helpful message
-            return "To join a raffle:\n1. Click 'View' on the raffle\n2. Click 'Join Raffle'\n3. Confirm participation\n\nMake sure you're logged in first!";
+            return $raffleStatus . "To join a raffle:\n1. Click 'View' on the raffle\n2. Click 'Join Raffle'\n3. Confirm participation\n\nMake sure you're logged in first!";
             
         } catch (\Exception $e) {
             error_log('Gemini API Error: ' . $e->getMessage());
             // Return the most relevant predefined answer as fallback
-            return self::COMMON_QUESTIONS['how to join'];
+            return $raffleStatus . self::COMMON_QUESTIONS['how to join'];
         }
     }
 }

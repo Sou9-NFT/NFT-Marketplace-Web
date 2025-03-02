@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\BlogRepository;
+use App\Validator\NoProfanity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -25,6 +26,7 @@ class Blog
         minMessage: 'Title must be at least {{ limit }} characters long',
         maxMessage: 'Title cannot be longer than {{ limit }} characters'
     )]
+    #[NoProfanity]
     private ?string $title = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -36,6 +38,7 @@ class Blog
         min: 10,
         minMessage: 'Content must be at least {{ limit }} characters long'
     )]
+    #[NoProfanity]
     private ?string $content = null;
 
     
