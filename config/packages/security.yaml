@@ -86,6 +86,8 @@ security:
         - { path: ^/trade/offer, roles: PUBLIC_ACCESS }  # Allow public access to trade offers
         - { path: ^/raffle, roles: PUBLIC_ACCESS }  # Allow public access to raffles
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+        - {path: ^/activity, roles: PUBLIC_ACCESS}
+        
         # Back office requires admin role
         - { path: ^/admin, roles: ROLE_ADMIN }
         

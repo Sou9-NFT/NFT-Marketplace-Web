@@ -23,9 +23,9 @@ class ActivityController extends AbstractController
     public function index(): Response
     {
         // Get token address and API key from environment variables
-        $tokenAddress = $this->getParameter('etherscan_contract_address');
-        $apiKey = $this->getParameter('etherscan_api_key');
-        $apiUrl = $this->getParameter('etherscan_api_url');
+        $tokenAddress = $this->getParameter('etherscan.contract_address');
+        $apiKey = $this->getParameter('etherscan.api_key');
+        $apiUrl = $this->getParameter('etherscan.api_url');
         
         try {
             // Make API call to Etherscan to get token transfer events
