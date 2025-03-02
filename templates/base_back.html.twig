@@ -14,7 +14,7 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i" rel="stylesheet">
 
     <!-- Vendor CSS Files -->
     <link href="{{ asset('back_office/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -161,6 +161,18 @@
                     <li>
                         <a href="#">
                             <i class="bi bi-circle"></i><span>Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#topup-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-cash-coin"></i><span>Top-up Requests</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="topup-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{{ path('app_admin_topup_index') }}">
+                            <i class="bi bi-circle"></i><span>Manage Requests</span>
                         </a>
                     </li>
                 </ul>
