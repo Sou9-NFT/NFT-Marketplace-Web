@@ -148,7 +148,9 @@
                         </a>
                     </li>
                 </ul>
-                    <li class="nav-item">
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#transactions-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-currency-exchange"></i><span>Transactions</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
@@ -165,6 +167,15 @@
                     </li>
                 </ul>
             </li>
+
+            <!-- Added Topup Request Button -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="{{ path('app_user_topup_request') }}">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>Topup Requests</span>
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#raffles-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-ticket"></i><span>Raffles & Participants</span><i class="bi bi-chevron-down ms-auto"></i>
