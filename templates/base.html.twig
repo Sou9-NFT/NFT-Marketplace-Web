@@ -350,5 +350,14 @@
     <script src="{{ asset('front_office/js/vendor/shuffle.min.js') }}"></script>
     <script src="{{ asset('front_office/js/main.js') }}"></script>
     {% endblock %}
+
+    {# Add this conditional to only render important flash messages #}
+    {% for label, messages in app.flashes(['success', 'error', 'warning']) %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
 </body>
 </html>

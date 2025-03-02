@@ -20,9 +20,25 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="card-title">Browse Artworks</h5>
-                                <a href="{{ path('app_artwork_new') }}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle"></i> Create New Artwork
-                                </a>
+                                <div class="d-flex gap-2">
+                                    <input id="searchInput" class="form-control" type="search" 
+                                           placeholder="Search artworks..." 
+                                           value="{{ app.request.query.get('q') }}">
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Sort By
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                            <li><a class="dropdown-item sort-option" href="#" data-sort="title">Title</a></li>
+                                            <li><a class="dropdown-item sort-option" href="#" data-sort="price">Price</a></li>
+                                            <li><a class="dropdown-item sort-option" href="#" data-sort="date">Date</a></li>
+                                            <li><a class="dropdown-item sort-option" href="#" data-sort="category">Category</a></li>
+                                        </ul>
+                                    </div>
+                                    <a href="{{ path('app_artwork_new') }}" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle"></i> Create New Artwork
+                                    </a>
+                                </div>
                             </div>
 
                             {% for label, messages in app.flashes %}
@@ -34,7 +50,7 @@
                                 {% endfor %}
                             {% endfor %}
 
-                            <div class="row">
+                            <div id="artworkGrid" class="row">
                                 {% for artwork in artworks %}
                                     <div class="col-md-4 col-lg-3 mb-4">
                                         <div class="card h-100">
@@ -103,4 +119,80 @@
             </div>
         </section>
     </main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let timeoutId;
+            let currentSort = '{{ app.request.query.get('sort', 'date') }}';
+            let sortDirection = '{{ app.request.query.get('direction', 'DESC') }}';
+
+            const searchInput = document.getElementById('searchInput');
+            const artworkGrid = document.getElementById('artworkGrid');
+            const sortDropdown = document.getElementById('sortDropdown');
+
+            // Initialize Bootstrap dropdown
+            new bootstrap.Dropdown(sortDropdown);
+
+            function updateResults() {
+                const searchTerm = searchInput.value;
+                const url = new URL(window.location.href);
+                url.searchParams.set('q', searchTerm);
+                url.searchParams.set('sort', currentSort);
+                url.searchParams.set('direction', sortDirection);
+
+                fetch(url.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    artworkGrid.innerHTML = html;
+                    updateSortButtonText();
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            function updateSortButtonText() {
+                const sortOptions = {
+                    'title': 'Title',
+                    'price': 'Price',
+                    'date': 'Date',
+                    'category': 'Category'
+                };
+                const sortText = sortOptions[currentSort] || 'Date';
+                sortDropdown.innerHTML = `Sort by: ${sortText} ${sortDirection === 'ASC' ? '↑' : '↓'}`;
+            }
+
+            // Update sort button text initially
+            updateSortButtonText();
+
+            // Debounced search
+            searchInput.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(updateResults, 300);
+            });
+
+            // Sorting
+            document.querySelectorAll('.sort-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();  // Prevent dropdown from closing immediately
+                    
+                    const sortBy = this.dataset.sort;
+                    if (currentSort === sortBy) {
+                        sortDirection = sortDirection === 'ASC' ? 'DESC' : 'ASC';
+                    } else {
+                        currentSort = sortBy;
+                        sortDirection = 'ASC';
+                    }
+                    
+                    updateResults();
+                });
+            });
+        });
+    </script>
 {% endblock %}
