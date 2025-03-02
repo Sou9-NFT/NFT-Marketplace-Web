@@ -11,6 +11,7 @@ parameters:
     etherscan.api_url: 'https://api-sepolia.etherscan.io/api'
     etherscan.api_key: '%env(ETHERSCAN_API_KEY)%'
     etherscan.contract_address: '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801'
+    
 
 services:
     _defaults:
@@ -63,7 +64,18 @@ services:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
+    
+    App\Service\GeminiNftDescriptionService:
+        arguments:
+            $httpClient: '@http_client'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
+            $params: '@parameter_bag'
+            
+            
 
 
     App\Service\ProfanityFilter:
         autowire: true
+
+
+    

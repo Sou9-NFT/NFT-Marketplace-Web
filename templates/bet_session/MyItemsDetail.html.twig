@@ -4,7 +4,6 @@
 {% endblock %}
 
 {% block body %}
-
 	<div
 		class="main">
 		<!-- ***** Breadcrumb Area Start ***** -->
@@ -153,7 +152,11 @@
 									</a>
 								{% endif %}
 							</div>
-							<p>{{bet_session.artwork.description}}</p>
+								{% if bet_session.mysteriousMode %}
+								<p>{{bet_session.generatedDescription}}</p>
+							{% else %}
+								<p>{{bet_session.artwork.description}}</p>
+							{% endif %}
 							<!-- Owner -->
 							<div class="owner d-flex align-items-center mt-3">
 								<span>Owned By</span>
