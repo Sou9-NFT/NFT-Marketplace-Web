@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+//use Symfony\Component\Mailer\MailerInterface;
+//use Symfony\Component\Mime\Email;
+
 
 #[Route('/trade')]
 #[IsGranted('ROLE_USER', message: 'You need to be logged in to access this section')]
@@ -125,7 +128,6 @@ public function new(Request $request, EntityManagerInterface $entityManager, int
         'form' => $form,
     ]);
 }
-
 
 
     #[Route('/offer/{id}', name: 'app_trade_offer_show', methods: ['GET'])]
