@@ -80,7 +80,7 @@
         {% block sidebar %}
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{ path('app_home_page_back') }}">
+                <a class="nav-link" href="{{ path('admin_dashboard') }}">
                     <i class="bi bi-speedometer2"></i>
                     <span>Analytics Dashboard</span>
                 </a>
@@ -148,7 +148,9 @@
                         </a>
                     </li>
                 </ul>
-                    <li class="nav-item">
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#transactions-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-currency-exchange"></i><span>Transactions</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
@@ -165,18 +167,15 @@
                     </li>
                 </ul>
             </li>
+
+            <!-- Topup Request Button - Fixed to point to admin route -->
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#topup-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-cash-coin"></i><span>Top-up Requests</span><i class="bi bi-chevron-down ms-auto"></i>
+                <a class="nav-link collapsed" href="{{ path('app_admin_topup_index') }}">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>Topup Requests</span>
                 </a>
-                <ul id="topup-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="{{ path('app_admin_topup_index') }}">
-                            <i class="bi bi-circle"></i><span>Manage Requests</span>
-                        </a>
-                    </li>
-                </ul>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#raffles-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-ticket"></i><span>Raffles & Participants</span><i class="bi bi-chevron-down ms-auto"></i>
@@ -249,7 +248,6 @@
     </aside>
     
     <main id="main" class="main">
-        {# Disable all flash messages #}
         {% block body %}{% endblock %}
     </main>
 
