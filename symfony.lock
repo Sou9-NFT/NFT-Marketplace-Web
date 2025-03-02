@@ -67,6 +67,9 @@
             "./tests/bootstrap.php"
         ]
     },
+    "stof/doctrine-extensions-bundle": {
+        "version": "v1.13.0"
+    },
     "symfony/asset-mapper": {
         "version": "6.4",
         "recipe": {
