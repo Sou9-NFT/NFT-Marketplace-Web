@@ -75,6 +75,14 @@ services:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
+    
+    App\Service\GeminiNftDescriptionService:
+        arguments:
+            $httpClient: '@http_client'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
+            $params: '@parameter_bag'
+            
+            
 
     App\Service\ProfanityFilter:
         autowire: true
@@ -84,3 +92,4 @@ services:
             $etherscanApiUrl: '%etherscan.api_url%'
             $etherscanApiKey: '%etherscan.api_key%'
             $contractAddress: '%etherscan.contract_address%'
+
