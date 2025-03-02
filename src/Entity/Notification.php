@@ -53,8 +53,6 @@ class Notification
     #[ORM\Column(length: 50)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 1000, nullable: true)]
-    private ?string $context = null;
 
     public function __construct()
     {
@@ -102,15 +100,5 @@ class Notification
         return $this;
     }
 
-    public function getContext(): ?string
-    {
-        return $this->context;
-    }
 
-    public function setContext(?string $context): self
-    {
-        $this->context = $context;
-
-        return $this;
-    }
 }
