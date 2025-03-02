@@ -111,20 +111,19 @@ public function new(Request $request, EntityManagerInterface $entityManager, int
         $tradeState->setSender($tradeOffer->getSender());
         $tradeState->setReceiver($tradeOffer->getReceiverName());
         $tradeState->setDescription($tradeOffer->getDescription());
-
-        // Create and send notification to the receiver
-        $notification = new \App\Entity\Notification();
-        $notification->setReceiver($tradeOffer->getReceiverName());
-        $notification->setType('OfferReceived');
-        $notification->setTitle('You have received a trade offer');
-        $notification->setCreatedAt(new \DateTimeImmutable());
-
         // Create context message describing the trade
         $senderName = $tradeOffer->getSender()->getName();
         $offeredItemName = $tradeOffer->getOfferedItem()->getTitle();
         $receivedItemName = $tradeOffer->getReceivedItem()->getTitle();
-        $context = "{$senderName} wants to trade their \"{$offeredItemName}\" for your \"{$receivedItemName}\". Check your trade offers for more details.";
-        $notification->setContext($context);
+        // Create and send notification to the receiver
+        $notification = new \App\Entity\Notification();
+        $notification->setReceiver($tradeOffer->getReceiverName());
+        $notification->setType('OfferReceived');
+        $notification->setTitle('New Trade Offer: ' . $senderName . ' wants to trade for your artwork "' . $receivedItemName . '"');
+        $notification->setCreatedAt(new \DateTimeImmutable());
+
+
+
 
         // Persist the notification
         $entityManager->persist($notification);
