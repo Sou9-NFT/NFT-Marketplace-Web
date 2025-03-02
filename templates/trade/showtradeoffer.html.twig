@@ -6,12 +6,43 @@
 <br><br><br><br><br>
     <h1><center>Trade Offers List</center></h1>
 <br><br><br>
-    <div class="table-responsive" style="max-width: 1000px; margin: auto;">
+
+<!-- Search and Sort Form -->
+<form method="get" action="{{ path('app_trade_offer_index') }}" class="text-center">
+    <div class="input-group" style="max-width: 700px; margin: auto; display: flex; align-items: center; justify-content: center;">
+        
+        <!-- Search input for receiver name -->
+        <input type="text" class="form-control form-control-sm" name="search" value="{{ search }}" placeholder="Search by receiver name" style="margin-right: 10px;">
+        
+        <!-- Sort select -->
+        <select name="sort" class="form-control form-control-sm" style="margin-right: 10px;">
+            <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Sort by Date (Ascending)</option>
+            <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Sort by Date (Descending)</option>
+        </select>
+
+        <!-- Status search select -->
+        <select name="status" class="form-control form-control-sm" style="margin-right: 10px;">
+            <option value="" {% if status is empty %}selected{% endif %}>All Status</option>
+            <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="Accepted" {% if status == 'Accepted' %}selected{% endif %}>Accepted</option>
+            <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+        
+        <!-- Submit button -->
+        <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+    </div>
+</form>
+
+
+
+
+<br><br><br>
+    <div class="table-responsive" style="max-width: 1200px; margin: auto;">
         <table border='2'>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Receiver Name</th>
+                    <th>Other Party</th>
                     <th>Offered Item</th>
                     <th>Received Item</th>
                     <th>Description</th>
@@ -22,19 +53,26 @@
             </thead>
             <tbody>
             {% for trade_offer in trade_offers %}
-                <tr>
-                    <td>{{ trade_offer.id }}</td>
-                    <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A' }}</td> {# Display receiver name, or N/A if not available #}
-                    <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A' }}</td> {# Adjust based on your Artwork entity #}
-                    <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A' }}</td> {# Adjust based on your Artwork entity #}
-                    <td>{{ trade_offer.description }}</td>
-                    <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : '' }}</td>
-                    <td>{{ trade_offer.status }}</td>
-                    <td>
-                        <a href="{{ path('app_trade_show', {'id': trade_offer.id}) }}" class="btn btn-primary btn-sm">View</a> 
-                        <td><a href="{{ path('app_trade_offer_edit', {'id': trade_offer.id}) }}">Edit</a></td>
-                    </td>
-                </tr>
+                {% if trade_offer.sender.id == app.user.id %}
+                    <tr>
+                        <td>{{ trade_offer.id }}</td>
+                        <td>
+                            {% if trade_offer.receiverName and trade_offer.receiverName.id != 0 %}
+                                {{ trade_offer.receiverName.name }}
+                            {% else %}
+                                <span>No receiver available</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getTitle() : 'N/A' }}</td>
+                        <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getTitle() : 'N/A' }}</td>
+                        <td>{{ trade_offer.description }}</td>
+                        <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ trade_offer.status }}</td>
+                        <td>
+                            <a href="{{ path('app_trade_offer_show', {'id': trade_offer.id}) }}" class="btn btn-primary btn-sm">View</a>
+                        </td>
+                    </tr>
+                {% endif %}
             {% else %}
                 <tr>
                     <td colspan="8"><center>No trade offers found</center></td>
@@ -43,6 +81,4 @@
             </tbody>
         </table>
     </div>
-    <center><a href="{{ path('app_trade_offer_add') }}" class="btn btn-success btn-sm">Create new</a></center>
-
 {% endblock %}

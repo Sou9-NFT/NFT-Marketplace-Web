@@ -10,14 +10,14 @@
                 <h1 class="h2 mb-0">Create New Blog Post</h1>
             </div>
 
-            {% for message in app.flashes('success') %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {% for message in app.flashes('success_blog') %}
+                <div class="alert alert-success_blog alert-dismissible fade show" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
 
-            {% for message in app.flashes('error') %}
+            {% for message in app.flashes('error_blog') %}
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

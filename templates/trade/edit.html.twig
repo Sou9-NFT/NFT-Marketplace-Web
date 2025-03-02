@@ -25,23 +25,9 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group mt-3">
-                                    {{ form_label(form.receiver_name) }}
-                                    {{ form_widget(form.receiver_name, {'attr': {'class': 'form-control', 'style': 'font-size: 1.2rem; height: 3rem; padding: 5px;'}}) }}
-                                    {{ form_errors(form.receiver_name) }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group mt-3">
                                     {{ form_label(form.offered_item) }}
                                     {{ form_widget(form.offered_item, {'attr': {'class': 'form-control', 'style': 'font-size: 1.2rem; height: 3rem; padding: 5px;'}}) }}
                                     {{ form_errors(form.offered_item) }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group mt-3">
-                                    {{ form_label(form.received_item) }}
-                                    {{ form_widget(form.received_item, {'attr': {'class': 'form-control', 'style': 'font-size: 1.2rem; height: 3rem; padding: 5px;'}}) }}
-                                    {{ form_errors(form.received_item) }}
                                 </div>
                             </div>
                             <div class="col-12">
@@ -60,8 +46,13 @@
                                 </div>
                             </div>
                         </div>
-                        {{ form_rest(form) }}
-                    {{ form_end(form) }}
+                        {# Render hidden fields but exclude receiver_name and received_item #}
+                        {% for field in form %}
+                            {% if field.vars.name not in ['receiver_name', 'received_item', 'offered_item', 'description'] %}
+                                {{ form_widget(field) }}
+                            {% endif %}
+                        {% endfor %}
+                    {{ form_end(form, {render_rest: false}) }}
                 </div>
             </div>
         </div>

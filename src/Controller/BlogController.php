@@ -78,7 +78,7 @@ class BlogController extends AbstractController
             $entityManager->persist($comment);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Your comment has been added successfully!');
+            $this->addFlash('success_blog', 'Your comment has been added successfully!');
         }
 
         return $this->redirectToRoute('app_blog_index');
@@ -103,7 +103,7 @@ class BlogController extends AbstractController
             // Check for profanity
             if ($this->profanityFilter->hasProfanity($blog->getTitle()) || 
                 $this->profanityFilter->hasProfanity($blog->getContent())) {
-                $this->addFlash('error', 'Your post contains inappropriate content. Please revise.');
+                $this->addFlash('error_blog', 'Your post contains inappropriate content. Please revise.');
                 return $this->render('blog/new.html.twig', [
                     'blog' => $blog,
                     'form' => $form,
@@ -128,7 +128,7 @@ class BlogController extends AbstractController
                     );
                     $blog->setImageFilename($newFilename);
                 } catch (\Exception $e) {
-                    $this->addFlash('error', 'Error uploading image');
+                    $this->addFlash('error_blog', 'Error uploading image');
                 }
             }
 
@@ -182,7 +182,7 @@ class BlogController extends AbstractController
                 $blog->setTranslatedContent($translatedContent);
                 $blog->setTranslationLanguage($lang); // Store the language
                 $this->entityManager->flush();
-                $this->addFlash('success', 'Blog has been translated successfully.');
+                $this->addFlash('success_blog', 'Blog has been translated successfully.');
                 
                 // Redirect to the translated view page
                 return $this->render('blog/showTranslated.html.twig', [
@@ -193,7 +193,7 @@ class BlogController extends AbstractController
                 throw new \Exception('Translation service returned no result');
             }
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Translation failed: ' . $e->getMessage());
+            $this->addFlash('error_blog', 'Translation failed: ' . $e->getMessage());
             return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
         }
     }
@@ -215,7 +215,7 @@ class BlogController extends AbstractController
             $entityManager->persist($comment);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Your comment has been added successfully!');
+            $this->addFlash('success_blog', 'Your comment has been added successfully!');
             return $this->redirectToRoute('app_blog_show', ['id' => $blog->getId()]);
         }
 
@@ -251,7 +251,7 @@ class BlogController extends AbstractController
             // Check for profanity
             if ($this->profanityFilter->hasProfanity($blog->getTitle()) || 
                 $this->profanityFilter->hasProfanity($blog->getContent())) {
-                $this->addFlash('error', 'Your post contains inappropriate content. Please revise.');
+                $this->addFlash('error_blog', 'Your post contains inappropriate content. Please revise.');
                 return $this->render('blog/edit.html.twig', [
                     'blog' => $blog,
                     'form' => $form,
@@ -284,12 +284,12 @@ class BlogController extends AbstractController
                     );
                     $blog->setImageFilename($newFilename);
                 } catch (\Exception $e) {
-                    $this->addFlash('error', 'Error uploading image');
+                    $this->addFlash('error_blog', 'Error uploading image');
                 }
             }
 
             $entityManager->flush();
-            $this->addFlash('success', 'Blog post updated successfully!');
+            $this->addFlash('success_blog', 'Blog post updated successfully!');
 
             return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -313,7 +313,7 @@ class BlogController extends AbstractController
             $entityManager->remove($blog);
             $entityManager->flush();
             
-            $this->addFlash('success', 'Your blog post has been deleted successfully.');
+            $this->addFlash('success_blog', 'Your blog post has been deleted successfully.');
         }
 
         return $this->redirectToRoute('app_blog_index');

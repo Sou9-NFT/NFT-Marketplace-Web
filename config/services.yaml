@@ -4,7 +4,6 @@ parameters:
     profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
     evidence_directory: '%kernel.project_dir%/public/uploads/evidence'
     blog_images_directory: '%kernel.project_dir%/public/uploads/blog_images'
-    google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     recaptcha_secret: '%env(RECAPTCHA_SECRET)%'
     app.recaptcha_secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
@@ -33,6 +32,10 @@ services:
         arguments:
             $ethereumService: '@App\Service\EthereumService'
 
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    App\Entity\Artwork:
+        autowire: true
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
@@ -40,9 +43,9 @@ services:
     App\Service\EtherscanService:
         arguments:
             $httpClient: '@http_client'
-            $apiUrl: '%etherscan.api_url%'
-            $apiKey: '%etherscan.api_key%'
-            $contractAddress: '%etherscan.contract_address%'
+            $apiUrl: '%etherscan_api_url%'
+            $apiKey: '%etherscan_api_key%'
+            $contractAddress: '%etherscan_contract_address%'
             $logger: '@logger'
 
     App\Service\PasswordResetService:

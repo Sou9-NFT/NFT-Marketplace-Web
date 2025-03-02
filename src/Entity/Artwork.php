@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ArtworkRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -71,11 +73,9 @@ class Artwork
     #[Assert\NotNull(message: 'Please select a category')]
     private ?Category $category = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
+    
+
+    
 
     #[ORM\PreUpdate]
     public function setUpdatedAtValue(): void
@@ -227,4 +227,6 @@ class Artwork
         $this->category = $category;
         return $this;
     }
+
+    
 }
