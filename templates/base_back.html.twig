@@ -80,7 +80,7 @@
         {% block sidebar %}
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{ path('app_home_page_back') }}">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
@@ -167,17 +167,17 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#raffles-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-ticket"></i><span>Raffles</span><i class="bi bi-chevron-down ms-auto"></i>
+                    <i class="bi bi-ticket"></i><span>Raffles & Participants</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="raffles-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
                         <a href="{{ path('app_admin_raffle_index') }}">
-                            <i class="bi bi-circle"></i><span>All Raffles</span>
+                            <i class="bi bi-circle"></i><span>Manage Raffles</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_admin_raffle_new') }}">
-                            <i class="bi bi-circle"></i><span>Create Raffle</span>
+                        <a href="{{ path('app_admin_participant_index') }}">
+                            <i class="bi bi-circle"></i><span>Participants</span>
                         </a>
                     </li>
                 </ul>

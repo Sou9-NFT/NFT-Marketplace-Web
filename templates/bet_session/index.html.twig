@@ -46,11 +46,11 @@
                        <div class="card">
 											<div class="image-over">
 												<a href="{{ path('app_item_details', {'id': session.id}) }}">
-													{% if session.artwork.imageName %}
-														<img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="">
-													{% else %}
-														<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
-													{% endif %}
+                                                    {% if session.artwork.imageName %}
+                                                        <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="" style="height: 200px; object-fit: cover;">
+                                                    {% else %}
+                                                        <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" style="height: 200px; object-fit: cover;">
+                                                    {% endif %}
 												</a>
 											</div>
 											<!-- Card Caption -->
