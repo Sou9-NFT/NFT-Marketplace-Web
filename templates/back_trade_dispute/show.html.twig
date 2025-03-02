@@ -8,7 +8,7 @@
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ path('app_trade_dispute_back') }}">Trade Disputes</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_admin_trade_dispute_index') }}">Trade Disputes</a></li>
             <li class="breadcrumb-item active">View Trade Dispute</li>
         </ol>
     </nav>
@@ -35,11 +35,11 @@
                                     </tr>
                                     <tr>
                                         <th>Offered Item</th>
-                                        <td>{{ trade_dispute.offeredItem }}</td>
+                                        <td>{{ trade_dispute.tradeId.offeredItem.id }}</td>
                                     </tr>
                                     <tr>
                                         <th>Received Item</th>
-                                        <td>{{ trade_dispute.receivedItem }}</td>
+                                        <td>{{ trade_dispute.tradeId.receivedItem.id }}</td>
                                     </tr>
                                     <tr>
                                         <th>Reason</th>
@@ -49,25 +49,19 @@
                                         <th>Evidence</th>
                                         <td>
                                             {% if trade_dispute.evidence %}
-                                                <a href="{{ asset('uploads/evidence/' ~ trade_dispute.evidence) }}" target="_blank" class="btn btn-sm btn-info">
-                                                    <i class="bi bi-file-earmark"></i> View Evidence
-                                                </a>
+                                                <img src="{{ asset('uploads/evidence/' ~ trade_dispute.evidence) }}" alt="Evidence" class="img-fluid" style="max-width: 200px;">
                                             {% else %}
-                                                <span class="text-muted">No evidence provided</span>
+                                                No evidence provided
                                             {% endif %}
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>Timestamp</th>
-                                        <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : 'N/A' }}</td>
+                                        <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : '' }}</td>
                                     </tr>
                                     <tr>
                                         <th>Status</th>
-                                        <td>
-                                            <span class="badge bg-{{ trade_dispute.status == 'pending' ? 'warning' : (trade_dispute.status == 'resolved' ? 'success' : 'danger') }}">
-                                                {{ trade_dispute.status }}
-                                            </span>
-                                        </td>
+                                        <td>{{ trade_dispute.status }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -75,10 +69,10 @@
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-12">
-                            <a href="{{ path('app_trade_dispute_back') }}" class="btn btn-secondary">Back to list</a>
+                        <div class="col-md-12">
+                            <a href="{{ path('app_admin_trade_dispute_index') }}" class="btn btn-secondary">Back to List</a>
                             <a href="{{ path('app_admin_trade_dispute_edit', {'id': trade_dispute.id}) }}" class="btn btn-primary">Edit</a>
-                            {{ include('back_trade_dispute/_delete_form.html.twig', {'trade_dispute': trade_dispute}) }}
+                            {{ include('back_trade_dispute/_delete_form.html.twig') }}
                         </div>
                     </div>
                 </div>
