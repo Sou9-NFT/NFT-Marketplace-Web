@@ -121,6 +121,7 @@
                         </li>
                     </ul>
                     <!-- Add this inside the block header -->
+{% if app.user %}
 <div class="notification-dropdown">
     <img src="{{ asset('front_office/img/logo/notification.png') }}" alt="Notifications">
     <div class="dropdown-content">
@@ -133,8 +134,9 @@
         {% else %}
             <p>No new notifications</p>
         {% endif %}
-    </div>
+    </div>   
 </div>
+ {% endif %}
 
 
 
