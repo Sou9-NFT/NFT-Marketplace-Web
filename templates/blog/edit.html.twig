@@ -4,15 +4,51 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Edit Post</h1>
-    
-    <div class="card shadow-sm p-4">
-        {{ include('blog/_form.html.twig', {'button_label': 'Update'}) }}
-    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h1 class="h2 mb-0">Edit Blog Post</h1>
+            </div>
 
-    <div class="text-center mt-4">
-        <a href="{{ path('app_blog_index') }}" class="btn btn-secondary">← Back to List</a>
-        {{ include('blog/_delete_form.html.twig', { 'class': 'd-inline' }) }}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    {% if blog.imageFilename %}
+                        <div class="mb-4">
+                            <label class="form-label">Current Image</label>
+                            <div class="position-relative">
+                                <img src="{{ asset('uploads/blog_images/' ~ blog.imageFilename) }}" 
+                                     alt="{{ blog.title }}" 
+                                     class="img-fluid rounded mb-2"
+                                     style="max-height: 200px; width: auto;">
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {{ include('blog/_form.html.twig', {'button_label': 'Update Post'}) }}
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ path('app_blog_index') }}" class="btn btn-outline-purple me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Posts
+                </a>
+                {{ include('blog/_delete_form.html.twig', { 'class': 'd-inline' }) }}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

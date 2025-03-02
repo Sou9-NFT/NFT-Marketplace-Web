@@ -14,17 +14,24 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\Service\GeminiService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/raffle')]
 class RaffleController extends AbstractController
 {
     private $entityManager;
     private $raffleRepository;
+    private $recaptchaSecret;
 
-    public function __construct(EntityManagerInterface $entityManager, RaffleRepository $raffleRepository)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager, 
+        RaffleRepository $raffleRepository,
+        string $recaptchaSecret
+    ) {
         $this->entityManager = $entityManager;
         $this->raffleRepository = $raffleRepository;
+        $this->recaptchaSecret = $recaptchaSecret;
     }
 
     private function checkAndUpdateRaffleStatus(Raffle $raffle): void
@@ -61,6 +68,11 @@ class RaffleController extends AbstractController
     #[Route('/new', name: 'app_raffle_new', methods: ['GET', 'POST'])]
     public function new(Request $request, SluggerInterface $slugger): Response
     {
+        // Check if user is authenticated and redirect to login if not
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+        
         $raffle = new Raffle();
         $form = $this->createForm(RaffleType::class, $raffle);
         $form->handleRequest($request);
@@ -110,6 +122,24 @@ class RaffleController extends AbstractController
         ]);
     }
 
+    #[Route('/chat', name: 'app_raffle_chat', methods: ['POST'])]
+    public function chat(Request $request, GeminiService $geminiService): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $userMessage = $data['message'] ?? '';
+
+        if (empty($userMessage)) {
+            return new JsonResponse(['error' => 'Message is required'], 400);
+        }
+
+        try {
+            $response = $geminiService->generateResponse($userMessage);
+            return new JsonResponse(['response' => $response]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], 500);
+        }
+    }
+
     #[Route('/{id}', name: 'app_raffle_show', methods: ['GET'])]
     public function show(Raffle $raffle): Response
     {
@@ -130,51 +160,95 @@ class RaffleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/join', name: 'app_raffle_join', methods: ['GET'])]
+    #[Route('/{id}/join', name: 'app_raffle_join', methods: ['POST'])]
     public function join(Request $request, Raffle $raffle): Response
     {
-        // Check and update raffle status first
-        $this->checkAndUpdateRaffleStatus($raffle);
-
-        // Check if user is authenticated
-        /** @var User|null $user */
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            $this->addFlash('error', 'You must be logged in to join a raffle');
-            return $this->redirectToRoute('app_login');
-        }
-
-        // Check if raffle is still active
-        if ($raffle->getStatus() !== 'active') {
-            $this->addFlash('error', 'This raffle is no longer active.');
-            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
-        }
-
-        // Check if user has already joined
-        foreach ($raffle->getParticipants() as $existingParticipant) {
-            if ($existingParticipant->getUser() === $user) {
-                $this->addFlash('error', 'You have already joined this raffle.');
-                return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
+        try {
+            /** @var User|null $user */
+            $user = $this->getUser();
+            if (!$user) {
+                throw new \Exception('You must be logged in to join a raffle');
             }
-        }
 
-        // Automatically create participant with user's name
-        $participant = new Participant();
-        $participant->setRaffle($raffle);
-        $participant->setUser($user);
-        // Get user's name or fallback to email username
-        $name = $user->getName();
-        if (!$name) {
-            $name = explode('@', $user->getEmail())[0];
+            // Validate CSRF token
+            if (!$this->isCsrfTokenValid('join_raffle_' . $raffle->getId(), $request->request->get('_token'))) {
+                throw new \Exception('Invalid request');
+            }
+
+            // Check and update raffle status first
+            $this->checkAndUpdateRaffleStatus($raffle);
+            
+            // Check if raffle is still active
+            if ($raffle->getStatus() !== 'active') {
+                throw new \Exception('This raffle is no longer active');
+            }
+            
+            // Verify Google reCAPTCHA
+            $recaptchaResponse = $request->request->get('g-recaptcha-response');
+            if (!$this->verifyRecaptcha($recaptchaResponse, $this->recaptchaSecret)) {
+                throw new \Exception('reCAPTCHA verification failed');
+            }
+
+            // Check if user has already joined
+            $existingParticipant = $this->entityManager->getRepository(Participant::class)
+                ->findOneBy(['raffle' => $raffle, 'user' => $user]);
+            
+            if ($existingParticipant) {
+                throw new \Exception('You have already joined this raffle');
+            }
+
+            // Create new participant
+            $participant = new Participant();
+            $participant->setUser($user);
+            $participant->setRaffle($raffle);
+            $participant->setName($user->getName() ?: explode('@', $user->getEmail())[0]);
+            $participant->setJoinedAt(new \DateTime());
+
+            // Persist and flush
+            $this->entityManager->persist($participant);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'You have successfully joined the raffle!');
+            
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
         }
-        $participant->setName($name);
-        $participant->setJoinedAt(new \DateTime());
         
-        $this->entityManager->persist($participant);
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'You have successfully joined the raffle!');
+        // Always redirect back to show page
         return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
+    }
+    
+    /**
+     * Verify the Google reCAPTCHA response.
+     */
+    private function verifyRecaptcha(string $recaptchaResponse, string $recaptchaSecret): bool
+    {
+        if (empty($recaptchaResponse)) {
+            return false;
+        }
+
+        $verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+        $data = [
+            'secret' => $recaptchaSecret,
+            'response' => $recaptchaResponse
+        ];
+
+        $options = [
+            'http' => [
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($data)
+            ]
+        ];
+
+        $context = stream_context_create($options);
+        $response = file_get_contents($verifyUrl, false, $context);
+        $responseData = json_decode($response);
+
+        // Debug: Log the reCAPTCHA verification response
+        error_log('reCAPTCHA verification response: ' . print_r($responseData, true));
+
+        return $responseData->success;
     }
 
     #[Route('/{id}/edit', name: 'app_raffle_edit', methods: ['GET', 'POST'])]
@@ -244,20 +318,34 @@ class RaffleController extends AbstractController
     #[Route('/{id}', name: 'app_raffle_delete', methods: ['POST'])]
     public function delete(Request $request, Raffle $raffle): Response
     {
+        // Check if user is the creator
+        if ($this->getUser() !== $raffle->getCreator()) {
+            return $this->render('error/access_denied.html.twig', [
+                'raffle' => $raffle
+            ], new Response('', Response::HTTP_FORBIDDEN));
+        }
+
         if ($this->isCsrfTokenValid('delete'.$raffle->getId(), $request->request->get('_token'))) {
-            // Delete image file if exists
-            if ($raffle->getImage()) {
-                $imagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
+            try {
+                // Delete image file if exists
+                if ($raffle->getImage()) {
+                    $imagePath = $this->getParameter('raffle_images_directory').'/'.$raffle->getImage();
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
                 }
+                
+                $this->entityManager->remove($raffle);
+                $this->entityManager->flush();
+                
+                $this->addFlash('success', 'Raffle was successfully deleted.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error deleting raffle: ' . $e->getMessage());
             }
-            
-            $this->entityManager->remove($raffle);
-            $this->entityManager->flush();
+        } else {
+            $this->addFlash('error', 'Invalid token.');
         }
 
         return $this->redirectToRoute('app_raffle_index');
     }
-
 }

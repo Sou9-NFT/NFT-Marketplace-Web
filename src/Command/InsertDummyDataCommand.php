@@ -42,8 +42,7 @@ class InsertDummyDataCommand extends Command
         $admin->setEmail('admin@admin.com');
         $admin->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
         $admin->setName('Admin User');
-        $admin->setBalance(500);
-        
+        $admin->setWalletAddress(null);
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($admin, '123456');
@@ -58,7 +57,7 @@ class InsertDummyDataCommand extends Command
         $user = new User();
         $user->setEmail('user@user.com');
         $user->setName('Regular User');
-        $user->setBalance(0);
+        $user->setWalletAddress(null);
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($user, '123456');
@@ -74,7 +73,7 @@ class InsertDummyDataCommand extends Command
         $seller->setEmail('seller@artitechs.com');
         $seller->setRoles(['ROLE_SELLER', 'ROLE_USER']);
         $seller->setName('Seller User');
-        $seller->setBalance(1000);
+        $seller->setWalletAddress(null);
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($seller, '123456');
@@ -90,7 +89,7 @@ class InsertDummyDataCommand extends Command
         $author->setEmail('author@artitechs.com');
         $author->setRoles(['ROLE_AUTHOR', 'ROLE_USER']);
         $author->setName('Author User');
-        $author->setBalance(250);
+        $author->setWalletAddress(null);
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($author, '123456');

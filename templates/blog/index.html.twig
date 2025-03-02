@@ -5,6 +5,51 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
+    /* Hero Section Styles */
+    .blog-hero-section {
+        position: relative;
+        height: 400px;
+        width: 100%;
+        background-image: url('{{ asset('front_office/img/bg/nftt.jpg') }}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        margin-bottom: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .blog-hero-section .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8));
+    }
+    
+    .blog-hero-section .hero-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+        padding: 2rem;
+        max-width: 800px;
+    }
+    
+    .blog-hero-section h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .blog-hero-section p {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+    }
     .card {
         background-color: #1a1a1a;
         border: none;
@@ -19,50 +64,95 @@
     .card-text {
         color: #888;
     }
-    .btn-purple {
-        background-color: #6f42c1;
+    .btn-outline-purple {
+        color: #6f42c1;
         border-color: #6f42c1;
-        color: white;
-        transition: all 0.2s;
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.2rem;
+        transition: all 0.2s ease;
     }
-    .btn-purple:hover {
-        background-color: #553098;
-        border-color: #553098;
+    .btn-outline-purple:hover {
+        background-color: #6f42c1;
         color: white;
         transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
     }
     .card-actions {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
     }
     .card-actions .btn {
-        flex: 0 0 auto;
+        border-radius: 6px;
+    }
+    .card-actions .fas {
+        font-size: 0.875rem;
     }
     .meta-info {
         color: #666;
         font-size: 0.9rem;
     }
     .latest-comment {
-        background-color: #141414;
-        border-radius: 4px;
-        padding: 10px;
-        margin-top: 10px;
+        background: linear-gradient(145deg, #1c1c1c, #242424);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 15px;
+        border: 1px solid rgba(111, 66, 193, 0.1);
+        position: relative;
     }
-    .latest-comment p {
-        margin-bottom: 0;
-        color: #888;
+    .latest-comment::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 20px;
+        width: 15px;
+        height: 15px;
+        background: linear-gradient(145deg, #1c1c1c, #242424);
+        transform: rotate(45deg);
+        border-left: 1px solid rgba(111, 66, 193, 0.1);
+        border-top: 1px solid rgba(111, 66, 193, 0.1);
+    }
+    .latest-comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+    }
+    .latest-comment-author {
+        color: #6f42c1;
+        font-weight: 500;
+    }
+    .latest-comment-time {
+        color: #666;
+        font-size: 0.8rem;
+    }
+    .latest-comment-content {
+        color: #a8a8a8;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin: 0;
+    }
+    .latest-comment-label {
+        font-size: 0.75rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
     }
 </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="row mb-4">
-            <div class="col">
-                <h1 class="text-center">Our Posts</h1>
-            </div>
+    <div class="blog-hero-section">
+        <div class="overlay"></div>
+        <div class="hero-content">
+            <h1>Our Posts</h1>
+            <p>Discover the latest news and updates from our NFT community</p>
         </div>
+    </div>
+    <div class="container mt-5">
+
 
         {% for message in app.flashes('success') %}
             <div class="alert alert-success">
@@ -74,6 +164,12 @@
             {% for blog in blogs %}
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100">
+                        {% if blog.imageFilename %}
+                            <img src="{{ asset('uploads/blog_images/' ~ blog.imageFilename) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ blog.title }}"
+                                 style="height: 200px; object-fit: cover;">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ blog.title }}</h5>
                             <p class="card-text">{{ blog.content|slice(0, 100) }}...</p>
@@ -92,24 +188,36 @@
                             </div>
 
                             {% if blog.comments|length > 0 %}
-                                <div class="latest-comment mb-3 p-2 bg-light rounded">
-                                    <small class="d-block text-muted">Latest comment:</small>
-                                    <p class="mb-1"><small>"{{ blog.comments|last.content|slice(0, 50) }}{% if blog.comments|last.content|length > 50 %}...{% endif %}"</small></p>
-                                    <small class="text-primary">- {{ blog.comments|last.user ? blog.comments|last.user.name : 'Anonymous' }}</small>
-                                    <small class="text-muted d-block">at {{ blog.comments|last.createdAt|date('F d, Y H:i') }}</small>
+                                <div class="latest-comment">
+                                    <div class="latest-comment-label">Latest Comment</div>
+                                    <div class="latest-comment-header">
+                                        <span class="latest-comment-author">
+                                            <i class="fas fa-user-circle me-1"></i>
+                                            {{ blog.comments|last.user ? blog.comments|last.user.name : 'Anonymous' }}
+                                        </span>
+                                        <span class="latest-comment-time">
+                                            <i class="far fa-clock me-1"></i>
+                                            {{ blog.comments|last.createdAt|ago }}
+                                        </span>
+                                    </div>
+                                    <p class="latest-comment-content">
+                                        "{{ blog.comments|last.content|slice(0, 100) }}{% if blog.comments|last.content|length > 100 %}...{% endif %}"
+                                    </p>
                                 </div>
                             {% endif %}
 
                             <div class="card-actions mt-3">
-                                <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="btn btn-sm btn-purple me-2">
-                                    <i class="fas fa-book-reader"></i> Read More
+                                <a href="{{ path('app_blog_show', {'id': blog.id}) }}" class="btn btn-sm btn-outline-purple">
+                                    <i class="fas fa-book-reader fa-sm"></i>
                                 </a>
-                                <a href="{{ path('app_comment_new', {'blogId': blog.id}) }}" class="btn btn-sm btn-purple me-2">
-                                    <i class="fas fa-comment"></i> Comment
+                                <a href="{{ path('app_comment_new', {'blogId': blog.id}) }}" class="btn btn-sm btn-outline-purple">
+                                    <i class="fas fa-comment fa-sm"></i>
                                 </a>
-                                <a href="{{ path('app_blog_edit', {'id': blog.id}) }}" class="btn btn-sm btn-purple">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
+                                {% if app.user and blog.user == app.user %}
+                                    <a href="{{ path('app_blog_edit', {'id': blog.id}) }}" class="btn btn-sm btn-outline-purple">
+                                        <i class="fas fa-edit fa-sm"></i>
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -123,12 +231,10 @@
             {% endfor %}
         </div>
 
-        <div class="row mt-4 mb-5">
-            <div class="col text-center">
-                <a href="{{ path('app_blog_new') }}" class="btn btn-success">
-                    <i class="fas fa-plus-circle"></i> Create New Post
-                </a>
-            </div>
+        <div class="text-center mt-4 mb-5">
+            <a href="{{ path('app_blog_new') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Create New Post
+            </a>
         </div>
     </div>
 {% endblock %}

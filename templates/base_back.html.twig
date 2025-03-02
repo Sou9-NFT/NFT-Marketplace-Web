@@ -47,7 +47,9 @@
             <ul class="d-flex align-items-center">
                 <li class="nav-item dropdown pe-3">
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="{{ asset(app.user.profilePicture ?? 'back_office/img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
+                        <img src="{{ app.user.profilePicture ? asset('uploads/profile_pictures/' ~ app.user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" 
+                             alt="Profile" 
+                             class="rounded-circle">
                         <span class="d-none d-md-block dropdown-toggle ps-2">{{ app.user.name }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
@@ -78,7 +80,7 @@
         {% block sidebar %}
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{ path('app_home_page_back') }}">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
@@ -165,17 +167,17 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#raffles-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-ticket"></i><span>Raffles</span><i class="bi bi-chevron-down ms-auto"></i>
+                    <i class="bi bi-ticket"></i><span>Raffles & Participants</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="raffles-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
                         <a href="{{ path('app_admin_raffle_index') }}">
-                            <i class="bi bi-circle"></i><span>All Raffles</span>
+                            <i class="bi bi-circle"></i><span>Manage Raffles</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ path('app_admin_raffle_new') }}">
-                            <i class="bi bi-circle"></i><span>Create Raffle</span>
+                        <a href="{{ path('app_admin_participant_index') }}">
+                            <i class="bi bi-circle"></i><span>Participants</span>
                         </a>
                     </li>
                 </ul>
