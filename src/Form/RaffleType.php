@@ -38,6 +38,9 @@ class RaffleType extends AbstractType
             ->add('creator_name', TextType::class, [
                 'label' => 'Creator Name',
                 'required' => true,
+                'attr' => [
+                    'readonly' => true,
+                ],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter the creator name',

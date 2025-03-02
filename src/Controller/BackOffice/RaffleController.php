@@ -61,6 +61,9 @@ class RaffleController extends AbstractController
     public function new(Request $request, SluggerInterface $slugger): Response
     {
         $raffle = new Raffle();
+        // Set creator name from user's name or email
+        $raffle->setCreatorName($this->getUser()->getName() ?: $this->getUser()->getEmail());
+        
         $form = $this->createForm(RaffleType::class, $raffle);
         $form->handleRequest($request);
     
