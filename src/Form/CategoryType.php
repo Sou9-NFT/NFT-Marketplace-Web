@@ -20,13 +20,41 @@ class CategoryType extends AbstractType
             ->add('name', TextType::class)
             ->add('type', ChoiceType::class, [
                 'choices' => [
-                    'Image' => Category::TYPE_IMAGE,
-                    'Video' => Category::TYPE_VIDEO,
-                    'Audio' => Category::TYPE_AUDIO
+                    'Image' => 'image',
+                    'Video' => 'video',
+                    'Audio' => 'audio',
+                    'Other' => 'other'
                 ],
                 'placeholder' => 'Select a type'
             ])
-            ->add('description', TextareaType::class);
+            ->add('description', TextareaType::class)
+            ->add('allowedMimeTypes', ChoiceType::class, [
+                'choices' => [
+                    'Image Formats' => [
+                        'JPEG' => 'image/jpeg',
+                        'PNG' => 'image/png',
+                        'GIF' => 'image/gif',
+                        'WebP' => 'image/webp',
+                        'SVG' => 'image/svg+xml',
+                    ],
+                    'Video Formats' => [
+                        'MP4' => 'video/mp4',
+                        'WebM' => 'video/webm',
+                        'AVI' => 'video/x-msvideo',
+                        'MPEG' => 'video/mpeg',
+                    ],
+                    'Audio Formats' => [
+                        'MP3' => 'audio/mpeg',
+                        'WAV' => 'audio/wav',
+                        'OGG' => 'audio/ogg',
+                    ],
+                    'Document Formats' => [
+                        'PDF' => 'application/pdf',
+                    ]
+                ],
+                'multiple' => true,
+                'expanded' => true,
+            ]);
 
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
