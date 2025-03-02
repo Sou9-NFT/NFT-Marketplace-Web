@@ -100,6 +100,9 @@
                                 <li class="nav-item"><a href="" class="nav-link">Authors</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Author</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Wallet Connect</a></li>
+                                <li class="nav-item"><a href="{{ path('app_trade_offer_index') }}" class="nav-link">Trade Offer</a></li>
+                                <li class="nav-item"><a href="{{ path('app_trade_state_index') }}" class="nav-link">Trade Request</a></li>
+                                <li class="nav-item"><a href="{{ path('app_trade_dispute_index') }}" class="nav-link">Trade Dispute</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Create</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Login</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Signup</a></li>
@@ -111,12 +114,24 @@
                     </ul>
                     <!-- Navbar Icons -->
                     <ul class="navbar-nav icons">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" data-toggle="modal" data-target="#search">
-                                <i class="fas fa-search"></i>
+                        {% if app.user %}
+                         <ul class="navbar-nav icons">
+                        <li class="nav-item ml-3">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#notificationsModal">
+                                <i class="fas fa-bell"></i>
                             </a>
                         </li>
                     </ul>
+                        {% endif %}
+                    
+                
+                    <!-- Add this inside the block header -->
+
+
+
+
+                    
+</div>
 
                     <!-- Navbar Toggler -->
                     <ul class="navbar-nav toggle">
@@ -153,6 +168,7 @@
                             <li class="nav-item ml-3">
                                 <span class="navbar-text"><i class="fas fa-wallet"></i> <span id="walletBalance">Connect wallet</span></span>
                             </li>
+                          
                         {% else %}
                             <li class="nav-item ml-3">
                                 <a href="{{ path('app_login') }}" class="btn ml-lg-auto btn-bordered-white"><i class="icon-login mr-md-2"></i>Login</a>
@@ -273,39 +289,69 @@
 
     <!-- Modal Search Block -->
     {% block modal_search %}
-    <!--====== Modal Search Area Start ======-->
-    <div id="search" class="modal fade p-0">
+    <!--====== Modal Notifications Area Start ======-->
+    <div id="notificationsModal" class="modal fade p-0">
         <div class="modal-dialog dialog-animated">
             <div class="modal-content h-100">
                 <div class="modal-header" data-dismiss="modal">
-                    Search <i class="far fa-times-circle icon-close"></i>
+                    Notifications <i class="far fa-times-circle icon-close"></i>
                 </div>
                 <div class="modal-body">
-                    <form class="row">
+                    <div class="row">
                         <div class="col-12 align-self-center">
                             <div class="row">
-                                <div class="col-12 pb-3">
-                                    <h2 class="search-title mt-0 mb-3">What are you looking for?</h2>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                <div class="col-8 pb-2">
+                                    <h5 class="notification-title mt-0 mb-2">Your Notifications</h5>
+                                    <p class="small">Stay updated with your latest activities</p>
+                                </div>
+                                <div class="col-4 text-right pb-2">
+                                    <a href="{#{ path('app_notifications') }#}" class="btn btn-sm btn-outline-primary">View All</a>
                                 </div>
                             </div>
                             <div class="row">
-                                <div the="col-12 input-group mt-4">
-                                    <input type="text" placeholder="Enter your keywords">
+                                <div class="col-12 mt-2">
+                                    <div class="notification-list">
+                                        {% if notifications is defined and notifications|length > 0 %}
+                                            {% for notification in notifications %}
+                                                <div class="notification-item py-2 border-bottom">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="notification-icon mr-3">
+                                                            <i class="fas fa-bell"></i>
+                                                        </div>
+                                                        <div class="notification-content">
+                                                            <h6 class="mb-0">{{ notification.title }}</h6>
+                                                            <p class="mb-1">{{ notification.context }}</p>
+                                                            <small class="text-muted">{{ notification.createdAt|date('M d, Y H:i') }}</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-center py-4">
+                                                    <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                                    <p>No notifications yet</p>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="text-center py-4">
+                                                <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                                <p>No notifications yet</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-12 input-group align-self-center">
-                                    <button class="btn btn-bordered-white mt-3">Search</button>
+                                <div class="col-12 text-center mt-3">
+                                    <button class="btn btn-bordered-white">Mark all as read</button>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!--====== Modal Search Area End ======-->
+    <!--====== Modal Notifications Area End ======-->
     {% endblock %}
     </div>
 

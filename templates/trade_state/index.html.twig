@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Trade Request{% endblock %}
+
+{% block body %}
+<br><br><br><br><br>
+    <h1 class="text-center">Trade Request List</h1>
+<br><br><br>
+
+<!-- Search Form -->
+<form method="get" action="{{ path('app_trade_state_index') }}" class="text-center">
+    <div class="input-group" style="max-width: 600px; margin: auto; display: flex; align-items: center; gap: 10px;">
+        
+        <!-- Search by Sender -->
+        <input type="text" class="form-control form-control-sm" name="sender_search" value="{{ sender_search }}" placeholder="Search by sender name">
+        
+        <!-- Search by Receiver -->
+        <input type="text" class="form-control form-control-sm" name="receiver_search" value="{{ receiver_search }}" placeholder="Search by receiver name">
+        
+        <!-- Apply Button -->
+        <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+        
+    </div>
+</form>
+
+
+
+<br><br><br>
+
+    <div class="table-responsive" style="max-width: 1000px; margin: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sender</th>
+                    <th>Receiver</th>
+                    <th>Received Item</th>
+                    <th>Offered Item</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trade_state in trade_states %}
+                {% if trade_state.receiver.id == app.user.id %}
+                    <tr>
+                        <td>{{ trade_state.sender ? trade_state.sender.getName() : 'No sender' }}</td>
+                        <td>{{ trade_state.receiver ? trade_state.receiver.getName() : 'No receiver' }}</td>
+                        <td>{{ trade_state.receivedItem ? trade_state.receivedItem.getTitle() : 'Not loaded' }}</td>
+                        <td>{{ trade_state.offeredItem ? trade_state.offeredItem.getTitle() : 'Not loaded' }}</td>
+                        <td>{{ trade_state.description }}</td>
+                        <td><a href="{{ path('app_trade_state_show', {'id': trade_state.id}) }}" class="btn btn-primary btn-sm">View</a></td>
+                    </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -13,13 +13,7 @@
                 <div class="item-form card no-hover">
                     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}} ) }}
                         <div class="row">
-                            <div class="col-12">
-                                <div class="form-group mt-3">
-                                    {{ form_label(form.trade_id) }}
-                                    {{ form_widget(form.trade_id, {'attr': {'class': 'form-control', 'style': 'font-size: 1.2rem; height: 3rem; padding: 5px;'}}) }}
-                                    {{ form_errors(form.trade_id) }}
-                                </div>
-                            </div>
+                            
                             <div class="col-12">
                                 <div class="form-group mt-3">
                                     {{ form_label(form.reason) }}
