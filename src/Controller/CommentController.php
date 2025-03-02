@@ -6,6 +6,7 @@ use App\Entity\Blog;
 use App\Entity\Comment;
 use App\Form\CommentType;
 use App\Repository\CommentRepository;
+use App\Service\ProfanityFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,13 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/comment')]
 final class CommentController extends AbstractController
 {
+    private ProfanityFilter $profanityFilter;
+
+    public function __construct(ProfanityFilter $profanityFilter)
+    {
+        $this->profanityFilter = $profanityFilter;
+    }
+
     #[Route('/', name: 'app_comment_index', methods: ['GET'])]
     public function index(CommentRepository $commentRepository): Response
     {
@@ -46,6 +54,19 @@ final class CommentController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Check for profanity
+            if ($this->profanityFilter->hasProfanity($comment->getContent())) {
+                $this->addFlash('error', 'Your comment contains inappropriate content. Please revise.');
+                return $this->render('comment/new.html.twig', [
+                    'comment' => $comment,
+                    'form' => $form,
+                    'blog' => $blog,
+                ]);
+            }
+
+            // Filter content just in case
+            $comment->setContent($this->profanityFilter->filter($comment->getContent()));
+            
             $entityManager->persist($comment);
             $entityManager->flush();
 
@@ -67,6 +88,18 @@ final class CommentController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Check for profanity
+            if ($this->profanityFilter->hasProfanity($comment->getContent())) {
+                $this->addFlash('error', 'Your comment contains inappropriate content. Please revise.');
+                return $this->render('comment/edit.html.twig', [
+                    'comment' => $comment,
+                    'form' => $form,
+                ]);
+            }
+
+            // Filter content just in case
+            $comment->setContent($this->profanityFilter->filter($comment->getContent()));
+            
             $entityManager->flush();
             return $this->redirectToRoute('app_blog_show', ['id' => $comment->getBlog()->getId()]);
         }
@@ -115,6 +148,18 @@ final class CommentController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Check for profanity
+            if ($this->profanityFilter->hasProfanity($comment->getContent())) {
+                $this->addFlash('error', 'The comment contains inappropriate content. Please revise.');
+                return $this->render('blog_back/comment_edit.html.twig', [
+                    'comment' => $comment,
+                    'form' => $form,
+                ]);
+            }
+
+            // Filter content just in case
+            $comment->setContent($this->profanityFilter->filter($comment->getContent()));
+            
             $entityManager->flush();
             
             $this->addFlash('success', 'Comment updated successfully');
