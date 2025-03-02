@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Received Trade Offers{% endblock %}
+
+{% block body %}
+    <h1>Trade Offers Received</h1>
+    {% for trade in trade_offers %}
+        <div>
+            <p><strong>From:</strong> {{ trade.sender.username }}</p>
+            <p><strong>Offered Item:</strong> {{ trade.offeredItem.name }}</p>
+            <p><strong>For Your Item:</strong> {{ trade.receivedItem.name }}</p>
+            <form action="{{ path('app_trade_respond', { id: trade.id, action: 'accept' }) }}" method="post">
+                <button type="submit">Accept</button>
+            </form>
+            <form action="{{ path('app_trade_respond', { id: trade.id, action: 'reject' }) }}" method="post">
+                <button type="submit">Reject</button>
+            </form>
+        </div>
+    {% else %}
+        <p>No trade offers received.</p>
+    {% endfor %}
+{% endblock %}

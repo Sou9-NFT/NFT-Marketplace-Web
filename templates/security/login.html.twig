@@ -2,23 +2,6 @@
 
 {% block title %}Login - NFT Marketplace{% endblock %}
 
-{% block flash_messages %}
-    <div class="container mt-3">
-        <div class="row">
-            <div class="col-12">
-                {% for label, messages in app.flashes(['success', 'error', 'info', 'warning']) %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
 {% block body %}
 <!-- ***** Login Area Start ***** -->
 <section class="author-area">

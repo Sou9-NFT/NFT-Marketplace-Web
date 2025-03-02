@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Raffle{% endblock %}
+{% block title %}Create New Raffle{% endblock %}
 
 {% block body %}
     <div class="container mt-5 py-4">
@@ -8,54 +8,46 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="h3 mb-0 text-white">Create New Raffle</h1>
+                        <h1 class="h3 mb-0">Create New Raffle</h1>
                     </div>
                     <div class="card-body">
-                        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
-                            <!-- Title -->
-                            <div class="mb-3">
-                                {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
-                                {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.title) }}
+                        {{ form_start(form) }}
+                            <div class="mb-4">
+                                {{ form_row(form.title, {
+                                    'attr': {'class': 'form-control'}
+                                }) }}
                             </div>
 
-                            <!-- Creator Name -->
-                            <div class="mb-3">
-                                {{ form_label(form.creator_name, null, {'label_attr': {'class': 'form-label'}}) }}
-                                {{ form_widget(form.creator_name, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.creator_name) }}
+                            <div class="mb-4">
+                                {{ form_row(form.artwork, {
+                                    'attr': {'class': 'form-select artwork-select'}
+                                }) }}
                             </div>
 
-                            <!-- Image -->
-                            <div class="mb-3">
-                                {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
-                                {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.image) }}
+                            <div class="mb-4">
+                                {{ form_row(form.raffleDescription, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'rows': 5
+                                    }
+                                }) }}
                             </div>
 
-                            <!-- End Time -->
-                            <div class="mb-3">
-                                {{ form_label(form.endTime, null, {'label_attr': {'class': 'form-label'}}) }}
-                                {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.endTime) }}
-                                <div class="form-text text-muted">
-                                    End time must be in the future
-                                </div>
+                            <div class="mb-4">
+                                {{ form_row(form.endTime, {
+                                    'attr': {
+                                        'class': 'form-control'
+                                    }
+                                }) }}
                             </div>
 
-                            <!-- Raffle Description -->
-                            <div class="mb-3">
-                                {{ form_label(form.raffleDescription, null, {'label_attr': {'class': 'form-label'}}) }}
-                                {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control', 'rows': 4}}) }}
-                                {{ form_errors(form.raffleDescription) }}
-                                <div class="form-text text-muted">
-                                    Describe your raffle
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between mt-4">
-                                <a href="{{ path('app_raffle_index') }}" class="btn btn-secondary">Back to list</a>
-                                <button type="submit" class="btn btn-primary">Create Raffle</button>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_raffle_index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Create Raffle
+                                </button>
                             </div>
                         {{ form_end(form) }}
                     </div>
@@ -63,4 +55,115 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .card {
+            background: #2a2a2a;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        
+        .card-header {
+            background: linear-gradient(145deg, #323232, #2a2a2a);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-control, .form-select {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: #1a1a1a;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78,115,223,0.25);
+            color: #fff;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        }
+
+        .form-select option {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        label.required:after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Custom select styling */
+        .artwork-select {
+            appearance: none;
+            background: #1a1a1a url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='rgba(255,255,255,0.6)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center/16px 12px !important;
+            padding-right: 2.5rem;
+        }
+
+        .artwork-select option {
+            padding: 10px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .artwork-select option:checked {
+            background: #4e73df;
+            color: white;
+        }
+
+        .artwork-select optgroup {
+            color: #4e73df;
+            font-weight: 600;
+            padding: 5px;
+            background: #1a1a1a;
+        }
+
+        .artwork-select:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78,115,223,0.25);
+            outline: 0;
+        }
+
+        /* Hover effect for options */
+        .artwork-select option:hover {
+            background-color: #2a2a2a;
+            cursor: pointer;
+        }
+
+        /* Style for the placeholder */
+        .artwork-select option[value=""] {
+            color: rgba(255,255,255,0.5);
+        }
+    </style>
 {% endblock %}

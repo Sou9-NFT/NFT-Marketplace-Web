@@ -1,15 +1,16 @@
 {% extends 'base_back.html.twig' %}
 
-{% block title %}{{ raffle.id ? 'Edit Raffle' : 'New Raffle' }}{% endblock %}
+{% block title %}{% if is_edit ?? false %}Edit Raffle{% else %}New Raffle{% endif %}{% endblock %}
 
 {% block body %}
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>{{ raffle.id ? 'Edit Raffle' : 'Create New Raffle' }}</h1>
+            <h1>{% if is_edit ?? false %}Edit Raffle{% else %}New Raffle{% endif %}</h1>
             <nav>
                 <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_admin_raffle_index') }}">Home</a></li>
                     <li class="breadcrumb-item"><a href="{{ path('app_admin_raffle_index') }}">Raffles</a></li>
-                    <li class="breadcrumb-item active">{{ raffle.id ? 'Edit' : 'New' }}</li>
+                    <li class="breadcrumb-item active">{% if is_edit ?? false %}Edit{% else %}New{% endif %}</li>
                 </ol>
             </nav>
         </div>
@@ -19,54 +20,69 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">{{ raffle.id ? 'Edit Raffle Details' : 'Raffle Details' }}</h5>
+                            <h5 class="card-title">{% if is_edit ?? false %}Edit Raffle #{{ raffle.id }}{% else %}Create New Raffle{% endif %}</h5>
 
                             {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        {{ form_label(form.title, 'Title', {'label_attr': {'class': 'form-label'}}) }}
-                                        {{ form_widget(form.title, {'attr': {'class': 'form-control' ~ (form.title.vars.valid ? '' : ' is-invalid')}}) }}
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">Title</label>
+                                    <div class="col-sm-10">
+                                        {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
                                         {{ form_errors(form.title) }}
                                     </div>
-
-                                    <div class="form-group mb-3">
-                                        {{ form_label(form.raffleDescription, 'Description', {'label_attr': {'class': 'form-label'}}) }}
-                                        {{ form_widget(form.raffleDescription, {'attr': {'class': 'form-control' ~ (form.raffleDescription.vars.valid ? '' : ' is-invalid'), 'rows': '4'}}) }}
-                                        {{ form_errors(form.raffleDescription) }}
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        {{ form_label(form.endTime, 'End Time', {'label_attr': {'class': 'form-label'}}) }}
-                                        {{ form_widget(form.endTime, {'attr': {'class': 'form-control' ~ (form.endTime.vars.valid ? '' : ' is-invalid')}}) }}
-                                        {{ form_errors(form.endTime) }}
-                                    </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        {% if raffle.image %}
-                                            <div class="mb-3">
-                                                <label class="form-label">Current Image</label>
-                                                <img src="{{ asset('uploads/raffle_images/' ~ raffle.image) }}" class="img-fluid rounded" alt="Current Raffle Image">
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">Artwork</label>
+                                    <div class="col-sm-10">
+                                        {{ form_widget(form.artwork, {'attr': {'class': 'form-select artwork-select'}}) }}
+                                        {{ form_errors(form.artwork) }}
+                                        {% if raffle is defined and raffle.artwork %}
+                                            <div class="mt-2">
+                                                <img src="{{ asset('uploads/artworks/' ~ raffle.artwork.imageName) }}" 
+                                                     alt="Current artwork"
+                                                     class="img-thumbnail"
+                                                     style="max-height: 100px">
                                             </div>
                                         {% endif %}
-                                        {{ form_label(form.image, 'Raffle Image', {'label_attr': {'class': 'form-label'}}) }}
-                                        {{ form_widget(form.image, {'attr': {'class': 'form-control' ~ (form.image.vars.valid ? '' : ' is-invalid')}}) }}
-                                        {{ form_errors(form.image) }}
-                                        <small class="form-text text-muted">Upload a new image{% if raffle.image %} to replace the current one{% endif %}.</small>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save"></i> {{ raffle.id ? 'Update Raffle' : 'Create Raffle' }}
-                                </button>
-                                <a href="{{ path('app_admin_raffle_index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle"></i> Cancel
-                                </a>
-                            </div>
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">Description</label>
+                                    <div class="col-sm-10">
+                                        {{ form_widget(form.raffleDescription, {
+                                            'attr': {
+                                                'class': 'form-control',
+                                                'rows': '4'
+                                            }
+                                        }) }}
+                                        {{ form_errors(form.raffleDescription) }}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">End Time</label>
+                                    <div class="col-sm-10">
+                                        {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(form.endTime) }}
+                                        <div class="form-text">
+                                            Set when the raffle will end. Must be in the future.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-sm-10 offset-sm-2">
+                                        <a href="{{ path('app_admin_raffle_index') }}" class="btn btn-secondary me-2">
+                                            <i class="bi bi-arrow-left me-1"></i>
+                                            Back to List
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            {{ is_edit ? 'Update' : 'Create' }}
+                                        </button>
+                                    </div>
+                                </div>
                             {{ form_end(form) }}
                         </div>
                     </div>
@@ -74,4 +90,49 @@
             </div>
         </section>
     </main>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .artwork-select {
+            appearance: none !important;
+            background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center/16px 12px !important;
+            padding: 0.75rem !important;
+            padding-right: 2.5rem !important;
+            border-radius: 0.375rem !important;
+            border: 1px solid #ced4da !important;
+        }
+
+        .artwork-select option {
+            padding: 10px !important;
+            background: #fff !important;
+        }
+
+        .artwork-select option:checked {
+            background: #4154f1 !important;
+            color: white !important;
+        }
+
+        .artwork-select optgroup {
+            color: #4154f1 !important;
+            font-weight: 600 !important;
+            padding: 5px !important;
+        }
+
+        .artwork-select:focus {
+            border-color: #4154f1 !important;
+            box-shadow: 0 0 0 0.2rem rgba(65, 84, 241, 0.25) !important;
+            outline: 0 !important;
+        }
+
+        .artwork-select option:hover {
+            background-color: #f6f9ff !important;
+            cursor: pointer !important;
+        }
+
+        .artwork-select option[value=""] {
+            color: #6c757d !important;
+        }
+    </style>
 {% endblock %}
