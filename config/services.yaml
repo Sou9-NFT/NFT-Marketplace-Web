@@ -43,9 +43,9 @@ services:
     App\Service\EtherscanService:
         arguments:
             $httpClient: '@http_client'
-            $apiUrl: '%etherscan_api_url%'
-            $apiKey: '%etherscan_api_key%'
-            $contractAddress: '%etherscan_contract_address%'
+            $apiUrl: '%etherscan.api_url%'
+            $apiKey: '%etherscan.api_key%'
+            $contractAddress: '%etherscan.contract_address%'
             $logger: '@logger'
 
     App\Service\PasswordResetService:
