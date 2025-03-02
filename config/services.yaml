@@ -4,7 +4,6 @@ parameters:
     profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
     evidence_directory: '%kernel.project_dir%/public/uploads/evidence'
     blog_images_directory: '%kernel.project_dir%/public/uploads/blog_images'
-    google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     recaptcha_secret: '%env(RECAPTCHA_SECRET)%'
     app.recaptcha_secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
