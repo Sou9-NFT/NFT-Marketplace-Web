@@ -20,22 +20,14 @@
                     <h3 class="mt-3 mb-0">Edit Trade Dispute</h3>
                 </div>
                 <div class="item-form card no-hover">
-                    {{ form_start(form, {
-                        'attr': {
-                            'novalidate': 'novalidate',
-                            'id': 'edit_trade_dispute_' ~ trade_dispute.id
-                        }
-                    }) }}
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate','id': 'edit_trade_dispute_' ~ trade_dispute.id}}) }}
                         {{ form_errors(form) }}
                         <div class="row">
-                            <div class="col-12">
-                                <div class="form-group mt-3">
-                                    {{ form_label(form.trade_id) }}
-                                    {{ form_widget(form.trade_id, {'attr': {'class': 'form-control', 'style': 'font-size: 1.2rem; height: 3rem; padding: 5px;'}}) }}
-                                    {{ form_errors(form.trade_id) }}
-                                </div>
-                            </div>
-                            <div class="col-12">
+                            
+                            <div class="row mb-3">
+                        
+                    </div>
+                        <div class="col-12"> 
                                 <div class="form-group mt-3">
                                     {{ form_label(form.reason) }}
                                     {{ form_widget(form.reason, {'attr': {'class': 'form-control'}}) }}
@@ -58,7 +50,12 @@
                                     {{ form_errors(form.evidence) }}
                                     <small class="form-text text-muted">Optional. Supported formats: JPEG, PNG, GIF (max 5MB)</small>
                                 </div>
+                                <div class="row mb-3">
+                        
+                    </div>
                             </div>
+                        
+                        
                             <div class="col-12">
                                 <div class="d-flex justify-content-between mt-4">
                                     <a href="{{ path('app_trade_dispute_index') }}" class="btn btn-link">Back to list</a>

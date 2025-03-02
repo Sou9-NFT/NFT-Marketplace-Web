@@ -90,6 +90,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participant::class)]
     private Collection $participations;
 
+    
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -292,4 +293,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    
 }

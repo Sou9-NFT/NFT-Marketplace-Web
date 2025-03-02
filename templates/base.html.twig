@@ -96,6 +96,9 @@
                                 <li class="nav-item"><a href="" class="nav-link">Authors</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Author</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Wallet Connect</a></li>
+                                <li class="nav-item"><a href="{{ path('app_trade_offer_index') }}" class="nav-link">Trade Offer</a></li>
+                                <li class="nav-item"><a href="{{ path('app_trade_state_index') }}" class="nav-link">Trade Request</a></li>
+                                <li class="nav-item"><a href="{{ path('app_trade_dispute_index') }}" class="nav-link">Trade Dispute</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Create</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Login</a></li>
                                 <li class="nav-item"><a href="" class="nav-link">Signup</a></li>
@@ -113,6 +116,26 @@
                             </a>
                         </li>
                     </ul>
+                    <!-- Add this inside the block header -->
+<div class="notification-dropdown">
+    <img src="{{ asset('front_office/img/logo/notification.png') }}" alt="Notifications">
+    <div class="dropdown-content">
+        {% if notifications is not empty %}
+            {% for notification in notifications %}
+                <div class="notification-item">
+                    <p>{{ notification.message }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No new notifications</p>
+        {% endif %}
+    </div>
+</div>
+
+
+
+                    
+</div>
 
                     <!-- Navbar Toggler -->
                     <ul class="navbar-nav toggle">

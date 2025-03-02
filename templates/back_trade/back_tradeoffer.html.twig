@@ -12,7 +12,34 @@
         </ol>
     </nav>
 </div>
+<!-- Search and Sort Form -->
+<form method="get" action="{{ path('app_admin_trade') }}" class="text-center">
+    <div class="input-group" style="max-width: 700px; margin: auto; display: flex; align-items: center; justify-content: center;">
+        
+        
+        <!-- Search input for sender name -->
+        <input type="text" class="form-control form-control-sm" name="sender_search" value="{{ sender_search }}" placeholder="Search by sender name" style="margin-right: 10px;">
+        <!-- Search input for receiver name -->
+        <input type="text" class="form-control form-control-sm" name="search" value="{{ search }}" placeholder="Search by receiver name" style="margin-right: 10px;">
+        
+        <!-- Sort select -->
+        <select name="sort" class="form-control form-control-sm" style="margin-right: 10px;">
+            <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Sort by Date (Ascending)</option>
+            <option value="desc" {% if sort == 'desc' %}selected{% endif %}>Sort by Date (Descending)</option>
+        </select>
 
+        <!-- Status search select -->
+        <select name="status" class="form-control form-control-sm" style="margin-right: 10px;">
+            <option value="" {% if status is empty %}selected{% endif %}>All Status</option>
+            <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="Accepted" {% if status == 'Accepted' %}selected{% endif %}>Accepted</option>
+            <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+        
+        <!-- Submit button -->
+        <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+    </div>
+</form>
 <section class="section">
     <div class="row">
         <div class="col-lg-12">
@@ -23,6 +50,7 @@
                         <thead>
                             <tr>
                                 <th>Id</th>
+                                <th>Sender Name</th> <!-- Added Sender Name column -->
                                 <th>Receiver Name</th>
                                 <th>Offered Item</th>
                                 <th>Received Item</th>
@@ -36,9 +64,10 @@
                             {% for trade_offer in trade_offers %}
                             <tr>
                                 <td>{{ trade_offer.id }}</td>
+                                <td>{{ trade_offer.sender ? trade_offer.sender.getName() : 'N/A' }}</td> <!-- Display Sender's name -->
                                 <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A'  }}</td>
-                                <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getImageName() : 'N/A' }}</td>
-                                <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getImageName() : 'N/A'  }}</td>
+                                <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getTitle() : 'N/A' }}</td>
+                                <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getTitle() : 'N/A'  }}</td>
                                 <td>{{ trade_offer.description }}</td>
                                 <td>{{ trade_offer.creationDate ? trade_offer.creationDate|date('Y-m-d H:i:s') : ''  }}</td>
                                 <td>{{ trade_offer.status }}</td>
@@ -55,10 +84,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-
-                    <div class="mt-3">
-                        <a href="{{ path('app_admin_trade_offer_add') }}" class="btn btn-primary">Create new</a>
-                    </div>
                 </div>
             </div>
         </div>
