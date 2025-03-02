@@ -66,7 +66,7 @@ final class BidController extends AbstractController
                 }
 
                 $existingBid->setBidValue($bidValue);
-                $existingBid->setBidTime(new \DateTime());
+                $existingBid->setBidTime(new \DateTimeImmutable());
                 $user->setBalance($user->getBalance() - $bidDifference);
                 $betSession->setCurrentPrice($bidValue);
             } else {
@@ -80,11 +80,13 @@ final class BidController extends AbstractController
                 $bid->setAuthor($user);
                 $bid->setBetSession($betSession);
                 $bid->setBidValue($bidValue);
+                $bid->setBidTime(new \DateTimeImmutable());
                 $user->setBalance($user->getBalance() - $bidValue);
                 $betSession->setCurrentPrice($bidValue);
                 $this->entityManager->persist($bid);
             }
 
+            $betSession->setNumberOfBids($betSession->getNumberOfBids() + 1);
             $this->entityManager->persist($betSession);
             $this->entityManager->persist($user);
             $this->entityManager->flush();

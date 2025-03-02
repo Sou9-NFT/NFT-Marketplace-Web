@@ -103,8 +103,9 @@ class InsertDummyDataCommand extends Command
         // Insert Category
         $category = new Category();
         $category->setName('Example Category');
-        $category->setType('image');
+        $category->setType(Category::TYPE_IMAGE);
         $category->setDescription('This is an example category description.');
+        $category->setManager($admin);
         $this->entityManager->persist($category);
 
         // Insert Artwork
@@ -113,13 +114,14 @@ class InsertDummyDataCommand extends Command
         $artwork->setDescription('This is an example description for the artwork.');
         $artwork->setPrice(100);
         $artwork->setImageName('example.jpg');
-        $artwork->setCreator($seller);
+        $artwork->setCreator($seller); 
+        $artwork->setOwner($seller); // Add owner
         $artwork->setCategory($category);
         $this->entityManager->persist($artwork);
 
         // Create a sample raffle
         $raffle = new Raffle();
-        $raffle->setTitle('Sample Raffle');
+        $raffle->setTitle('Sample Raffle'); 
         $raffle->setRaffleDescription('This is a sample raffle description for testing purposes.');
         $raffle->setCreatorName('Admin');
         $raffle->setCreator($admin);
@@ -128,10 +130,11 @@ class InsertDummyDataCommand extends Command
         $raffle->setStatus('active');
         $raffle->setCreatedAt(new \DateTime());
         $raffle->setImage('example-raffle.jpg');
-        
         $this->entityManager->persist($raffle);
 
         $this->entityManager->flush();
+
+        
 
         $io->success('Dummy data has been inserted successfully.');
 

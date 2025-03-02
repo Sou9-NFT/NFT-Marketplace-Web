@@ -37,11 +37,24 @@
 					<div class="col-12 col-lg-5">
 						<div class="item-info">
 							<div class="item-thumb text-center">
-								{% if bet_session.artwork.imageName %}
-									<img src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="" style="width: 450px; height: 450px;">
-								{% else %}
-									<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
-								{% endif %}
+													{% if bet_session.mysteriousMode %}
+									{% set initialBlur = 50 %}
+									{% set blurAmount = initialBlur - (bet_session.getNumberOfBids() * 5) %}
+									{% if blurAmount < 0 %}
+										{% set blurAmount = 0 %}
+									{% endif %}
+									{% if bet_session.artwork.imageName %}
+										<img src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="" style="width: 450px; height: 450px; filter: blur({{ blurAmount / 5 }}px);">
+									{% else %}
+										<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" style="filter: blur({{ blurAmount / 5 }}px);">
+									{% endif %}
+									{% else %}
+									{% if bet_session.artwork.imageName %}
+										<img src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="" style="width: 450px; height: 450px;">
+									{% else %}
+										<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+									{% endif %}
+									{% endif %}
 							</div>
 							<div class="card no-hover countdown-times my-4">
 								{% if bet_session.status == 'active' %}
@@ -139,7 +152,11 @@
 						<!-- Content -->
 						<div class="content mt-5 mt-lg-0">
 							<h3 class="m-0">{{bet_session.artwork.title}}</h3>
-							<p>{{bet_session.artwork.description}}</p>
+							{% if bet_session.mysteriousMode %}
+								<p>{{bet_session.generatedDescription}}</p>
+							{% else %}
+								<p>{{bet_session.artwork.description}}</p>
+							{% endif %}
 							<!-- Owner -->
 							<div class="owner d-flex align-items-center">
 								<span>Owned By</span>
@@ -295,7 +312,7 @@
 															{% else %}
 																<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
 															{% endif %}
-															<span class="ml-2">@Nessim</span>
+															<span class="ml-2">{{session.author.name|capitalize}}</span>
 														</a>
 														<div class="card-bottom d-flex justify-content-between">
 															<span>{{ session.currentPrice }}
@@ -329,6 +346,7 @@
             method: 'GET',
             success: function(data) {
                 // Update the current price
+				
                 document.querySelector('.price span').textContent = data.currentPrice + ' Dannous';
 
                 // Update the bids list
