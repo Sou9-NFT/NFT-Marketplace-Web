@@ -8,9 +8,9 @@ parameters:
     recaptcha_secret: '%env(RECAPTCHA_SECRET)%'
     app.recaptcha_secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
-    etherscan.api_url: 'https://api-sepolia.etherscan.io/api'
-    etherscan.api_key: '%env(ETHERSCAN_API_KEY)%'
-    etherscan.contract_address: '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801'
+    etherscan_api_url: '%env(ETHERSCAN_API_URL)%'
+    etherscan_api_key: '%env(ETHERSCAN_API_KEY)%'
+    etherscan_contract_address: '%env(ETHERSCAN_CONTRACT_ADDRESS)%'
 
 services:
     _defaults:
