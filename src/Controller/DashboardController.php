@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use App\Repository\ArtworkRepository;
 use App\Repository\BetSessionRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\BlogRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -45,14 +46,13 @@ class DashboardController extends AbstractController
 
             $data = json_decode($response->getContent(), true);
             if ($data['status'] === '1' && isset($data['result'])) {
-                // Convert from wei to ether (assuming 18 decimals)
                 return floatval($data['result']) / pow(10, 18);
             }
         } catch (\Exception $e) {
             // Log error and return fallback value
         }
 
-        return 1000000; // Fallback value
+        return 1000000;
     }
 
     #[Route('/dashboard', name: 'admin_dashboard')]
@@ -60,9 +60,13 @@ class DashboardController extends AbstractController
         UserRepository $userRepository,
         ArtworkRepository $artworkRepository,
         BetSessionRepository $betSessionRepository,
-        CategoryRepository $categoryRepository
+        CategoryRepository $categoryRepository,
+        BlogRepository $blogRepository
     ): Response {
         $totalCirculation = $this->getTokenSupply();
+        
+        // Get blog analytics
+        $blogAnalytics = $blogRepository->getBlogAnalytics();
 
         $dashboard_data = [
             'users' => $userRepository->findAll(),
@@ -71,7 +75,8 @@ class DashboardController extends AbstractController
             'categories' => $categoryRepository->findAll(),
             'total_circulation' => $totalCirculation,
             'contract_address' => $this->contractAddress,
-            'fee_wallet' => '0x1234567890123456789012345678901234567890', // This should come from configuration
+            'fee_wallet' => '0x1234567890123456789012345678901234567890',
+            'blog_analytics' => $blogAnalytics
         ];
 
         return $this->render('admin/dashboard.html.twig', [
