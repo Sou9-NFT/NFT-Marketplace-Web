@@ -3,36 +3,378 @@
 {% block title %}Edit Artwork{% endblock %}
 
 {% block body %}
-    <h1>Edit Artwork</h1>
-
-    <div class="row">
-        <div class="col-md-8">
-            {{ form_start(form) }}
-            {{ form_errors(form) }}
-
-            {% if artwork.imageName %}
-                <div class="mb-3">
-                    <p>Current Image:</p>
-                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="Current Artwork Image" class="img-thumbnail" style="max-width: 300px;">
+<section class="author-area explore-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <!-- Intro -->
+                <div class="intro text-center mb-4">
+                    <h3 class="mt-3 mb-0">Edit Artwork</h3>
+                    <p>Update your NFT details and metadata</p>
                 </div>
-            {% endif %}
-            
-            {{ form_row(form.title) }}
-            {{ form_row(form.description) }}
-            {{ form_row(form.price) }}
-            {{ form_row(form.category) }}
-
-            {# Only show imageFile field if the form has it #}
-            {% if form.imageFile is defined %}
-                {{ form_row(form.imageFile) }}
-            {% endif %}
-
-            <div class="mt-4">
-                <button class="btn btn-success">{{ button_label|default('Save') }}</button>
-                <a href="{{ path('app_artwork_index') }}" class="btn btn-secondary">Back to list</a>
             </div>
-            
-            {{ form_end(form) }}
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5">
+                        {{ form_start(form, {'attr': {'class': 'artwork-form'}}) }}
+                        {{ form_errors(form) }}
+                        
+                        {% if artwork.imageName %}
+                            <div class="text-center mb-4">
+                                <div class="artwork-preview">
+                                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}" class="img-fluid rounded" style="max-height: 300px;">
+                                </div>
+                                <p class="text-muted mt-2">Current artwork image</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Enter your artwork title'}}) }}
+                                    {{ form_errors(form.title) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.price, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        {{ form_widget(form.price, {'attr': {'class': 'form-control', 'placeholder': '0.00'}}) }}
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">ETH</span>
+                                        </div>
+                                    </div>
+                                    {{ form_errors(form.price) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.category, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.category) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '5', 'placeholder': 'Describe your artwork in detail...'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if form.imageFile is defined %}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="upload-box">
+                                    <div class="form-group">
+                                        {{ form_label(form.imageFile, 'Replace Image (Optional)', {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="custom-file-upload">
+                                            {{ form_widget(form.imageFile, {'attr': {'class': 'custom-file-input', 'data-show-filename': 'true'}}) }}
+                                            <div class="file-upload-placeholder">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <p>Choose a file or drag & drop it here</p>
+                                                <span class="file-name"></span>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Leave empty to keep current image. Max size: 100MB. Allowed formats depend on the category selected.</small>
+                                        {{ form_errors(form.imageFile) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-between">
+                                <div>
+                                    <a href="{{ path('app_artwork_index') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left mr-2"></i> Back to List
+                                    </a>
+                                    
+                                    <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}" class="btn btn-info">
+                                        <i class="fas fa-eye mr-2"></i> View Artwork
+                                    </a>
+                                </div>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save mr-2"></i> Update Artwork
+                                    </button>
+                                    
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">
+                                        <i class="fas fa-trash mr-2"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+                
+                <!-- Blockchain Information Card -->
+                <div class="card mt-4">
+                    <div class="card-header bg-dark">
+                        <h5 class="mb-0"><i class="fas fa-cubes mr-2"></i> Blockchain Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>Token ID:</strong> #{{ artwork.id }}</p>
+                        <p class="mb-2"><strong>Contract Address:</strong> <code class="text-muted">0x8a42...31ef</code></p>
+                        <p class="mb-2"><strong>Transaction Hash:</strong> <code class="text-muted">0xb731...9a2f</code></p>
+                        <p class="mb-0"><strong>Creation Date:</strong> {{ artwork.createdAt|date('F d, Y H:i') }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this artwork?</p>
+                <p class="text-danger"><strong>Warning:</strong> This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form method="post" action="{{ path('app_artwork_delete', {'id': artwork.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ artwork.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete Permanently</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .artwork-form .form-control,
+    .artwork-form .form-select {
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        color: #fff;
+        border-radius: 5px;
+        padding: 12px;
+    }
+    
+    .artwork-form .form-label {
+        color: #fff;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .artwork-form .input-group-text {
+        background-color: #2e2e5c;
+        border-color: #2e2e5c;
+        color: #fff;
+    }
+    
+    .artwork-form .card {
+        background-color: #191932;
+        border: 1px solid #2e2e5c;
+        border-radius: 8px;
+    }
+    
+    .artwork-form .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .artwork-form .btn-outline-secondary {
+        color: #fff;
+        border-color: #6c757d;
+    }
+    
+    .artwork-form .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+    }
+    
+    /* File upload styling */
+    .upload-box {
+        background-color: #242435;
+        border: 2px dashed #2e2e5c;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .upload-box:hover {
+        border-color: #007bff;
+    }
+    
+    .custom-file-upload {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 150px;
+        cursor: pointer;
+    }
+    
+    .custom-file-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 10;
+    }
+    
+    .file-upload-placeholder {
+        text-align: center;
+        padding: 30px;
+    }
+    
+    .file-upload-placeholder i {
+        font-size: 2.5rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .file-upload-placeholder p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    .file-upload-placeholder .file-name {
+        display: block;
+        margin-top: 10px;
+        color: #fff;
+        font-weight: bold;
+    }
+    
+    .artwork-preview {
+        background-color: #242435;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* Modal styling */
+    .modal-content {
+        background-color: #191932;
+        border: 1px solid #2e2e5c;
+        border-radius: 8px;
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid #2e2e5c;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #2e2e5c;
+    }
+    
+    .modal-title {
+        color: #fff;
+    }
+    
+    .close {
+        color: #fff;
+    }
+    
+    .close:hover {
+        color: #ddd;
+    }
+    
+    code {
+        background-color: #242435;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // File input enhancement
+            const fileInput = document.querySelector('.custom-file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    const fileName = this.files[0]?.name;
+                    const fileNameDisplay = this.closest('.custom-file-upload').querySelector('.file-name');
+                    if (fileName) {
+                        fileNameDisplay.textContent = fileName;
+                        fileNameDisplay.style.display = 'block';
+                    } else {
+                        fileNameDisplay.textContent = '';
+                        fileNameDisplay.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Drag & drop file upload enhancement
+            const uploadBox = document.querySelector('.upload-box');
+            if (uploadBox) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    uploadBox.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    uploadBox.addEventListener(eventName, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    uploadBox.addEventListener(eventName, unhighlight, false);
+                });
+                
+                function highlight() {
+                    uploadBox.classList.add('border-primary');
+                }
+                
+                function unhighlight() {
+                    uploadBox.classList.remove('border-primary');
+                }
+                
+                uploadBox.addEventListener('drop', handleDrop, false);
+                
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    
+                    if (fileInput && files.length > 0) {
+                        fileInput.files = files;
+                        const fileName = files[0].name;
+                        const fileNameDisplay = uploadBox.querySelector('.file-name');
+                        fileNameDisplay.textContent = fileName;
+                        fileNameDisplay.style.display = 'block';
+                    }
+                }
+            }
+        });
+    </script>
 {% endblock %}

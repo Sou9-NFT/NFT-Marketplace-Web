@@ -1,67 +1,294 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Artwork{% endblock %}
+{% block title %}Create New Artwork{% endblock %}
 
 {% block body %}
-    <h1>Create new Artwork</h1>
-
-    <div class="row">
-        <div class="col-md-8">
-            {{ form_start(form) }}
-            {{ form_errors(form) }}
-
-            {% if aiImageUsed %}
-                <div class="alert alert-info">
-                    <p>You're using an AI-generated image:</p>
-                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="AI Generated Image" class="img-thumbnail" style="max-width: 300px;">
-                    <input type="hidden" name="ai_image_name" value="{{ artwork.imageName }}">
-                    
-                    <button type="button" class="btn btn-sm btn-danger mt-2" id="clearAiImage">
-                        <i class="fas fa-times"></i> Remove AI image
-                    </button>
+<section class="author-area explore-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <!-- Intro -->
+                <div class="intro text-center mb-4">
+                    <h3 class="mt-3 mb-0">Create New Artwork</h3>
+                    <p>Upload your artwork or generate one with AI</p>
                 </div>
-            {% endif %}
-            
-            {{ form_row(form.title) }}
-            {{ form_row(form.description) }}
-            {{ form_row(form.price) }}
-            {{ form_row(form.category) }}
-
-            {# Only show imageFile field if the form has it (not using AI image) #}
-            {% if form.imageFile is defined %}
-                {{ form_row(form.imageFile) }}
-            {% endif %}
-            
-            {# AI generator section (only show if not already using an AI image) #}
-            {% if not aiImageUsed %}
-                <div class="ai-generator mb-4 mt-4">
-                    <h3>Or generate an image with AI</h3>
-                    <div class="form-group">
-                        <label for="aiPrompt">Describe what you want to generate:</label>
-                        <textarea id="aiPrompt" class="form-control" rows="3" placeholder="Describe the image you want to generate..."></textarea>
-                    </div>
-                    <button type="button" id="generateAiImage" class="btn btn-primary mt-2">
-                        <i class="fas fa-robot"></i> Generate Image
-                    </button>
-                    <div id="aiImagePreview" class="mt-3"></div>
-                    <div id="aiGenerationStatus"></div>
-                </div>
-            {% endif %}
-
-            <div class="mt-4">
-                <button class="btn btn-success">{{ button_label|default('Save') }}</button>
-                <a href="{{ path('app_artwork_index') }}" class="btn btn-secondary">Back to list</a>
             </div>
-            
-            {{ form_end(form) }}
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5">
+                        {{ form_start(form, {'attr': {'class': 'artwork-form'}}) }}
+                        {{ form_errors(form) }}
+
+                        {% if aiImageUsed %}
+                            <div class="alert alert-info artwork-preview ai-preview mb-4">
+                                <h5 class="mb-3">AI-Generated Image</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="AI Generated Image" class="img-fluid rounded">
+                                    </div>
+                                    <div class="col-md-6 d-flex flex-column justify-content-center">
+                                        <p>Your AI-generated image is ready to use.</p>
+                                        <input type="hidden" name="ai_image_name" value="{{ artwork.imageName }}">
+                                        <button type="button" class="btn btn-sm btn-danger mt-2" id="clearAiImage">
+                                            <i class="fas fa-times"></i> Remove AI image
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Enter your artwork title'}}) }}
+                                    {{ form_errors(form.title) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.price, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        {{ form_widget(form.price, {'attr': {'class': 'form-control', 'placeholder': '0.00'}}) }}
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">ETH</span>
+                                        </div>
+                                    </div>
+                                    {{ form_errors(form.price) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.category, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.category) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="form-group">
+                                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '5', 'placeholder': 'Describe your artwork in detail...'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if form.imageFile is defined and not aiImageUsed %}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="upload-box">
+                                    <div class="form-group">
+                                        {{ form_label(form.imageFile, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="custom-file-upload">
+                                            {{ form_widget(form.imageFile, {'attr': {'class': 'custom-file-input', 'data-show-filename': 'true'}}) }}
+                                            <div class="file-upload-placeholder">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <p>Choose a file or drag & drop it here</p>
+                                                <span class="file-name"></span>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Max size: 100MB. Allowed formats depend on the category selected.</small>
+                                        {{ form_errors(form.imageFile) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {# AI generator section (only show if not already using an AI image) #}
+                        {% if not aiImageUsed %}
+                        <div class="card mb-4 ai-generator">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-robot mr-2"></i> AI Image Generator</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="aiPrompt">Describe what you want to generate:</label>
+                                    <textarea id="aiPrompt" class="form-control" rows="3" placeholder="Enter a detailed description of the image you want to create..."></textarea>
+                                </div>
+                                <button type="button" id="generateAiImage" class="btn btn-primary mt-2">
+                                    <i class="fas fa-magic mr-2"></i> Generate Image
+                                </button>
+                                <div id="aiGenerationStatus" class="mt-3"></div>
+                                <div id="aiImagePreview" class="mt-3"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-between">
+                                <a href="{{ path('app_artwork_index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i> Back to List
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-2"></i> Create Artwork
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .artwork-form .form-control,
+    .artwork-form .form-select {
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        color: #fff;
+        border-radius: 5px;
+        padding: 12px;
+    }
+    
+    .artwork-form .form-label {
+        color: #fff;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .artwork-form .input-group-text {
+        background-color: #2e2e5c;
+        border-color: #2e2e5c;
+        color: #fff;
+    }
+    
+    .artwork-form .card {
+        background-color: #191932;
+        border: 1px solid #2e2e5c;
+        border-radius: 8px;
+    }
+    
+    .artwork-form .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .artwork-form .btn-outline-secondary {
+        color: #fff;
+        border-color: #6c757d;
+    }
+    
+    .artwork-form .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+    }
+    
+    .artwork-form .alert {
+        border-radius: 5px;
+    }
+    
+    .artwork-form .ai-preview {
+        background-color: rgba(0, 123, 255, 0.1);
+        border: 1px solid #007bff;
+    }
+    
+    /* File upload styling */
+    .upload-box {
+        background-color: #242435;
+        border: 2px dashed #2e2e5c;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .upload-box:hover {
+        border-color: #007bff;
+    }
+    
+    .custom-file-upload {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 150px;
+        cursor: pointer;
+    }
+    
+    .custom-file-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 10;
+    }
+    
+    .file-upload-placeholder {
+        text-align: center;
+        padding: 30px;
+    }
+    
+    .file-upload-placeholder i {
+        font-size: 2.5rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .file-upload-placeholder p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    .file-upload-placeholder .file-name {
+        display: block;
+        margin-top: 10px;
+        color: #fff;
+        font-weight: bold;
+    }
+    
+    /* AI Generator styling */
+    .ai-generator .card-header {
+        background-color: #2e2e5c;
+        color: #fff;
+        padding: 15px;
+    }
+    
+    .ai-generator .card-body {
+        padding: 20px;
+    }
+</style>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // File input enhancement
+            const fileInput = document.querySelector('.custom-file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    const fileName = this.files[0]?.name;
+                    const fileNameDisplay = this.closest('.custom-file-upload').querySelector('.file-name');
+                    if (fileName) {
+                        fileNameDisplay.textContent = fileName;
+                        fileNameDisplay.style.display = 'block';
+                    } else {
+                        fileNameDisplay.textContent = '';
+                        fileNameDisplay.style.display = 'none';
+                    }
+                });
+            }
+            
+            // AI image generation
             const generateBtn = document.getElementById('generateAiImage');
             const aiPrompt = document.getElementById('aiPrompt');
             const previewDiv = document.getElementById('aiImagePreview');
@@ -86,6 +313,50 @@
                 });
             }
             
+            // Drag & drop file upload enhancement
+            const uploadBox = document.querySelector('.upload-box');
+            if (uploadBox) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    uploadBox.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    uploadBox.addEventListener(eventName, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    uploadBox.addEventListener(eventName, unhighlight, false);
+                });
+                
+                function highlight() {
+                    uploadBox.classList.add('border-primary');
+                }
+                
+                function unhighlight() {
+                    uploadBox.classList.remove('border-primary');
+                }
+                
+                uploadBox.addEventListener('drop', handleDrop, false);
+                
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    
+                    if (fileInput && files.length > 0) {
+                        fileInput.files = files;
+                        const fileName = files[0].name;
+                        const fileNameDisplay = uploadBox.querySelector('.file-name');
+                        fileNameDisplay.textContent = fileName;
+                        fileNameDisplay.style.display = 'block';
+                    }
+                }
+            }
+            
             // Generate image button
             if (generateBtn) {
                 generateBtn.addEventListener('click', function() {
@@ -97,7 +368,7 @@
                     }
                     
                     // Show loading status
-                    statusDiv.innerHTML = '<div class="alert alert-info">Generating image, please wait...</div>';
+                    statusDiv.innerHTML = '<div class="alert alert-info d-flex align-items-center"><div class="spinner-border spinner-border-sm mr-3" role="status"></div> Generating image, please wait...</div>';
                     generateBtn.disabled = true;
                     
                     // Send the generation request
@@ -115,23 +386,34 @@
                         
                         if (data.success) {
                             // Show the generated image
-                            statusDiv.innerHTML = '<div class="alert alert-success">Image generated successfully!</div>';
+                            statusDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle mr-2"></i> Image generated successfully!</div>';
                             previewDiv.innerHTML = `
-                                <div class="card" style="max-width: 300px;">
-                                    <img src="${data.path}" class="card-img-top" alt="Generated image">
+                                <div class="card">
                                     <div class="card-body">
-                                        <p class="card-text">Generated from prompt: "${prompt}"</p>
-                                        <a href="{{ path('app_artwork_new') }}?aiImage=${data.filename}" class="btn btn-primary">Use this image</a>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <img src="${data.path}" class="img-fluid rounded" alt="Generated image">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h5>Generated Image</h5>
+                                                <p class="text-muted">Prompt: "${prompt}"</p>
+                                                <div class="d-grid">
+                                                    <a href="{{ path('app_artwork_new') }}?aiImage=${data.filename}" class="btn btn-primary">
+                                                        <i class="fas fa-magic mr-2"></i> Use this image
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             `;
                         } else {
-                            statusDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                            statusDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle mr-2"></i> Error: ${data.error}</div>`;
                         }
                     })
                     .catch(error => {
                         generateBtn.disabled = false;
-                        statusDiv.innerHTML = '<div class="alert alert-danger">Error communicating with server</div>';
+                        statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle mr-2"></i> Error communicating with server</div>';
                         console.error('Error:', error);
                     });
                 });

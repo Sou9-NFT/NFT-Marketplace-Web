@@ -1,198 +1,301 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Artwork Gallery{% endblock %}
+{% block title %}Artwork Collection{% endblock %}
 
 {% block body %}
-    <main id="main" class="main">
-        <div class="pagetitle">
-            <h1>Artwork Gallery</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item active">Artworks</li>
-                </ol>
-            </nav>
+<section class="author-area explore-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <!-- Intro -->
+                <div class="intro text-center mb-4">
+                    <h3 class="mt-3 mb-0">Explore Artworks</h3>
+                    <p>Discover, collect, and sell extraordinary NFTs</p>
+                </div>
+            </div>
         </div>
-
-        <section class="section">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title">Browse Artworks</h5>
-                                <div class="d-flex gap-2">
-                                    <input id="searchInput" class="form-control" type="search" 
-                                           placeholder="Search artworks..." 
-                                           value="{{ app.request.query.get('q') }}">
-                                    <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Sort By
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
-                                            <li><a class="dropdown-item sort-option" href="#" data-sort="title">Title</a></li>
-                                            <li><a class="dropdown-item sort-option" href="#" data-sort="price">Price</a></li>
-                                            <li><a class="dropdown-item sort-option" href="#" data-sort="date">Date</a></li>
-                                            <li><a class="dropdown-item sort-option" href="#" data-sort="category">Category</a></li>
-                                        </ul>
-                                    </div>
-                                    <a href="{{ path('app_artwork_new') }}" class="btn btn-primary">
-                                        <i class="bi bi-plus-circle"></i> Create New Artwork
-                                    </a>
-                                </div>
-                            </div>
-
-                            {% for label, messages in app.flashes %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endfor %}
-
-                            <div id="artworkGrid" class="row">
-                                {% for artwork in artworks %}
-                                    <div class="col-md-4 col-lg-3 mb-4">
-                                        <div class="card h-100">
-                                            <div class="position-relative artwork-media">
-                                                {% if artwork.category.type == 'image' %}
-                                                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
-                                                         class="card-img-top" 
-                                                         alt="{{ artwork.title }}"
-                                                         style="height: 200px; object-fit: cover;">
-                                                {% elseif artwork.category.type == 'video' %}
-                                                    <video class="card-img-top" controls style="height: 200px; object-fit: cover;">
-                                                        <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="video/mp4">
-                                                        Your browser does not support the video tag.
-                                                    </video>
-                                                {% elseif artwork.category.type == 'audio' %}
-                                                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
-                                                        <i class="bi bi-music-note-beamed" style="font-size: 3rem;"></i>
-                                                    </div>
-                                                    <audio controls class="w-100 mt-2">
-                                                        <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="audio/mpeg">
-                                                        Your browser does not support the audio element.
-                                                    </audio>
-                                                {% endif %}
-                                            </div>
-                                            <div class="card-body">
-                                                <h5 class="card-title">{{ artwork.title }}</h5>
-                                                <p class="card-text text-muted">
-                                                    {{ artwork.description|length > 100 ? artwork.description|slice(0, 100) ~ '...' : artwork.description }}
-                                                </p>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="badge bg-primary">{{ artwork.category.name }}</span>
-                                                    <span class="text-primary fw-bold">{{ artwork.price }} ETH</span>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer bg-transparent p-2">
-                                                <div class="btn-group btn-group-sm w-100" role="group">
-                                                    <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}" class="btn btn-outline-primary text-white">
-                                                        <i class="bi bi-eye"></i> View
-                                                    </a>
-                                                    <a href="{{ path('app_artwork_edit', {'id': artwork.id}) }}" class="btn btn-outline-primary text-white">
-                                                        <i class="bi bi-pencil"></i> Edit
-                                                    </a>
-                                                    <form method="post" action="{{ path('app_artwork_delete', {'id': artwork.id}) }}" 
-                                                          onsubmit="return confirm('Are you sure you want to delete this artwork?');" 
-                                                          style="display: inline-block; flex: 1;">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ artwork.id) }}">
-                                                        <button class="btn btn-outline-danger text-white btn-sm w-100">
-                                                            <i class="bi bi-trash"></i> Delete
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    <div class="col-12">
-                                        <div class="alert alert-info" role="alert">
-                                            No artworks found. <a href="{{ path('app_artwork_new') }}" class="alert-link">Create your first artwork</a>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
+        
+        <!-- Search and Filter Row -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="search-form">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search artworks..." value="{{ searchTerm ?? '' }}">
+                        <div class="input-group-append">
+                            <select id="sortSelect" class="form-control">
+                                <option value="date" {% if sortBy == 'date' %}selected{% endif %}>Date</option>
+                                <option value="price" {% if sortBy == 'price' %}selected{% endif %}>Price</option>
+                                <option value="title" {% if sortBy == 'title' %}selected{% endif %}>Title</option>
+                                <option value="category" {% if sortBy == 'category' %}selected{% endif %}>Category</option>
+                            </select>
+                            <select id="directionSelect" class="form-control">
+                                <option value="DESC" {% if direction == 'DESC' %}selected{% endif %}>Descending</option>
+                                <option value="ASC" {% if direction == 'ASC' %}selected{% endif %}>Ascending</option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+        
+        <!-- Filter Buttons -->
+        <div class="row">
+            <div class="col-12">
+                <!-- Explore Menu -->
+                <div class="explore-menu btn-group btn-group-toggle flex-wrap justify-content-center text-center mb-4" data-toggle="buttons">
+                    <label class="btn active d-table text-uppercase p-2" data-category="">
+                        <input type="radio" autocomplete="off" checked>
+                        <span>All</span>
+                    </label>
+                    {% set uniqueCategories = [] %}
+                    {% for artwork in artworks %}
+                        {% if artwork.category.name not in uniqueCategories %}
+                            {% set uniqueCategories = uniqueCategories|merge([artwork.category.name]) %}
+                            <label class="btn d-table text-uppercase p-2" data-category="{{ artwork.category.name }}">
+                                <input type="radio" autocomplete="off">
+                                <span>{{ artwork.category.name }}</span>
+                            </label>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Artwork Grid -->
+        <div class="row items" id="artworkGrid">
+            {% for artwork in artworks %}
+                <div class="col-12 col-sm-6 col-lg-3 item artwork-item" 
+                     data-title="{{ artwork.title|lower }}" 
+                     data-description="{{ artwork.description|lower }}"
+                     data-price="{{ artwork.price }}" 
+                     data-category="{{ artwork.category.name|lower }}" 
+                     data-date="{{ artwork.createdAt|date('U') }}">
+                    <div class="card">
+                        <div class="image-over">
+                            <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}">
+                                <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}">
+                            </a>
+                        </div>
+                        <!-- Card Caption -->
+                        <div class="card-caption col-12 p-0">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}">
+                                    <h5 class="mb-0">{{ artwork.title }}</h5>
+                                </a>
+                                <div class="seller d-flex align-items-center my-3">
+                                    <span>Owned By</span>
+                                    <a href="#">
+                                        <h6 class="ml-2 mb-0">{{ artwork.owner.name }}</h6>
+                                    </a>
+                                </div>
+                                <div class="card-bottom d-flex justify-content-between">
+                                    <span>{{ artwork.price }} ETH</span>
+                                    <span><i class="fas fa-tag"></i> {{ artwork.category.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center no-results">
+                    <p>No artworks found. Try a different search term or <a href="{{ path('app_artwork_new') }}" class="btn btn-sm btn-primary">Create a new artwork</a></p>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div id="noResultsMessage" class="row mt-4 d-none">
+            <div class="col-12 text-center">
+                <p>No artworks match your search. Try different criteria or <a href="{{ path('app_artwork_new') }}" class="btn btn-sm btn-primary">Create a new artwork</a></p>
+            </div>
+        </div>
+        
+        <!-- Add Artwork Button -->
+        <div class="row mt-4 mb-3">
+            <div class="col-12 text-center">
+                <a href="{{ path('app_artwork_new') }}" class="btn btn-bordered-white"><i class="fas fa-plus mr-2"></i> Create New Artwork</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .search-form {
+        margin-bottom: 20px;
+    }
+    
+    .search-form .form-control {
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        color: #fff;
+        border-radius: 0;
+    }
+    
+    .search-form .btn {
+        border-radius: 0;
+    }
+    
+    .search-form select.form-control {
+        max-width: 150px;
+    }
+    
+    .card {
+        margin-bottom: 30px;
+        border-radius: 5px;
+        background-color: #24243557;
+        border: 1px solid #2e2e5c;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .artwork-item.hidden {
+        display: none;
+    }
+</style>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let timeoutId;
-            let currentSort = '{{ app.request.query.get('sort', 'date') }}';
-            let sortDirection = '{{ app.request.query.get('direction', 'DESC') }}';
-
             const searchInput = document.getElementById('searchInput');
-            const artworkGrid = document.getElementById('artworkGrid');
-            const sortDropdown = document.getElementById('sortDropdown');
-
-            // Initialize Bootstrap dropdown
-            new bootstrap.Dropdown(sortDropdown);
-
-            function updateResults() {
-                const searchTerm = searchInput.value;
-                const url = new URL(window.location.href);
-                url.searchParams.set('q', searchTerm);
-                url.searchParams.set('sort', currentSort);
-                url.searchParams.set('direction', sortDirection);
-
-                fetch(url.toString(), {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    artworkGrid.innerHTML = html;
-                    updateSortButtonText();
-                })
-                .catch(error => console.error('Error:', error));
-            }
-
-            function updateSortButtonText() {
-                const sortOptions = {
-                    'title': 'Title',
-                    'price': 'Price',
-                    'date': 'Date',
-                    'category': 'Category'
-                };
-                const sortText = sortOptions[currentSort] || 'Date';
-                sortDropdown.innerHTML = `Sort by: ${sortText} ${sortDirection === 'ASC' ? '↑' : '↓'}`;
-            }
-
-            // Update sort button text initially
-            updateSortButtonText();
-
-            // Debounced search
-            searchInput.addEventListener('input', function() {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(updateResults, 300);
-            });
-
-            // Sorting
-            document.querySelectorAll('.sort-option').forEach(option => {
-                option.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();  // Prevent dropdown from closing immediately
+            const sortSelect = document.getElementById('sortSelect');
+            const directionSelect = document.getElementById('directionSelect');
+            const artworkItems = document.querySelectorAll('.artwork-item');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const filterButtons = document.querySelectorAll('.explore-menu .btn');
+            
+            let currentCategory = '';
+            
+            // Function to filter and sort artworks in real-time
+            function filterAndSortArtworks() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const sortBy = sortSelect.value;
+                const direction = directionSelect.value;
+                
+                // Collect all visible items for sorting
+                let visibleItems = [];
+                
+                // First apply search and category filters
+                artworkItems.forEach(item => {
+                    const title = item.dataset.title;
+                    const description = item.dataset.description;
+                    const category = item.dataset.category;
                     
-                    const sortBy = this.dataset.sort;
-                    if (currentSort === sortBy) {
-                        sortDirection = sortDirection === 'ASC' ? 'DESC' : 'ASC';
+                    const matchesSearch = !searchTerm || 
+                        title.includes(searchTerm) || 
+                        description.includes(searchTerm) ||
+                        category.includes(searchTerm);
+                        
+                    const matchesCategory = !currentCategory || category === currentCategory.toLowerCase();
+                    
+                    if (matchesSearch && matchesCategory) {
+                        item.classList.remove('hidden');
+                        visibleItems.push(item);
                     } else {
-                        currentSort = sortBy;
-                        sortDirection = 'ASC';
+                        item.classList.add('hidden');
+                    }
+                });
+                
+                // Check if there are any visible items
+                if (visibleItems.length === 0) {
+                    noResultsMessage.classList.remove('d-none');
+                } else {
+                    noResultsMessage.classList.add('d-none');
+                }
+                
+                // Sort the visible items
+                visibleItems.sort((a, b) => {
+                    let valueA, valueB;
+                    
+                    switch(sortBy) {
+                        case 'price':
+                            valueA = parseFloat(a.dataset.price);
+                            valueB = parseFloat(b.dataset.price);
+                            break;
+                        case 'date':
+                            valueA = parseInt(a.dataset.date);
+                            valueB = parseInt(b.dataset.date);
+                            break;
+                        case 'title':
+                            valueA = a.dataset.title;
+                            valueB = b.dataset.title;
+                            break;
+                        case 'category':
+                            valueA = a.dataset.category;
+                            valueB = b.dataset.category;
+                            break;
+                        default:
+                            valueA = parseInt(a.dataset.date);
+                            valueB = parseInt(b.dataset.date);
                     }
                     
-                    updateResults();
+                    // For string comparisons
+                    if (typeof valueA === 'string') {
+                        if (direction === 'ASC') {
+                            return valueA.localeCompare(valueB);
+                        } else {
+                            return valueB.localeCompare(valueA);
+                        }
+                    }
+                    // For number comparisons
+                    else {
+                        if (direction === 'ASC') {
+                            return valueA - valueB;
+                        } else {
+                            return valueB - valueA;
+                        }
+                    }
+                });
+                
+                // Reorder the items in the DOM
+                const artworkGrid = document.getElementById('artworkGrid');
+                visibleItems.forEach(item => {
+                    artworkGrid.appendChild(item);
+                });
+                
+                // Update URL without reloading the page
+                const url = new URL(window.location);
+                url.searchParams.set('search', searchTerm);
+                url.searchParams.set('sort', sortBy);
+                url.searchParams.set('direction', direction);
+                window.history.replaceState({}, '', url);
+            }
+            
+            // Event listeners for real-time filtering
+            searchInput.addEventListener('input', filterAndSortArtworks);
+            sortSelect.addEventListener('change', filterAndSortArtworks);
+            directionSelect.addEventListener('change', filterAndSortArtworks);
+            
+            // Filter buttons functionality
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Set the current category
+                    currentCategory = this.dataset.category || '';
+                    
+                    // Apply filters
+                    filterAndSortArtworks();
                 });
             });
+            
+            // Initialize with any URL parameters
+            if (searchInput.value || 
+                sortSelect.value !== 'date' || 
+                directionSelect.value !== 'DESC') {
+                filterAndSortArtworks();
+            }
         });
     </script>
 {% endblock %}

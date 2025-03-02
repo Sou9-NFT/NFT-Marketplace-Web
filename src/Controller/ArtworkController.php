@@ -42,10 +42,20 @@ class ArtworkController extends AbstractController
     }
 
     #[Route('/', name: 'app_artwork_index', methods: ['GET'])]
-    public function index(ArtworkRepository $artworkRepository): Response
+    public function index(Request $request, ArtworkRepository $artworkRepository): Response
     {
+        $searchTerm = $request->query->get('search');
+        $sortBy = $request->query->get('sort', 'date');
+        $direction = $request->query->get('direction', 'DESC');
+        
+        // Use the existing searchByTerm method from ArtworkRepository
+        $artworks = $artworkRepository->searchByTerm($searchTerm, $sortBy, $direction);
+        
         return $this->render('artwork/index.html.twig', [
-            'artworks' => $artworkRepository->findAll(),
+            'artworks' => $artworks,
+            'searchTerm' => $searchTerm,
+            'sortBy' => $sortBy,
+            'direction' => $direction
         ]);
     }
 
