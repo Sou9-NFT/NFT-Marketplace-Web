@@ -70,6 +70,11 @@ services:
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
 
-
     App\Service\ProfanityFilter:
         autowire: true
+
+    App\Controller\DashboardController:
+        arguments:
+            $etherscanApiUrl: '%etherscan.api_url%'
+            $etherscanApiKey: '%etherscan.api_key%'
+            $contractAddress: '%etherscan.contract_address%'
