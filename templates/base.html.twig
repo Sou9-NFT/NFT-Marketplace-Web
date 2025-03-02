@@ -117,20 +117,7 @@
                         </li>
                     </ul>
                     <!-- Add this inside the block header -->
-<div class="notification-dropdown">
-    <img src="{{ asset('front_office/img/logo/notification.png') }}" alt="Notifications">
-    <div class="dropdown-content">
-        {% if notifications is not empty %}
-            {% for notification in notifications %}
-                <div class="notification-item">
-                    <p>{{ notification.message }}</p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No new notifications</p>
-        {% endif %}
-    </div>
-</div>
+
 
 
 

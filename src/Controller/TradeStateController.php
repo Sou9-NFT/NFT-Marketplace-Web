@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Controller;
-use App\Entity\Notification;
+
 
 use App\Entity\TradeState;
 use App\Entity\Artwork;
 use App\Entity\TradeOffer;
-use App\Repository\NotificationRepository;
+
 use App\Repository\TradeStateRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
