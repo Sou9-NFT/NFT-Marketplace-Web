@@ -1,9 +1,13 @@
+parameters:
+    google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
+    google_recaptcha_secret_key: '%env(GOOGLE_RECAPTCHA_SECRET)%'
+
 services:
 
     # Inject this service in your controllers/services to verify a submitted captcha.
     ReCaptcha\ReCaptcha:
         arguments:
-            $secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
+            $secret: '%google_recaptcha_secret_key%'
             $requestMethod: '@ReCaptcha\RequestMethod'
 
     # Curl is set here as default transport to communicate with Google servers.
@@ -17,4 +21,4 @@ services:
 # Enable the site key globally in Twig templates
 twig:
     globals:
-        google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
+        google_recaptcha_site_key: '%google_recaptcha_site_key%'

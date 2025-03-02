@@ -1,97 +1,214 @@
 {% extends 'base_back.html.twig' %}
 
-{% block title %}Raffle Management{% endblock %}
+{% block title %}Raffles Management{% endblock %}
 
 {% block body %}
-    <main id="main" class="main">
-        <div class="pagetitle">
-            <h1>Raffle Management</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item active">Raffles</li>
-                </ol>
-            </nav>
-        </div>
+    <div class="pagetitle">
+        <h1>Raffles Management</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_admin_raffle_index') }}">Home</a></li>
+                <li class="breadcrumb-item active">Raffles</li>
+            </ol>
+        </nav>
+    </div>
 
-        <section class="section">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title">Manage Raffles</h5>
-                                <a href="{{ path('app_admin_raffle_new') }}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle"></i> Add New Raffle
+    <section class="section">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                <div class="card">
+                    <div class="card-body px-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="card-title mb-0">All Raffles</h5>
+                            <div>
+                                <a href="{{ path('app_admin_raffle_new') }}" class="btn btn-primary btn-fixed-width">
+                                    <i class="bi bi-plus-circle me-2"></i>New Raffle
                                 </a>
                             </div>
+                        </div>
 
-                            {% for label, messages in app.flashes %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ label }} alert-dismissible fade show">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endfor %}
-
-                            {% if raffles is defined and raffles|length > 0 %}
-                                <!-- Simple Table -->
-                                <table class="table table-striped datatable">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">ID</th>
-                                            <th scope="col">Title</th>
-                                            <th scope="col">Description</th>
-                                            <th scope="col">Creator</th>
-                                            <th scope="col">Start Time</th>
-                                            <th scope="col">End Time</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for raffle in raffles %}
-                                            <tr>
-                                                <td>{{ raffle.id }}</td>
-                                                <td>{{ raffle.title }}</td>
-                                                <td>{{ raffle.raffleDescription|slice(0, 50) }}...</td>
-                                                <td>{{ raffle.creatorName }}</td>
-                                                <td>{{ raffle.startTime ? raffle.startTime|date('Y-m-d H:i') : '' }}</td>
-                                                <td>{{ raffle.endTime ? raffle.endTime|date('Y-m-d H:i') : '' }}</td>
-                                                <td>
-                                                    <span class="badge bg-{{ raffle.status == 'active' ? 'success' : 'danger' }}">
-                                                        {{ raffle.status|title }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <a href="{{ path('app_admin_raffle_show', {'id': raffle.id}) }}" class="btn btn-info btn-sm">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-                                                        <a href="{{ path('app_admin_raffle_edit', {'id': raffle.id}) }}" class="btn btn-warning btn-sm">
-                                                            <i class="bi bi-pencil"></i>
-                                                        </a>
-                                                        <form method="post" action="{{ path('app_admin_raffle_delete', {'id': raffle.id}) }}" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this raffle?');">
-                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
-                                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </form>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Artwork</th>
+                                        <th>Title</th>
+                                        <th>Creator</th>
+                                        <th>Status</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for raffle in raffles %}
+                                    <tr>
+                                        <td>{{ raffle.id }}</td>
+                                        <td style="width: 100px;">
+                                            {% if raffle.artwork.imageName %}
+                                                <div class="d-flex align-items-center">
+                                                    <img src="{{ asset('uploads/artworks/' ~ raffle.artwork.imageName) }}" 
+                                                         alt="{{ raffle.artwork.title }}"
+                                                         class="img-thumbnail"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <div class="ms-2">
+                                                        <small class="d-block text-muted">{{ raffle.artwork.title }}</small>
+                                                        <small class="d-block text-muted">${{ raffle.artwork.price }}</small>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            {% else %}
-                                <div class="alert alert-info">
-                                    No raffles found. Click the "Add New Raffle" button to create one.
-                                </div>
-                            {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ raffle.title }}</td>
+                                        <td>{{ raffle.creator.email }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ raffle.status == 'active' ? 'success' : 'secondary' }}">
+                                                {{ raffle.status|capitalize }}
+                                            </span>
+                                        </td>
+                                        <td>{{ raffle.startTime ? raffle.startTime|date('Y-m-d H:i:s') : '' }}</td>
+                                        <td>{{ raffle.endTime ? raffle.endTime|date('Y-m-d H:i:s') : '' }}</td>
+                                        <td>
+                                            <div class="d-flex justify-content-end pe-2">
+                                                <div class="d-flex gap-2">
+                                                    <a href="{{ path('app_admin_raffle_show', {'id': raffle.id}) }}" 
+                                                       class="btn btn-sm btn-outline-primary btn-icon">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('app_admin_raffle_edit', {'id': raffle.id}) }}" 
+                                                       class="btn btn-sm btn-outline-warning btn-icon">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <form method="post" action="{{ path('app_admin_raffle_delete', {'id': raffle.id}) }}" 
+                                                          onsubmit="return confirm('Are you sure you want to delete this raffle?');" 
+                                                          style="display: inline;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ raffle.id) }}">
+                                                        <button class="btn btn-sm btn-outline-danger btn-icon">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="text-muted">
+                                                <i class="bi bi-ticket-perforated mb-2" style="font-size: 2rem;"></i>
+                                                <p class="mb-0">No raffles found</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+
+    <style>
+        .card {
+            box-shadow: 0 0 25px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            border: none;
+            margin: 0 auto;
+            width: 100%;
+            min-height: 700px;
+        }
+        .card-body {
+            padding: 2.5rem !important;
+        }
+        .table-responsive {
+            margin: 0;
+        }
+        .table {
+            margin-bottom: 0;
+            width: 100%;
+        }
+        .table > thead > tr > th {
+            white-space: nowrap;
+            background-color: #f8f9fa;
+            padding: 1rem 0.75rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .table > tbody > tr > td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+        }
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+        .table > tbody > tr {
+            transition: all 0.2s ease;
+        }
+        .table > tbody > tr:hover {
+            background-color: rgba(13, 110, 253, 0.04) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* New button styles */
+        .btn-fixed-width {
+            min-width: 90px;      /* Reduced from 140px */
+            height: 32px;         /* Reduced from default */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            gap: 0.3rem;
+        }
+
+        .btn-icon {
+            width: 28px;          /* Reduced from 32px */
+            height: 28px;         /* Reduced from 32px */
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 1px;
+        }
+
+        .btn-icon i {
+            font-size: 0.875rem;  /* Smaller icons */
+        }
+
+        /* Keep original button colors */
+        .btn-outline-primary {
+            color: #4154f1;
+            border-color: #4154f1;
+        }
+
+        .btn-outline-warning {
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-primary {
+            background-color: #4154f1;
+            border-color: #4154f1;
+        }
+
+        /* Table button group spacing */
+        td .d-flex.gap-2 {
+            gap: 0.5rem !important;
+        }
+
+        td .d-flex.justify-content-end {
+            margin-right: -0.5rem;
+        }
+    </style>
 {% endblock %}
