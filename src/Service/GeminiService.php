@@ -15,7 +15,7 @@ class GeminiService
     private const COMMON_QUESTIONS = [
         'process' => "Here's the participation process:\n1. Find an active raffle (green badge)\n2. Click 'View' to open it\n3. Click 'Join Raffle'\n4. Confirm participation\n\nRemember: You must be logged in! ✨",
         'participate' => "Want to join a raffle? Here's how:\n1. Look for raffles with green status\n2. Click 'View' button\n3. Hit 'Join Raffle'\n4. Done! Wait for results\n\nMake sure you're logged in first! 🎯",
-        'how join' => "Here's how to join:\n1. Click 'View' on any raffle\n2. Click 'Join Raffle'\n3. Confirm and wait\n\nTip: Look for green status badges! 🎉",
+        'how join raffle' => "Here's how to join:\n1. Click 'View' on any raffle\n2. Click 'Join Raffle'\n3. Confirm and wait\n\nTip: Look for green status badges! 🎉",
         'rules' => "📜 Raffle Rules:\n- Must be logged in\n- One entry per raffle\n- Green = Active, can join\n- Gray = Ended\n- Winners picked randomly",
         'status' => "🎯 Raffle Status:\n- Green badge = Active, join now!\n- Gray badge = Ended\n\nOnly active raffles accept entries!",
         'winner' => "🏆 Winner Selection:\n- Random selection at raffle end\n- Check status to see if ended\n- Winners shown on raffle page",
@@ -38,7 +38,7 @@ class GeminiService
     ];
 
     private const RAFFLE_KEYWORDS = [
-        'raffle', 'join', 'participate', 'win', 'ticket', 'prize', 'winner', 'draw', 'enter',
+        'raffle', 'join raffle', 'participate', 'win', 'ticket', 'prize', 'winner', 'draw', 'enter',
         'how', 'active', 'ended', 'status', 'rules', 'start', 'end', 'time', 'process',
         'step', 'help', 'guide', 'when', 'where', 'what', 'need', 'requirement', 'cost',
         'free', 'paid', 'enter', 'participation', 'cancel', 'confirm', 'submit', 'button',
@@ -63,6 +63,14 @@ class GeminiService
         'appreciate' => "Happy to help! 😊 Good luck with the raffles!"
     ];
 
+    private const NON_RAFFLE_KEYWORDS = [
+        'blog', 'post', 'article', 'comment', 'write', 'read',
+        'trade', 'trading', 'exchange', 'swap', 'offer',
+        'auction', 'bid', 'bidding', 'artwork', 'art', 'nft', 'price',
+        'dispute', 'profile', 'account', 'wallet', 'balance',
+        'inventory', 'collection', 'category', 'marketplace'
+    ];
+
     public function __construct(
         HttpClientInterface $httpClient,
         string $geminiApiKey,
@@ -76,11 +84,21 @@ class GeminiService
     private function isRaffleRelated(string $message): bool
     {
         $message = strtolower($message);
+        
+        // First check if it's explicitly about non-raffle topics
+        foreach (self::NON_RAFFLE_KEYWORDS as $keyword) {
+            if (strpos($message, $keyword) !== false) {
+                return false;
+            }
+        }
+
+        // Then check if it's about raffles
         foreach (self::RAFFLE_KEYWORDS as $keyword) {
             if (strpos($message, $keyword) !== false) {
                 return true;
             }
         }
+        
         return false;
     }
 
@@ -324,6 +342,14 @@ class GeminiService
 
     public function generateResponse(string $userMessage): string
     {
+        // First check if the message is about non-raffle topics
+        $message = strtolower($userMessage);
+        foreach (self::NON_RAFFLE_KEYWORDS as $keyword) {
+            if (strpos($message, $keyword) !== false) {
+                return "I apologize, but I'm specialized in raffle-related questions only. For questions about {$keyword}s, please check the relevant section of our website or contact support. 🎯\n\nI'd be happy to help you with any raffle-related questions though!";
+            }
+        }
+
         // Check for specific raffle status query
         if ($this->isRaffleStatusQuery($userMessage)) {
             $identifier = $this->extractRaffleIdentifier($userMessage);

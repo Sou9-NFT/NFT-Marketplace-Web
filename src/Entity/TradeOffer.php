@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\TradeOfferRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TradeOfferRepository::class)]
@@ -13,6 +15,11 @@ class TradeOffer
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "sender", referencedColumnName: "id", nullable: false)]
+    #[Assert\NotNull(message: 'Sender cannot be null')]
+    private ?User $sender = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: "receiver_name", referencedColumnName: "id", nullable: false)]
@@ -38,9 +45,28 @@ class TradeOffer
     #[ORM\Column(type: "string", length: 50, options: ["default" => "pending"])]
     private ?string $status = "pending";
 
+    #[ORM\OneToMany(targetEntity: TradeDispute::class, mappedBy: "trade_id")]
+    private Collection $disputes;
+
+    public function __construct()
+    {
+        $this->disputes = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getSender(): ?User
+    {
+        return $this->sender;
+    }
+
+    public function setSender(?User $sender): static
+    {
+        $this->sender = $sender;
+        return $this;
     }
 
     public function getReceiverName(): ?User
@@ -113,6 +139,16 @@ class TradeOffer
         $this->status = $status;
 
         return $this;
+    }
+
+    public function getDisputes(): Collection
+    {
+        return $this->disputes;
+    }
+
+    public function hasDisputes(): bool
+    {
+        return !$this->disputes->isEmpty();
     }
 
     public function __toString(): string

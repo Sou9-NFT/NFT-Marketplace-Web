@@ -74,46 +74,21 @@ class RaffleController extends AbstractController
         }
         
         $raffle = new Raffle();
-        $form = $this->createForm(RaffleType::class, $raffle);
+        $raffle->setCreatorName($this->getUser()->getName() ?: $this->getUser()->getEmail());
+        
+        $form = $this->createForm(RaffleType::class, $raffle, [
+            'user' => $this->getUser() // Pass the current user to the form
+        ]);
         $form->handleRequest($request);
     
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                // Handle image upload
-                $imageFile = $form->get('image')->getData();
-                if ($imageFile) {
-                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $raffle->setStartTime(new \DateTime('now'));
+            $raffle->setCreator($this->getUser());
+            $raffle->setStatus('active');
+            $this->entityManager->persist($raffle);
+            $this->entityManager->flush();
     
-                    try {
-                        $imageFile->move(
-                            $this->getParameter('raffle_images_directory'),
-                            $newFilename
-                        );
-                        $raffle->setImage($newFilename);
-                    } catch (FileException $e) {
-                        $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
-                        return $this->redirectToRoute('app_raffle_new');
-                    }
-                }
-    
-                // Set the start time to now
-                $raffle->setStartTime(new \DateTime('now'));
-                
-                $raffle->setCreator($this->getUser());
-                $raffle->setStatus('active');
-                $this->entityManager->persist($raffle);
-                $this->entityManager->flush();
-    
-                return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()], Response::HTTP_SEE_OTHER);
-            } else {
-                // Form is not valid, add flash message or log errors
-                $errors = $form->getErrors(true);
-                foreach ($errors as $error) {
-                    $this->addFlash('error', $error->getMessage());
-                }
-            }
+            return $this->redirectToRoute('app_raffle_show', ['id' => $raffle->getId()]);
         }
     
         return $this->render('raffle/new.html.twig', [
@@ -148,10 +123,20 @@ class RaffleController extends AbstractController
 
         // If raffle has ended, select a winner if not already selected
         $winner = null;
-        if ($raffle->getStatus() === 'ended' && count($raffle->getParticipants()) > 0) {
+        if ($raffle->getStatus() === 'ended' && count($raffle->getParticipants()) > 0 && !$raffle->getWinnerId()) {
             // Get a random participant as winner
             $participants = $raffle->getParticipants()->toArray();
             $winner = $participants[array_rand($participants)];
+            
+            // Set winner ID and transfer artwork ownership
+            $raffle->setWinnerId($winner->getId());
+            $artwork = $raffle->getArtwork();
+            $artwork->setOwner($winner->getUser());
+            
+            $this->entityManager->flush();
+        } elseif ($raffle->getWinnerId()) {
+            // If winner was already selected, get the winner participant
+            $winner = $this->entityManager->getRepository(Participant::class)->find($raffle->getWinnerId());
         }
 
         return $this->render('raffle/show.html.twig', [
@@ -168,6 +153,11 @@ class RaffleController extends AbstractController
             $user = $this->getUser();
             if (!$user) {
                 throw new \Exception('You must be logged in to join a raffle');
+            }
+
+            // Check if user is the creator
+            if ($user === $raffle->getCreator()) {
+                throw new \Exception('You cannot join your own raffle');
             }
 
             // Validate CSRF token
@@ -252,7 +242,7 @@ class RaffleController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_raffle_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Raffle $raffle, SluggerInterface $slugger): Response
+    public function edit(Request $request, Raffle $raffle): Response
     {
         // Check if user is the creator
         if ($this->getUser() !== $raffle->getCreator()) {
@@ -266,29 +256,11 @@ class RaffleController extends AbstractController
         
         $form = $this->createForm(RaffleType::class, $raffle, [
             'is_edit' => true,
+            'user' => $this->getUser()
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Handle image upload
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-
-                try {
-                    $imageFile->move(
-                        $this->getParameter('raffle_images_directory'),
-                        $newFilename
-                    );
-                    $raffle->setImage($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Error uploading image: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_raffle_edit', ['id' => $raffle->getId()]);
-                }
-            }
-
             // Keep the original start time
             $raffle->setStartTime($originalStartTime);
             

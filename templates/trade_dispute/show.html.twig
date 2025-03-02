@@ -10,21 +10,19 @@
 <center>
     <table style="width: 80%; max-width: 800px; margin: auto;">
         <tbody>
+
+            
             <tr>
-                <th>Id</th>
-                <td>{{ trade_dispute.id }}</td>
+                <th>Offered Item</th>
+                <td>
+                    <img src="{{ asset('uploads/artworks/' ~ trade_dispute.OfferedItem) }}" alt="Offered Item" style="max-width: 200px; height: auto;">
+                </td>
             </tr>
             <tr>
-                <th>Trade_id</th>
-                <td>{{ trade_dispute.tradeId }}</td>
-            </tr>
-            <tr>
-                <th>Item</th>
-                <td>{{ trade_dispute.OfferedItem }}</td>
-            </tr>
-            <tr>
-                <th>Item</th>
-                <td>{{ trade_dispute.ReceivedItem }}</td>
+                <th>Received Item</th>
+                <td>
+                    <img src="{{ asset('uploads/artworks/' ~ trade_dispute.ReceivedItem) }}" alt="Received Item" style="max-width: 200px; height: auto;">
+                </td>
             </tr>
             <tr>
                 <th>Reason</th>
@@ -32,7 +30,13 @@
             </tr>
             <tr>
                 <th>Evidence</th>
-                <td>{{ trade_dispute.evidence }}</td>
+                <td>
+                    {% if trade_dispute.evidence %}
+                        <img src="{{ asset('uploads/evidence/' ~ trade_dispute.evidence) }}" alt="Evidence" style="max-width: 200px; height: auto;">
+                    {% else %}
+                        No evidence provided
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <th>Timestamp</th>
@@ -42,14 +46,16 @@
                 <th>Status</th>
                 <td>{{ trade_dispute.status }}</td>
             </tr>
-            <td><a href="{{ path('app_trade_dispute_index') }}">Back to list</a> </td>
-            <td><a href="{{ path('app_trade_dispute_edit', {'id': trade_dispute.id}) }}">Edit</a></td>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <a href="{{ path('app_trade_dispute_index') }}" class="btn btn-secondary">Back to list</a>
+                    {% if trade_dispute.status == 'pending' %}
+                        <a href="{{ path('app_trade_dispute_edit', {'id': trade_dispute.id}) }}" class="btn btn-primary">Edit</a>
+                    {% endif %}
+                    {{ include('trade_dispute/_delete_form.html.twig') }}
+                </td>
+            </tr>
         </tbody>
     </table>
 </center>
-
-<div class="text-center mt-3">
-
-    {{ include('trade_dispute/_delete_form.html.twig') }}
-</div>
 {% endblock %}
