@@ -81,8 +81,8 @@
         <ul class="sidebar-nav" id="sidebar-nav">
             <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_home_page_back') }}">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Analytics Dashboard</span>
                 </a>
             </li>
 
@@ -237,6 +237,7 @@
     </aside>
     
     <main id="main" class="main">
+        {# Disable all flash messages #}
         {% block body %}{% endblock %}
     </main>
 

@@ -16,8 +16,10 @@ class Raffle
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $image = null;
+    #[ORM\ManyToOne(targetEntity: Artwork::class, inversedBy: 'raffles')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Please select an artwork to raffle')]
+    private ?Artwork $artwork = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $start_time = null;
@@ -79,17 +81,6 @@ class Raffle
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(string $image): self
-    {
-        $this->image = $image;
-        return $this;
     }
 
     public function getStartTime(): ?\DateTimeInterface
@@ -221,6 +212,17 @@ class Raffle
     public function setRaffleDescription(string $raffleDescription): self
     {
         $this->raffleDescription = $raffleDescription;
+        return $this;
+    }
+
+    public function getArtwork(): ?Artwork
+    {
+        return $this->artwork;
+    }
+
+    public function setArtwork(?Artwork $artwork): self
+    {
+        $this->artwork = $artwork;
         return $this;
     }
 }
