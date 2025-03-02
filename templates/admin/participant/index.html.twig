@@ -1,0 +1,112 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Participants Management{% endblock %}
+
+{% block body %}
+    <div class="pagetitle">
+        <h1>Participants Management</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_admin_raffle_index') }}">Home</a></li>
+                <li class="breadcrumb-item active">Participants</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                <div class="card">
+                    <div class="card-body px-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">All Participants</h5>
+                        </div>
+
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Raffle</th>
+                                        <th>Joined At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for participant in participants %}
+                                        <tr>
+                                            <td>{{ participant.id }}</td>
+                                            <td>{{ participant.name }}</td>
+                                            <td>{{ participant.user.email }}</td>
+                                            <td>
+                                                <a href="{{ path('app_admin_raffle_show', {'id': participant.raffle.id}) }}" class="text-primary">
+                                                    {{ participant.raffle.title ?? 'Raffle #' ~ participant.raffle.id }}
+                                                </a>
+                                            </td>
+                                            <td>{{ participant.joinedAt|date('Y-m-d H:i:s') }}</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <a href="{{ path('app_admin_participant_show', {'id': participant.id}) }}" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <form method="post" action="{{ path('app_admin_participant_delete', {'id': participant.id}) }}" 
+                                                          onsubmit="return confirm('Are you sure you want to delete this participant?');"
+                                                          style="display: inline-block;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ participant.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <div class="text-muted">
+                                                    <i class="bi bi-people mb-2" style="font-size: 2rem;"></i>
+                                                    <p class="mb-0">No participants found</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .card {
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            border: none;
+        }
+        .card-body {
+            padding: 2rem !important;
+        }
+        .table-responsive {
+            margin: 0;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        th {
+            white-space: nowrap;
+            background-color: #f8f9fa;
+        }
+    </style>
+{% endblock %}
