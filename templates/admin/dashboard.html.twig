@@ -76,6 +76,90 @@
                         </div>
                     </div>
 
+                    <!-- Blog Stats Cards -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Blog Posts</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-journal-text"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.blog_analytics.total_posts }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Posts Chart -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Monthly Blog Posts <span>| Last 12 Months</span></h5>
+                                <div id="monthlyBlogChart"></div>
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        const monthlyStats = {{ dashboard_data.blog_analytics.monthly_stats|json_encode|raw }};
+                                        const months = monthlyStats.map(stat => stat.month);
+                                        const counts = monthlyStats.map(stat => stat.count);
+
+                                        new ApexCharts(document.querySelector("#monthlyBlogChart"), {
+                                            series: [{
+                                                name: 'Posts',
+                                                data: counts
+                                            }],
+                                            chart: {
+                                                type: 'area',
+                                                height: 350,
+                                                toolbar: {
+                                                    show: false
+                                                }
+                                            },
+                                            markers: {
+                                                size: 4
+                                            },
+                                            colors: ['#4154f1'],
+                                            xaxis: {
+                                                categories: months
+                                            }
+                                        }).render();
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Most Commented Posts -->
+                    <div class="col-12">
+                        <div class="card top-selling overflow-auto">
+                            <div class="card-body pb-0">
+                                <h5 class="card-title">Most Commented Posts</h5>
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Comments</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for post in dashboard_data.blog_analytics.most_commented %}
+                                        <tr>
+                                            <td>{{ post.title }}</td>
+                                            <td>{{ post.comment_count }}</td>
+                                            <td>
+                                                <a href="{{ path('app_blog_back_show', {'id': post.id}) }}" class="btn btn-sm btn-primary">View</a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Recent NFT Sales -->
                     <div class="col-12">
                         <div class="card recent-sales overflow-auto">
