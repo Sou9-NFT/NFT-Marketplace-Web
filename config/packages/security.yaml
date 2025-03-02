@@ -25,7 +25,7 @@ security:
             entry_point: App\Security\UserAuthAuthenticator
             logout:
                 path: app_logout
-                target: app_home_page
+                target: app_login
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
@@ -39,7 +39,7 @@ security:
             access_denied_handler: App\Security\AccessDeniedHandler
             logout:
                 path: app_logout
-                target: app_home_page
+                target: app_login
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
@@ -76,6 +76,7 @@ security:
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/logout$, roles: PUBLIC_ACCESS }
         - { path: ^/access-denied$, roles: PUBLIC_ACCESS }
         - { path: ^/security/access-denied$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }  # Allow public access to homepage
@@ -86,6 +87,8 @@ security:
         - { path: ^/trade/offer, roles: PUBLIC_ACCESS }  # Allow public access to trade offers
         - { path: ^/raffle, roles: PUBLIC_ACCESS }  # Allow public access to raffles
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+        - { path: ^/activity, roles: PUBLIC_ACCESS }
+        
         # Back office requires admin role
         - { path: ^/admin, roles: ROLE_ADMIN }
         
