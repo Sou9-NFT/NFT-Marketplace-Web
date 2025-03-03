@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Notification;
+use App\Repository\BetSessionRepository;
 use App\Repository\NotificationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class HomePageController extends AbstractController
 {
     #[Route('/', name: 'app_home_page')]
-    public function index(NotificationRepository $notificationRepository): Response
+    public function index(NotificationRepository $notificationRepository , BetSessionRepository $betSessionRepository): Response
     {
         $notifications = [];
         
@@ -23,8 +24,16 @@ final class HomePageController extends AbstractController
                 ['time' => 'DESC']
             );
         }
+
+        $activeBetSessions = $betSessionRepository->createQueryBuilder('b')
+        ->where('b.status = :status')
+        ->setParameter('status', 'active')
+        ->setMaxResults(6)
+        ->getQuery()
+        ->getResult();
         
         return $this->render('home_page/index.html.twig', [
+            'live_bet_sessions' => $activeBetSessions,
             'controller_name' => 'HomePageController',
             'notifications' => $notifications,
         ]);
