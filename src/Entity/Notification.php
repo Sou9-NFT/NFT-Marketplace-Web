@@ -1,9 +1,11 @@
 <?php
 namespace App\Entity;
 
+  
 use App\Repository\NotificationRepository;
 use Doctrine\ORM\Mapping as ORM;
-
+use Doctrine\ORM\Mapping\ManyToOne; // Import ManyToOne
+use Doctrine\ORM\Mapping\JoinColumn;
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification
 {
@@ -12,8 +14,20 @@ class Notification
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ManyToOne(targetEntity: TradeState::class, cascade: ['remove'])]
+    #[JoinColumn(nullable: true)]
+    private ?TradeState $tradeState = null;
+public function getTradeStateId(): ?int
+{
+    return $this->tradeState ? $this->tradeState->getId() : null;
+}
 
 
+public function setTradeState(?TradeState $tradeState): self
+{
+    $this->tradeState = $tradeState;
+    return $this;
+}
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 

@@ -290,60 +290,68 @@
     <!-- Modal Search Block -->
     {% block modal_search %}
     <!--====== Modal Notifications Area Start ======-->
-    <div id="notificationsModal" class="modal fade p-0">
-        <div class="modal-dialog dialog-animated">
-            <div class="modal-content h-100">
-                <div class="modal-header" data-dismiss="modal">
-                    Notifications <i class="far fa-times-circle icon-close"></i>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-12 align-self-center">
-                            <div class="row">
-                                <div class="col-8 pb-2">
-                                    <h5 class="notification-title mt-0 mb-2">Your Notifications</h5>
-                                    <p class="small">Stay updated with your latest activities</p>
-                                </div>
-                                <div class="col-4 text-right pb-2">
-                                    <a href="{#{ path('app_notifications') }#}" class="btn btn-sm btn-outline-primary">View All</a>
-                                </div>
+<div id="notificationsModal" class="modal fade p-0">
+    <div class="modal-dialog dialog-animated">
+        <div class="modal-content h-100">
+            <div class="modal-header" data-dismiss="modal">
+                Notifications <i class="far fa-times-circle icon-close"></i>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 align-self-center">
+                        <div class="row">
+                            <div class="col-8 pb-2">
+                                <h5 class="notification-title mt-0 mb-2">Your Notifications</h5>
+                                <p class="small">Stay updated with your latest activities</p>
                             </div>
-                            <div class="row">
-                                <div class="col-12 mt-2">
-                                    <div class="notification-list">
-                                        {% if notifications is defined and notifications|length > 0 %}
-                                            {% for notification in notifications %}
-                                                <div class="notification-item py-2 border-bottom">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="notification-icon mr-3">
-                                                            <i class="fas fa-bell"></i>
-                                                        </div>
-                                                        <div class="notification-content">
-                                                            <h6 class="mb-0">{{ notification.title }}</h6>
-                                                          
-                                                            <small class="text-muted">{{ notification.createdAt|date('M d, Y H:i') }}</small>
-                                                        </div>
+                            <div class="col-4 text-right pb-2">
+                                <a href="{{ path('app_notifications') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mt-2">
+                                <div class="notification-list">
+                                    {% if notifications is defined and notifications|length > 0 %}
+                                        {% for notification in notifications %}
+                                            <div class="notification-item py-2 border-bottom">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="notification-icon mr-3">
+                                                        <i class="fas fa-bell"></i>
+                                                    </div>
+                                                    <div class="notification-content">
+                                                        <h6 class="mb-0">{{ notification.title }}</h6>
+                                                        <small class="text-muted">{{ notification.createdAt|date('M d, Y H:i') }}</small>
                                                     </div>
                                                 </div>
-                                            {% else %}
-                                                <div class="text-center py-4">
-                                                    <i class="fas fa-bell-slash fa-2x mb-2"></i>
-                                                    <p>No notifications yet</p>
-                                                </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <div class="text-center py-4">
-                                                <i class="fas fa-bell-slash fa-2x mb-2"></i>
+
+                                                {% if notification.type == 'OfferReceived' and notification.getTradeStateId() is not null %}
+                                             <div class="notification-actions mt-2 d-flex gap-2">
+    <form method="post" action="{{ path('app_trade_state_accept', {'id': notification.getTradeStateId()}) }}">
+        <button type="submit" class="btn btn-primary">Accept</button>
+    </form>
+    <form method="post" action="{{ path('app_trade_state_reject', {'id': notification.getTradeStateId()}) }}">
+        <button type="submit" class="btn btn-danger">Reject</button>
+    </form>
+    <a href="{{ path('app_trade_state_show', {'id': notification.getTradeStateId()}) }}" class="btn btn-secondary">Details</a>
+</div>
+
+
+                                        {% endif %}
                                                 <p>No notifications yet</p>
                                             </div>
-                                        {% endif %}
-                                    </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                            <p>No notifications yet</p>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-12 text-center mt-3">
-                                    <button class="btn btn-bordered-white">Mark all as read</button>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-center mt-3">
+                                <button class="btn btn-bordered-white">Mark all as read</button>
                             </div>
                         </div>
                     </div>
@@ -351,7 +359,9 @@
             </div>
         </div>
     </div>
-    <!--====== Modal Notifications Area End ======-->
+</div>
+<!--====== Modal Notifications Area End ======-->
+
     {% endblock %}
     </div>
 

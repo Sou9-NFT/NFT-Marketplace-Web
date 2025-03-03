@@ -9,11 +9,13 @@ use App\Entity\Artwork;
 use App\Form\TradeOfferType;
 use App\Repository\TradeOfferRepository;
 use App\Repository\ArtworkRepository;
+use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 //use Symfony\Component\Mailer\MailerInterface;
 //use Symfony\Component\Mime\Email;
@@ -124,9 +126,7 @@ public function new(Request $request, EntityManagerInterface $entityManager, int
         $notification->setType('OfferReceived');
         $notification->setTitle('New Trade Offer: ' . $senderName . ' wants to trade for your artwork "' . $receivedItemName . '"');
         $notification->setCreatedAt(new \DateTimeImmutable());
-
-
-
+        $notification->setTradeState($tradeState);
 
         // Persist the notification
         $entityManager->persist($notification);
@@ -222,8 +222,19 @@ public function edit(Request $request, TradeOffer $tradeOffer, EntityManagerInte
         return $this->redirectToRoute('app_trade_offer_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    
+    #[Route('/notifications', name: 'app_notifications')]
+    public function showNotifications(NotificationRepository $notificationRepository, UserInterface $user): Response
+    {
+        // Get the current user (receiver)
+        $receiver = $user;
 
+        // Fetch all notifications for the current user (receiver)
+        $notifications = $notificationRepository->findBy(['receiver' => $receiver], ['time' => 'DESC']);
+
+        return $this->render('trade/notification.html.twig', [
+            'notifications' => $notifications,
+        ]);
+    }
 
 
 }

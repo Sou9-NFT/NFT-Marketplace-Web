@@ -23,25 +23,23 @@
     </div>
 </form>
 
-
-
 <br><br><br>
 
-    <div class="table-responsive" style="max-width: 1000px; margin: auto;">
-        <table>
-            <thead>
-                <tr>
-                    <th>Sender</th>
-                    <th>Receiver</th>
-                    <th>Received Item</th>
-                    <th>Offered Item</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for trade_state in trade_states %}
-                {% if trade_state.receiver.id == app.user.id %}
+<div class="table-responsive" style="max-width: 1000px; margin: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Sender</th>
+                <th>Receiver</th>
+                <th>Received Item</th>
+                <th>Offered Item</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trade_state in trade_states %}
+                {% if trade_state.receiver.id == app.user.id and trade_state.tradeOffer.status == 'pending' %}
                     <tr>
                         <td>{{ trade_state.sender ? trade_state.sender.getName() : 'No sender' }}</td>
                         <td>{{ trade_state.receiver ? trade_state.receiver.getName() : 'No receiver' }}</td>
@@ -51,8 +49,8 @@
                         <td><a href="{{ path('app_trade_state_show', {'id': trade_state.id}) }}" class="btn btn-primary btn-sm">View</a></td>
                     </tr>
                 {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
