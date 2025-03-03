@@ -76,6 +76,51 @@
                         </div>
                     </div>
 
+                    <!-- Raffle Stats Cards -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Raffles</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-ticket-perforated"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.raffle_stats.total_raffles }}</h6>
+                                        <span class="text-success small pt-1 fw-bold">5%</span>
+                                        <span class="text-muted small pt-2 ps-1">increase</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Raffle Participants Card -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card revenue-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Raffle Participants <span>| Total</span></h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-person-check"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.raffle_stats.total_participants }}</h6>
+                                        <span class="text-success small pt-1 fw-bold">
+                                            {% if dashboard_data.raffle_stats.total_raffles > 0 %}
+                                                {% set avg_participants = (dashboard_data.raffle_stats.total_participants / dashboard_data.raffle_stats.total_raffles)|round(1) %}
+                                                {{ avg_participants }}
+                                            {% else %}
+                                                0
+                                            {% endif %}
+                                        </span>
+                                        <span class="text-muted small pt-2 ps-1">avg participants per raffle</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Blog Stats Cards -->
                     <div class="col-xxl-4 col-md-6">
                         <div class="card info-card sales-card">
@@ -236,6 +281,45 @@
                                     {% else %}
                                         <tr>
                                             <td colspan="5" class="text-center">No categories found</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Raffle Winners -->
+                    <div class="col-12">
+                        <div class="card recent-sales overflow-auto">
+                            <div class="card-body">
+                                <h5 class="card-title">Recent Raffle Winners <span>| Last 30 Days</span></h5>
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Raffle ID</th>
+                                            <th scope="col">Artwork</th>
+                                            <th scope="col">Winner</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Prize Value</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for winner in dashboard_data.raffle_stats.recent_winners|slice(0, 5) %}
+                                        <tr>
+                                            <th scope="row"><a href="#">#{{ winner.raffle_id }}</a></th>
+                                            <td>{{ winner.artwork_title }}</td>
+                                            <td>{{ winner.winner_name }}</td>
+                                            <td>{{ winner.draw_date|date('Y-m-d') }}</td>
+                                            <td>{{ winner.prize_value|number_format(2) }} ESPRIT</td>
+                                            <td>
+                                                <a href="{{ path('app_raffle_show', {'id': winner.raffle_id}) }}" class="btn btn-sm btn-primary">View Details</a>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No recent raffle winners</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
