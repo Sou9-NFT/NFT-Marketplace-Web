@@ -1,79 +1,449 @@
 {% extends 'base_back.html.twig' %}
 
-{% block title %}Admin Dashboard{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-{% endblock %}
+{% block title %}Analytics Dashboard{% endblock %}
 
 {% block body %}
-    <div class="container-fluid p-4">
-        <h1 class="mb-4">Dashboard</h1>
-        
-        <!-- Stats Cards Row -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bet Sessions</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalBetSessions }}</div>
+    <div class="pagetitle">
+        <h1>Analytics Dashboard</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_home_page_back') }}">Home</a></li>
+                <li class="breadcrumb-item active">Dashboard</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section dashboard">
+        <div class="row">
+            <!-- Left side columns -->
+            <div class="col-lg-8">
+                <div class="row">
+                    <!-- Users Card -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Users <span>| Total</span></h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.users|length }}</h6>
+                                        {% set increase = ((dashboard_data.users|length - 50) / 50 * 100)|round %}
+                                        <span class="text-{{ increase >= 0 ? 'success' : 'danger' }} small pt-1 fw-bold">{{ increase }}%</span>
+                                        <span class="text-muted small pt-2 ps-1">from last month</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+
+                    <!-- Artworks Card -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card revenue-card">
+                            <div class="card-body">
+                                <h5 class="card-title">NFT Artworks <span>| Total</span></h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-palette"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.artworks|length }}</h6>
+                                        <span class="text-success small pt-1 fw-bold">8%</span>
+                                        <span class="text-muted small pt-2 ps-1">increase</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Token Circulation Card -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card customers-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Token Circulation <span>| ESPRIT DAN</span></h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-currency-exchange"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.total_circulation|number_format(2) }} ESPRIT</h6>
+                                        <span class="text-success small pt-1 fw-bold">12%</span>
+                                        <span class="text-muted small pt-2 ps-1">increase</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blog Stats Cards -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Blog Posts</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-journal-text"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.blog_analytics.total_posts }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Posts Chart -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Monthly Blog Posts <span>| Last 12 Months</span></h5>
+                                <div id="monthlyBlogChart"></div>
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        const monthlyStats = {{ dashboard_data.blog_analytics.monthly_stats|json_encode|raw }};
+                                        const months = monthlyStats.map(stat => stat.month);
+                                        const counts = monthlyStats.map(stat => stat.count);
+
+                                        new ApexCharts(document.querySelector("#monthlyBlogChart"), {
+                                            series: [{
+                                                name: 'Posts',
+                                                data: counts
+                                            }],
+                                            chart: {
+                                                type: 'area',
+                                                height: 350,
+                                                toolbar: {
+                                                    show: false
+                                                }
+                                            },
+                                            markers: {
+                                                size: 4
+                                            },
+                                            colors: ['#4154f1'],
+                                            xaxis: {
+                                                categories: months
+                                            }
+                                        }).render();
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Most Commented Posts -->
+                    <div class="col-12">
+                        <div class="card top-selling overflow-auto">
+                            <div class="card-body pb-0">
+                                <h5 class="card-title">Most Commented Posts</h5>
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Comments</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for post in dashboard_data.blog_analytics.most_commented %}
+                                        <tr>
+                                            <td>{{ post.title }}</td>
+                                            <td>{{ post.comment_count }}</td>
+                                            <td>
+                                                <a href="{{ path('app_blog_back_show', {'id': post.id}) }}" class="btn btn-sm btn-primary">View</a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent NFT Sales -->
+                    <div class="col-12">
+                        <div class="card recent-sales overflow-auto">
+                            <div class="card-body">
+                                <h5 class="card-title">Recent NFT Sales <span>| Last 30 Days</span></h5>
+                                <table class="table table-borderless datatable">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Artwork</th>
+                                            <th scope="col">Seller</th>
+                                            <th scope="col">Buyer</th>
+                                            <th scope="col">Price</th>
+                                            <th scope="col">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for session in dashboard_data.recent_bets|slice(0, 5) %}
+                                        <tr>
+                                            <th scope="row"><a href="#">#{{ session.id }}</a></th>
+                                            <td>{{ session.artwork.title }}</td>
+                                            <td>{{ session.author.name }}</td>
+                                            <td>{% if session.status == 'ended' %}{{ session.winner.name|default('No Winner') }}{% else %}Pending{% endif %}</td>
+                                            <td>{{ session.currentPrice }} ESPRIT</td>
+                                            <td>
+                                                <span class="badge bg-{{ session.status == 'active' ? 'success' : (session.status == 'pending' ? 'warning' : 'primary') }}">
+                                                    {{ session.status|capitalize }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No recent sales</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Categories -->
+                    <div class="col-12">
+                        <div class="card top-selling overflow-auto">
+                            <div class="card-body pb-0">
+                                <h5 class="card-title">Top Categories <span>| By NFT Count</span></h5>
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Preview</th>
+                                            <th scope="col">Category</th>
+                                            <th scope="col">Type</th>
+                                            <th scope="col">NFTs</th>
+                                            <th scope="col">Total Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for category in dashboard_data.categories|slice(0, 5) %}
+                                        <tr>
+                                            <th scope="row">
+                                                <i class="bi {% if category.type == 'image' %}bi-image{% elseif category.type == 'video' %}bi-film{% else %}bi-music-note-beamed{% endif %} fs-2"></i>
+                                            </th>
+                                            <td><span class="text-primary fw-bold">{{ category.name }}</span></td>
+                                            <td>{{ category.type|capitalize }}</td>
+                                            <td class="fw-bold">{{ category.artworks|length }}</td>
+                                            <td>
+                                                {% set totalValue = 0 %}
+                                                {% for artwork in category.artworks %}
+                                                    {% set totalValue = totalValue + artwork.price %}
+                                                {% endfor %}
+                                                {{ totalValue|number_format(2) }} ESPRIT
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center">No categories found</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          {#  <!-- Bet Session Stats -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Auction Statistics</h5>
+                        <div class="row">
+                            <!-- Total Bet Sessions Card -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Total Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary-light">
+                                                <i class="bi bi-calendar-event text-primary"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ totalBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Bet Sessions -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Active Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success-light">
+                                                <i class="bi bi-play-circle text-success"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.activeBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pending Bet Sessions -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Pending Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-warning-light">
+                                                <i class="bi bi-hourglass text-warning"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.pendingBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ended Bet Sessions -->
+
+                            #}
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Ended Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info-light">
+                                                <i class="bi bi-flag text-info"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.endedBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Bids -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card info-card revenue-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Bids Placed</h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-cash-coin"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.totalBids }}</h3>
+                                                <span class="text-success small pt-1 fw-bold">
+                                                    {% set bidPerAuction = (dashboard_data.totalBids / dashboard_data.totalBetSessions)|round(1) %}
+                                                    {{ bidPerAuction }} bids
+                                                </span>
+                                                <span class="text-muted small pt-2 ps-1">per auction average</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
+            <!-- Right side columns -->
+            <div class="col-lg-4">
+                <!-- Token Distribution Chart -->
+                <div class="card">
+                    <div class="card-body pb-0">
+                        <h5 class="card-title">Token Distribution <span>| By Type</span></h5>
+                        <div id="tokenDistribution" style="min-height: 400px;"></div>
+                    </div>
+                </div>
+
+                <!-- Contract Info -->
+                <div class="card">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Bids</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ totalBids }}</div>
+                        <h5 class="card-title">Token Info <span>| ESPRIT DAN</span></h5>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="ps-3">
+                                <h6>Contract Address:</h6>
+                                <p class="text-muted small mb-0">{{ dashboard_data.contract_address }}</p>
                             </div>
-                            <div class="col-auto">
-                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="ps-3">
+                                <h6>Fee Wallet:</h6>
+                                <p class="text-muted small mb-0">{{ dashboard_data.fee_wallet }}</p>
                             </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="ps-3">
+                                <h6>Network:</h6>
+                                <p class="text-muted small mb-0">Sepolia Testnet</p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <a href="https://sepolia.etherscan.io/token/{{ dashboard_data.contract_address }}" 
+                               target="_blank" 
+                               class="btn btn-primary btn-sm">View on Etherscan</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
+{% endblock %}
 
-        <!-- Charts Row -->
-        <div class="row">
-            <div class="col-xl-4">
-                <div class="card shadow mb-3">
-                    <div class="card-header py-2">
-                        <h6 class="m-0 font-weight-bold text-primary">Bet Sessions Status</h6>
-                    </div>
-                    <div class="card-body py-2">
-                        <canvas id="betSessionsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        
-
-    {% block javascripts %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block javascripts %}
+    {{ parent() }}
     <script>
-        // Bet Sessions Status Chart
-        new Chart(document.getElementById('betSessionsChart'), {
-            type: 'pie',
-            data: {
-                labels: ['Active', 'Pending', 'Ended'],
-                datasets: [{
-                    data: [{{ activeBetSessions }}, {{ pendingBetSessions }}, {{ endedBetSessions }}],
-                    backgroundColor: ['#36b9cc', '#f6c23e', '#e74a3b']
+        document.addEventListener("DOMContentLoaded", () => {
+            // Token Distribution Chart
+            const tokenChart = echarts.init(document.querySelector("#tokenDistribution"));
+            tokenChart.setOption({
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    top: '5%',
+                    left: 'center'
+                },
+                series: [{
+                    name: 'Token Distribution',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '18',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: [{
+                        value: {{ dashboard_data.total_circulation * 0.65 }},
+                        name: 'User Wallets'
+                    },
+                    {
+                        value: {{ dashboard_data.total_circulation * 0.15 }},
+                        name: 'Platform Fees'
+                    },
+                    {
+                        value: {{ dashboard_data.total_circulation * 0.12 }},
+                        name: 'Reserve'
+                    },
+                    {
+                        value: {{ dashboard_data.total_circulation * 0.08 }},
+                        name: 'Foundation'
+                    }]
                 }]
-            }
+            });
         });
     </script>
-    {% endblock %}
 {% endblock %}

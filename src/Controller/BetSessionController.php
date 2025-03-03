@@ -291,9 +291,19 @@ final class BetSessionController extends AbstractController
             if ($winningBid) {
                 // Transfer artwork ownership to winner
                 $artwork = $betSession->getArtwork();
-                $artwork->setOwner($winningBid->getAuthor());
+                $winner = $winningBid->getAuthor();
+                $artwork->setOwner($winner);
                 $author = $betSession->getAuthor();
                 $author->setBalance($author->getBalance() + $betSession->getCurrentPrice());
+
+                // Create and send notification to winner
+                $notification = new \App\Entity\Notification();
+                $notification->setReceiver($winner);
+                $notification->setTitle("Auction Won! You've won the auction for '" . $artwork->getTitle() . "'");
+                $notification->setType("auction_win");
+                $notification->setCreatedAt(new \DateTimeImmutable());
+                $entityManager->persist($notification);
+                
                 // Update bet session status
                 $betSession->setStatus('ended');
             } else {

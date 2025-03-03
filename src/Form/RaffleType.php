@@ -3,22 +3,27 @@
 namespace App\Form;
 
 use App\Entity\Raffle;
+use App\Entity\Artwork;
+use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Doctrine\ORM\EntityRepository;
 
 class RaffleType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $user = $options['user'];
+
         $builder
             ->add('title', TextType::class, [
                 'label' => 'Title',
@@ -35,16 +40,33 @@ class RaffleType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('creator_name', TextType::class, [
-                'label' => 'Creator Name',
+            ->add('artwork', EntityType::class, [
+                'class' => Artwork::class,
+                'choice_label' => function(Artwork $artwork) {
+                    return sprintf('%s (Price: $%s)', 
+                        $artwork->getTitle(),
+                        number_format($artwork->getPrice(), 2)
+                    );
+                },
+                'group_by' => function($artwork) {
+                    return $artwork->getCategory()->getName();
+                },
+                'query_builder' => function (EntityRepository $er) use ($user) {
+                    return $er->createQueryBuilder('a')
+                        ->where('a.owner = :owner')
+                        ->setParameter('owner', $user)
+                        ->orderBy('a.createdAt', 'DESC');
+                },
+                'label' => 'Select Artwork',
                 'required' => true,
+                'placeholder' => 'Choose your artwork...',
+                'attr' => [
+                    'class' => 'artwork-select',
+                    'data-live-search' => 'true'
+                ],
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter the creator name',
-                    ]),
-                    new Length([
-                        'max' => 255,
-                        'maxMessage' => 'Creator name cannot be longer than {{ limit }} characters',
+                    new NotNull([
+                        'message' => 'Please select an artwork to raffle',
                     ]),
                 ],
             ])
@@ -80,25 +102,6 @@ class RaffleType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('image', FileType::class, [
-                'label' => 'Raffle Image',
-                'mapped' => false,
-                'required' => !$options['is_edit'],
-                'constraints' => $options['is_edit'] ? [] : [
-                    new NotBlank([
-                        'message' => 'Please upload an image',
-                    ]),
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/png',
-                            'image/gif',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, GIF)',
-                    ]),
-                ],
-            ])
         ;
     }
 
@@ -107,6 +110,10 @@ class RaffleType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Raffle::class,
             'is_edit' => false,
+            'user' => null,
         ]);
+
+        $resolver->setRequired(['user']);
+        $resolver->setAllowedTypes('user', [User::class]);
     }
 }
