@@ -245,6 +245,109 @@
                     </div>
                 </div>
             </div>
+          {#  <!-- Bet Session Stats -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Auction Statistics</h5>
+                        <div class="row">
+                            <!-- Total Bet Sessions Card -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Total Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary-light">
+                                                <i class="bi bi-calendar-event text-primary"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ totalBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Bet Sessions -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Active Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success-light">
+                                                <i class="bi bi-play-circle text-success"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.activeBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pending Bet Sessions -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Pending Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-warning-light">
+                                                <i class="bi bi-hourglass text-warning"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.pendingBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ended Bet Sessions -->
+
+                            #}
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Ended Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info-light">
+                                                <i class="bi bi-flag text-info"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.endedBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Bids -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card info-card revenue-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Bids Placed</h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-cash-coin"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.totalBids }}</h3>
+                                                <span class="text-success small pt-1 fw-bold">
+                                                    {% set bidPerAuction = (dashboard_data.totalBids / dashboard_data.totalBetSessions)|round(1) %}
+                                                    {{ bidPerAuction }} bids
+                                                </span>
+                                                <span class="text-muted small pt-2 ps-1">per auction average</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Right side columns -->
             <div class="col-lg-4">
