@@ -2,39 +2,41 @@
 
 namespace App\Controller;
 
+use App\Entity\Notification;
+use App\Repository\BetSessionRepository;
+use App\Repository\NotificationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Notification;
 
 final class HomePageController extends AbstractController
 {
     #[Route('/', name: 'app_home_page')]
-    public function index(Security $security, EntityManagerInterface $em, Request $request): Response
+    public function index(NotificationRepository $notificationRepository , BetSessionRepository $betSessionRepository): Response
     {
-        $user = $security->getUser(); // Using the Security service to get the current user
-    
-        // Debugging the user to ensure it is fetched correctly
-        dump($user); 
-    
-        // Check if the user is null
-        if (!$user) {
-            // Handle the case when the user is not logged in
-            return $this->redirectToRoute('app_login'); // Or another appropriate route
+        $notifications = [];
+        
+        // Check if user is authenticated
+        if ($this->getUser()) {
+            // Fetch notifications for the current user
+            $notifications = $notificationRepository->findBy(
+                ['receiver' => $this->getUser()],
+                ['time' => 'DESC']
+            );
         }
-    
-        // Fetch the user identifier using getUserIdentifier() (which should return the email or username)
-        $userId = $user->getUserIdentifier();
-    
-        // Fetch notifications for the logged-in user where 'isRead' is false
-        // Assuming 'receiverName' corresponds to the user identifier (could also be 'receiverId' if you store IDs)
-        $notifications = $em->getRepository(Notification::class)
-                            ->findBy(['receiverName' => $userId, 'isRead' => false]);
-    
+
+        $activeBetSessions = $betSessionRepository->createQueryBuilder('b')
+        ->where('b.status = :status')
+        ->setParameter('status', 'active')
+        ->setMaxResults(6)
+        ->getQuery()
+        ->getResult();
+        
         return $this->render('home_page/index.html.twig', [
+            'live_bet_sessions' => $activeBetSessions,
             'controller_name' => 'HomePageController',
             'notifications' => $notifications,
         ]);

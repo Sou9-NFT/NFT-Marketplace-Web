@@ -27,14 +27,19 @@ class CategoryController extends AbstractController
     #[Route('/new', name: 'app_category_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to create a category.');
+        }
+
         $category = new Category();
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                // Set the current user as manager
-                $category->setManager($this->getUser());
+                // Set the manager after form handling
+                $category->setManager($user);
 
                 if ($category->getType()) {
                     $category->setAllowedMimeTypes(Category::getAvailableMimeTypes($category->getType()));
@@ -94,6 +99,11 @@ class CategoryController extends AbstractController
     #[Route('/{id}', name: 'app_category_delete', methods: ['POST'])]
     public function delete(Request $request, Category $category, EntityManagerInterface $entityManager): Response
     {
+        if ($category->getManager() !== $this->getUser()) {
+            $this->addFlash('error', 'You are not authorized to delete this category.');
+            return $this->redirectToRoute('app_category_index');
+        }
+
         if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->request->get('_token'))) {
             $entityManager->remove($category);
             $entityManager->flush();

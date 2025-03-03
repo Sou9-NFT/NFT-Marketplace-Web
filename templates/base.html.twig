@@ -85,7 +85,7 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="" class="nav-link">Activity</a>
+                            <a href="{{ path('app_activity') }}" class="nav-link">Activity</a>
                         </li>
                         <li class="nav-item">
                             <a href="" class="nav-link">Contact</a>
@@ -93,33 +93,16 @@
                     </ul>
                     <!-- Navbar Icons -->
                     <ul class="navbar-nav icons">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" data-toggle="modal" data-target="#search">
-                                <i class="fas fa-search"></i>
+                        {% if app.user %}
+                         <ul class="navbar-nav icons">
+                        <li class="nav-item ml-3">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#notificationsModal">
+                                <i class="fas fa-bell"></i>
                             </a>
                         </li>
                     </ul>
-                    <!-- Add this inside the block header -->
-{% if app.user %}
-<div class="notification-dropdown">
-    <img src="{{ asset('front_office/img/logo/notification.png') }}" alt="Notifications">
-    <div class="dropdown-content">
-        {% if notifications is not empty %}
-            {% for notification in notifications %}
-                <div class="notification-item">
-                    <p>{{ notification.message }}</p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No new notifications</p>
-        {% endif %}
-    </div>   
-</div>
- {% endif %}
+                        {% endif %}
 
-
-
-                    
 </div>
 
                     <!-- Navbar Toggler -->
@@ -157,6 +140,7 @@
                             <li class="nav-item ml-3">
                                 <span class="navbar-text"><i class="fas fa-wallet"></i> <span id="walletBalance">Connect wallet</span></span>
                             </li>
+                          
                         {% else %}
                             <li class="nav-item ml-3">
                                 <a href="{{ path('app_login') }}" class="btn ml-lg-auto btn-bordered-white"><i class="icon-login mr-md-2"></i>Login</a>
@@ -277,39 +261,74 @@
 
     <!-- Modal Search Block -->
     {% block modal_search %}
-    <!--====== Modal Search Area Start ======-->
-    <div id="search" class="modal fade p-0">
+    <!--====== Modal Notifications Area Start ======-->
+    <div id="notificationsModal" class="modal fade p-0">
         <div class="modal-dialog dialog-animated">
             <div class="modal-content h-100">
                 <div class="modal-header" data-dismiss="modal">
-                    Search <i class="far fa-times-circle icon-close"></i>
+                    Notifications <i class="far fa-times-circle icon-close"></i>
                 </div>
                 <div class="modal-body">
-                    <form class="row">
+                    <div class="row">
                         <div class="col-12 align-self-center">
                             <div class="row">
-                                <div class="col-12 pb-3">
-                                    <h2 class="search-title mt-0 mb-3">What are you looking for?</h2>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                <div class="col-8 pb-2">
+                                    <h5 class="notification-title mt-0 mb-2">Your Notifications</h5>
+                                    <p class="small">Stay updated with your latest activities</p>
+                                </div>
+                                <div class="col-4 text-right pb-2">
+                                    <a href="{#{ path('app_notifications') }#}" class="btn btn-sm btn-outline-primary">View All</a>
                                 </div>
                             </div>
                             <div class="row">
-                                <div the="col-12 input-group mt-4">
-                                    <input type="text" placeholder="Enter your keywords">
+                                <div class="col-12 mt-2">
+                                    <div class="notification-list">
+                                        {% if notifications is defined and notifications|length > 0 %}
+                                            {% for notification in notifications %}
+                                                <div class="notification-item py-2 border-bottom">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="notification-icon mr-3">
+                                                            <i class="fas fa-bell"></i>
+                                                        </div>
+                                                        <div class="notification-content">
+                                                            {% if notification.type == 'auction_win' %}
+                                                                <a href="{{ path('app_artwork_index') }}">
+                                                                    <h6 class="mb-0">{{ notification.title }}</h6>
+                                                                </a>
+                                                            {% else %}
+                                                                <h6 class="mb-0">{{ notification.title }}</h6>
+                                                            {% endif %}
+                                                            <small class="text-muted">{{ notification.createdAt|date('M d, Y H:i') }}</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-center py-4">
+                                                    <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                                    <p>No notifications yet</p>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="text-center py-4">
+                                                <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                                <p>No notifications yet</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-12 input-group align-self-center">
-                                    <button class="btn btn-bordered-white mt-3">Search</button>
+                                <div class="col-12 text-center mt-3">
+                                    <button class="btn btn-bordered-white">Mark all as read</button>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!--====== Modal Search Area End ======-->
+    <!--====== Modal Notifications Area End ======-->
     {% endblock %}
     </div>
 
@@ -418,5 +437,14 @@
     <script src="{{ asset('front_office/js/main.js') }}"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     {% endblock %}
+
+    {# Add this conditional to only render important flash messages #}
+    {% for label, messages in app.flashes(['success', 'error', 'warning']) %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
 </body>
 </html>

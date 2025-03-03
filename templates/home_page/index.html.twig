@@ -46,7 +46,131 @@
                 </svg>
             </div>
         </section>
-        </section>
 
+                <!-- ***** Live Auctions Area Start ***** -->
+                <section class="live-auctions-area pt-5 mt-5">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <!-- Intro -->
+                                <div class="intro d-flex justify-content-between align-items-end m-0">
+                                    <div class="intro-content">
+                                        <span>Auctions</span>
+                                        <h3 class="mt-3 mb-0">Live Auctions</h3>
+                                    </div>
+                                    <div class="intro-btn">
+                                        <a class="btn content-btn" href="/auctions">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="auctions-slides">
+                            <div class="swiper-container slider-mid items">
+                                <div class="swiper-wrapper">
+                                
+                                    {% for session in live_bet_sessions %}
+                                        <!-- Single Slide -->
+                                        <div class="swiper-slide item">
+                                            <div class="card">
+                                                <div class="image-over">
+                                                    <a href="{{ path('app_item_details', {'id': session.id}) }}">
+                                                        {% if session.artwork.imageName %}
+                                                            <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="">
+                                                        {% else %}
+                                                            <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+                                                        {% endif %}
+                                                    </a>
+                                                </div>
+                                                <!-- Card Caption -->
+                                                <div class="card-caption col-12 p-0">
+                                                    <!-- Card Body -->
+                                                    <div class="card-body">
+                                                        <div class="countdown-times mb-3">
+                                                            <div class="text-center mb-2">Time Remaining</div>
+                                                            <div class='countdown d-flex justify-content-center' data-date="{{ session.endTime|date('Y-m-d H:i:s') }}"></div>
+                                                        </div>
+
+                                                        <a href="/item_details/{{ session.id }}">
+                                                            <h5 class="mb-0">{{ session.artwork.title }}</h5>
+                                                        </a>
+                                                        <a class="seller d-flex align-items-center my-3" href="">
+                                                            {% if session.author.profilePicture %}
+                                                                <img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session .author.profilePicture) }}" alt="">
+                                                            {% else %}
+                                                                <img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+                                                            {% endif %}
+                                                            <span class="ml-2">{{session.author.name|capitalize}}</span>
+                                                        </a>
+                                                        <div class="card-bottom d-flex justify-content-between">
+                                                            <span>{{ session.currentPrice }} Dannous</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- ***** Live Auctions Area End ***** -->
+
+                <!-- ***** Work Area Start ***** -->
+                <section class="work-area pt-0">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <!-- Intro -->
+                                <div class="intro mb-0">
+                                    <div class="intro-content">
+                                        <span>How It Works</span>
+                                        <h3 class="mt-3 mb-0">Create and sell your NFTs</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row items">
+                            <div class="col-12 col-sm-6 col-lg-3 item">
+                                <!-- Single Work -->
+                                <div class="single-work">
+                                    <i class="icons icon-wallet text-effect"></i>
+                                    <h4>Set up your wallet</h4>
+                                    <p>Once you've set up your wallet of choice, connect it to MetaMask by clicking the NFT
+                                        Marketplace in the top right corner. Learn about the wallets we support.</p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-lg-3 item">
+                                <!-- Single Work -->
+                                <div class="single-work">
+                                    <i class="icons icon-grid text-effect"></i>
+                                    <h4>Create your collection</h4>
+                                    <p>Click Create and set up your collection. Add social links, a description, profile &
+                                        banner images, and set a secondary sales fee.</p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-lg-3 item">
+                                <!-- Single Work -->
+                                <div class="single-work">
+                                    <i class="icons icon-drawer text-effect"></i>
+                                    <h4>Add your NFTs</h4>
+                                    <p>Upload your work (image, video, audio, or 3D art), add a title and description, and
+                                        customize your NFTs with properties, stats, and unlockable content.</p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-6 col-lg-3 item">
+                                <!-- Single Work -->
+                                <div class="single-work">
+                                    <i class="icons icon-bag text-effect"></i>
+                                    <h4>List them for sale</h4>
+                                    <p>Choose between auctions, fixed-price listings, and declining-price listings. You choose
+                                        how you want to sell your NFTs!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- ***** Work Area End ***** -->
 
 {% endblock %}

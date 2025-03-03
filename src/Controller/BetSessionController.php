@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Artwork;
 use App\Entity\BetSession;
 use App\Entity\User;
 use App\Form\BetSessionType;
@@ -13,10 +14,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\Service\GeminiNftDescriptionService;
 
 #[Route('/auctions')]
 final class BetSessionController extends AbstractController
 {
+    private $geminiService;
+    
+    public function __construct(GeminiNftDescriptionService $geminiService) 
+    {
+        $this->geminiService = $geminiService;
+    }
 
     
     #[Route('/', name: 'app_bet_session_active', methods: ['GET'])]
@@ -120,6 +128,14 @@ final class BetSessionController extends AbstractController
             $user = $this->getUser();
             $betSession->setAuthor($user);
             $betSession->setCurrentPrice($betSession->getInitialPrice());
+            $artwork = $betSession->getArtwork();
+
+            if ($betSession->isMysteriousMode()) {
+                $generatedDescription = $this->geminiService->generateNftDescription($artwork);
+                if ($generatedDescription) {
+                    $betSession->setGeneratedDescription($generatedDescription);
+                }
+            }
             $entityManager->persist($betSession);
             $entityManager->flush();
             return $this->redirectToRoute('app_bet_session_mylist', ['userId' => $user->getId()], Response::HTTP_SEE_OTHER);
@@ -271,12 +287,23 @@ final class BetSessionController extends AbstractController
                 }
             }
 
+
             if ($winningBid) {
                 // Transfer artwork ownership to winner
                 $artwork = $betSession->getArtwork();
-                $artwork->setOwner($winningBid->getAuthor());
+                $winner = $winningBid->getAuthor();
+                $artwork->setOwner($winner);
                 $author = $betSession->getAuthor();
                 $author->setBalance($author->getBalance() + $betSession->getCurrentPrice());
+
+                // Create and send notification to winner
+                $notification = new \App\Entity\Notification();
+                $notification->setReceiver($winner);
+                $notification->setTitle("Auction Won! You've won the auction for '" . $artwork->getTitle() . "'");
+                $notification->setType("auction_win");
+                $notification->setCreatedAt(new \DateTimeImmutable());
+                $entityManager->persist($notification);
+                
                 // Update bet session status
                 $betSession->setStatus('ended');
             } else {
@@ -290,4 +317,6 @@ final class BetSessionController extends AbstractController
             return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
+
+
 }
