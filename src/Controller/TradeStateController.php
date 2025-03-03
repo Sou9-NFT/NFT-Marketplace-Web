@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Entity\TradeState;
 use App\Entity\Artwork;
 use App\Entity\TradeOffer;
+use App\Entity\Notification;
 
 use App\Repository\TradeStateRepository;
 use App\Repository\UserRepository;
@@ -92,7 +93,31 @@ public function index(Request $request, TradeStateRepository $tradeStateReposito
         $tradeOffer = $tradeState->getTradeOffer();
         if ($tradeOffer) {
             $tradeOffer->setStatus('Accepted');
+                $notificationMessage = 'Your trade offer has been rejected.';
+        $sender = $tradeState->getSender();
+        $receiver = $tradeState->getReceiver();
+
+            // If current user is sender, notify receiver
+            $notification = new Notification();
+            $notification->setReceiver($receiver);
+            $notification->setTitle($notificationMessage);
+            $notification->setType('trade_rejected');
+            $notification->setCreatedAt(new \DateTimeImmutable());
+            $entityManager->persist($notification);
             $entityManager->persist($tradeOffer);
+    
+            $sender = $tradeState->getSender();
+            $receiver = $tradeState->getReceiver();
+            $notificationMessage = 'Your trade offer for ' . $offeredItem->getName() . ' has been accepted!';
+    
+            // Create notification for trade acceptance
+            $notification = new Notification();
+            $notification->setReceiver($sender); // Notify the sender that their offer was accepted
+            $notification->setTitle($notificationMessage);
+            $notification->setType('trade_accepted');
+            
+            $notification->setCreatedAt(new \DateTimeImmutable());
+            $entityManager->persist($notification);
             $entityManager->flush();
         }
     
@@ -130,6 +155,21 @@ public function rejectTrade(int $id, EntityManagerInterface $entityManager): Res
     if ($tradeOffer) {
         $tradeOffer->setStatus('rejected');
         $entityManager->persist($tradeOffer);
+        // Create notification for trade rejection
+
+        $sender = $tradeState->getSender();
+        $receiver = $tradeState->getReceiver();
+        $notificationMessage = 'Your trade offer for "' . $tradeState->getOfferedItem()->getName() . '" has been rejected.';
+            // If current user is sender, notify receiver
+            $notification = new Notification();
+            $notification->setReceiver($receiver);
+            $notification->setTitle($notificationMessage);
+            $notification->setType('trade_rejected');
+            $notification->setCreatedAt(new \DateTimeImmutable());
+            $entityManager->persist($notification);
+
+    
+        $entityManager->flush();
     }
 
     // Delete the trade state

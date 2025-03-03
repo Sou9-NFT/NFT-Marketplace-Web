@@ -114,6 +114,22 @@ public function new(Request $request, EntityManagerInterface $entityManager, int
         $tradeState->setSender($tradeOffer->getSender());
         $tradeState->setReceiver($tradeOffer->getReceiverName());
         $tradeState->setDescription($tradeOffer->getDescription());
+        // Create context message describing the trade
+        $senderName = $tradeOffer->getSender()->getName();
+        $offeredItemName = $tradeOffer->getOfferedItem()->getTitle();
+        $receivedItemName = $tradeOffer->getReceivedItem()->getTitle();
+        // Create and send notification to the receiver
+        $notification = new \App\Entity\Notification();
+        $notification->setReceiver($tradeOffer->getReceiverName());
+        $notification->setType('OfferReceived');
+        $notification->setTitle('New Trade Offer: ' . $senderName . ' wants to trade for your artwork "' . $receivedItemName . '"');
+        $notification->setCreatedAt(new \DateTimeImmutable());
+
+
+
+
+        // Persist the notification
+        $entityManager->persist($notification);
 
         // Persist the trade state
         $entityManager->persist($tradeState);
