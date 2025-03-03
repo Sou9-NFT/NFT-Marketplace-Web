@@ -9,7 +9,11 @@
             <div class="row justify-content-between">
                 <div class="col-12 col-md-4">
                     <div class="author-profile">
-                        <img src="{{ user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="img-fluid rounded-circle">
+                        {% if user.profilePicture and user.profilePicture starts with 'https://' %}
+                            <img src="{{ user.profilePicture }}" alt="Profile Picture" class="img-fluid rounded-circle">
+                        {% else %}
+                            <img src="{{ user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="img-fluid rounded-circle">
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-12 col-md-7">
