@@ -1,140 +1,229 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Categories{% endblock %}
+{% block title %}Categories Collection{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Categories</h1>
-            <div>
-                <a href="{{ path('app_artwork_index') }}" class="btn btn-outline-secondary me-2">
-                    <i class="bi bi-image"></i> Manage Artworks
-                </a>
-                <a href="{{ path('app_category_new') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Create New Category
-                </a>
-            </div>
-        </div>
-
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-danger alert-dismissible fade show">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="px-4">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Allowed Types</th>
-                                <th scope="col">Artworks</th>
-                                <th scope="col" class="px-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for category in categories %}
-                            <tr>
-                                <td class="align-middle px-4">{{ category.id }}</td>
-                                <td class="align-middle">{{ category.name }}</td>
-                                <td class="align-middle">
-                                    <span class="badge bg-{{ category.type == 'image' ? 'success' : (category.type == 'video' ? 'primary' : 'info') }}">
-                                        {{ category.type|capitalize }}
-                                    </span>
-                                </td>
-                                <td class="align-middle">{{ category.description|length > 50 ? category.description|slice(0, 50) ~ '...' : category.description }}</td>
-                                <td class="align-middle">
-                                    <small class="text-secondary">{{ category.allowedMimeTypes|join(', ') }}</small>
-                                </td>
-                                <td class="align-middle">
-                                    <span class="badge bg-secondary">{{ category.artworks|length }} items</span>
-                                </td>
-                                <td class="align-middle px-4">
-                                    <div class="btn-group">
-                                        <a href="{{ path('app_category_show', {'id': category.id}) }}" 
-                                           class="btn btn-sm btn-outline-primary" title="View">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="{{ path('app_category_edit', {'id': category.id}) }}" 
-                                           class="btn btn-sm btn-outline-secondary" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}" 
-                                              onsubmit="return confirm('Are you sure you want to delete this category? This will affect all associated artworks.');" 
-                                              style="display: inline-block;">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-                                            <button class="btn btn-sm btn-outline-danger" {{ category.artworks|length > 0 ? 'disabled' : '' }} title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">
-                                    <div class="alert alert-info m-3 mb-0">
-                                        No categories found. <a href="{{ path('app_category_new') }}">Create your first category</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+<section class="author-area explore-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <!-- Intro -->
+                <div class="intro text-center mb-4">
+                    <h3 class="mt-3 mb-0">Explore Categories</h3>
+                    <p>Browse categories for organizing your digital collections</p>
                 </div>
             </div>
         </div>
-    </div>
+        
+        <!-- Search Row -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="search-form">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search categories...">
+                        <div class="input-group-append">
+                            <select id="sortSelect" class="form-control">
+                                <option value="name">Name</option>
+                                <option value="type">Type</option>
+                            </select>
+                            <select id="directionSelect" class="form-control">
+                                <option value="ASC">Ascending</option>
+                                <option value="DESC">Descending</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Categories Grid -->
+        <div class="row items" id="categoryGrid">
+            {% for category in categories %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 item category-item" 
+                     data-name="{{ category.name|lower }}" 
+                     data-type="{{ category.type|lower }}">
+                    <div class="card">
+                        <div class="image-over category-icon d-flex align-items-center justify-content-center">
+                            <i class="fas fa-{{ category.type == 'image' ? 'image' : (category.type == 'video' ? 'film' : (category.type == 'audio' ? 'music' : 'cube')) }} fa-3x"></i>
+                        </div>
+                        <!-- Card Caption -->
+                        <div class="card-caption col-12 p-0">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <a href="{{ path('app_category_show', {'id': category.id}) }}">
+                                    <h5 class="mb-0">{{ category.name }}</h5>
+                                </a>
+                                <div class="category-type d-flex align-items-center my-3">
+                                    <span class="badge bg-primary">{{ category.type|capitalize }}</span>
+                                </div>
+                                <div class="card-bottom d-flex justify-content-between">
+                                    <span>{{ category.artworks|length }} artworks</span>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ path('app_category_show', {'id': category.id}) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_category_edit', {'id': category.id}) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center no-results">
+                    <div class="alert alert-info">
+                        <p>No categories found. <a href="{{ path('app_category_new') }}" class="alert-link">Create your first category</a></p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-    <style>
-        .card {
-            background-color: #2d3748;
-            border: none;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-        .table {
-            margin-bottom: 0;
-        }
-        .table-dark {
-            background-color: #2d3748;
-            color: #e2e8f0;
-        }
-        .table th {
-            background-color: #1a202c;
-            border-bottom: 2px solid #4a5568;
-            color: #e2e8f0;
-            font-weight: 600;
-        }
-        .table td {
-            border-color: #4a5568;
-        }
-        .table-hover tbody tr:hover {
-            background-color: #4a5568 !important;
-        }
-        .text-secondary {
-            color: #a0aec0 !important;
-        }
-        .btn-group .btn {
-            margin: 0 2px;
-            border-radius: 0.25rem;
-        }
-        .badge {
-            font-size: 0.8rem;
-            padding: 0.4em 0.6em;
-        }
-    </style>
+        <div id="noResultsMessage" class="row mt-4 d-none">
+            <div class="col-12 text-center">
+                <div class="alert alert-info">
+                    <p>No categories match your search. <a href="{{ path('app_category_new') }}" class="alert-link">Create a new category</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Category Button -->
+        <div class="row mt-4 mb-3">
+            <div class="col-12 text-center">
+                <a href="{{ path('app_category_new') }}" class="btn btn-bordered-white"><i class="fas fa-plus mr-2"></i> Create New Category</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .search-form {
+        margin-bottom: 20px;
+    }
+    
+    .search-form .form-control {
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        color: #fff;
+        border-radius: 0;
+    }
+    
+    .search-form select.form-control {
+        max-width: 150px;
+    }
+    
+    .card {
+        margin-bottom: 30px;
+        border-radius: 5px;
+        background-color: #24243557;
+        border: 1px solid #2e2e5c;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .category-item.hidden {
+        display: none;
+    }
+    
+    .category-icon {
+        height: 150px;
+        background: linear-gradient(145deg, #322f5b, #191932);
+        color: #fff;
+    }
+    
+    .category-icon i {
+        opacity: 0.8;
+    }
+    
+    .badge {
+        padding: 5px 10px;
+        font-weight: 400;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const sortSelect = document.getElementById('sortSelect');
+            const directionSelect = document.getElementById('directionSelect');
+            const categoryItems = document.querySelectorAll('.category-item');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            
+            // Function to filter and sort categories in real-time
+            function filterAndSortCategories() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const sortBy = sortSelect.value;
+                const direction = directionSelect.value;
+                
+                // Collect all visible items for sorting
+                let visibleItems = [];
+                
+                // Apply search filter
+                categoryItems.forEach(item => {
+                    const name = item.dataset.name;
+                    const type = item.dataset.type;
+                    
+                    const matchesSearch = !searchTerm || 
+                        name.includes(searchTerm) || 
+                        type.includes(searchTerm);
+                    
+                    if (matchesSearch) {
+                        item.classList.remove('hidden');
+                        visibleItems.push(item);
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+                
+                // Check if there are any visible items
+                if (visibleItems.length === 0) {
+                    noResultsMessage.classList.remove('d-none');
+                } else {
+                    noResultsMessage.classList.add('d-none');
+                }
+                
+                // Sort the visible items
+                visibleItems.sort((a, b) => {
+                    let valueA, valueB;
+                    
+                    if (sortBy === 'name') {
+                        valueA = a.dataset.name;
+                        valueB = b.dataset.name;
+                    } else if (sortBy === 'type') {
+                        valueA = a.dataset.type;
+                        valueB = b.dataset.type;
+                    }
+                    
+                    // String comparison
+                    if (direction === 'ASC') {
+                        return valueA.localeCompare(valueB);
+                    } else {
+                        return valueB.localeCompare(valueA);
+                    }
+                });
+                
+                // Reorder the items in the DOM
+                const categoryGrid = document.getElementById('categoryGrid');
+                visibleItems.forEach(item => {
+                    categoryGrid.appendChild(item);
+                });
+            }
+            
+            // Event listeners for real-time filtering
+            searchInput.addEventListener('input', filterAndSortCategories);
+            sortSelect.addEventListener('change', filterAndSortCategories);
+            directionSelect.addEventListener('change', filterAndSortCategories);
+        });
+    </script>
 {% endblock %}

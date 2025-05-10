@@ -3,91 +3,222 @@
 {% block title %}New Category{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Create New Category</h1>
-            <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
-            </a>
+<section class="author-area explore-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <!-- Intro -->
+                <div class="intro text-center mb-4">
+                    <h3 class="mt-3 mb-0">Create New Category</h3>
+                    <p>Add a new category for organizing artworks</p>
+                </div>
+            </div>
         </div>
-
-        {{ form_start(form) }}
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            {{ form_label(form.name) }}
-                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+        
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5">
+                        {{ form_start(form, {'attr': {'class': 'category-form'}}) }}
+                        {{ form_errors(form) }}
+                        
+                        <div class="form-group mb-4">
+                            <label class="form-label">Category Name</label>
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Enter category name (e.g., Digital Art, Photography)'}}) }}
                             {{ form_errors(form.name) }}
+                            <small class="text-muted">Choose a descriptive name for your category</small>
                         </div>
-
-                        <div class="form-group mb-3">
-                            {{ form_label(form.type) }}
+                        
+                        <div class="form-group mb-4">
+                            <label class="form-label">Media Type</label>
                             {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
                             {{ form_errors(form.type) }}
-                            <div class="form-text">Select the type of content for this category</div>
+                            <small class="text-muted">Select the primary media type for this category</small>
                         </div>
-
-                        <div class="form-group mb-3">
-                            {{ form_label(form.description) }}
-                            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3}}) }}
-                            {{ form_errors(form.description) }}
-                        </div>
-
-                        <div class="form-group mb-3">
+                        
+                        <div class="form-group mb-4">
                             <label class="form-label">Allowed File Types</label>
-                            <div class="form-text">
-                                {% if category.type %}
-                                    {% for mime_type in category.allowedMimeTypes %}
-                                        <span class="badge bg-secondary me-1">{{ mime_type }}</span>
+                            <div class="mime-types-container">
+                                {% if form.vars.value.type %}
+                                    {% for mime_type in form.vars.value.allowedMimeTypes %}
+                                        <span class="mime-type-badge">{{ mime_type }}</span>
                                     {% endfor %}
                                 {% else %}
-                                    <span class="text-muted">Select a type to see allowed file types</span>
+                                    <div class="mime-types-placeholder">Select a type to see allowed file types</div>
                                 {% endif %}
                             </div>
+                            <small class="text-muted">These file formats will be automatically set based on the media type</small>
+                            
+                            {# Hide the original MIME types field but keep it in the form #}
+                            <div style="display: none;">
+                                {{ form_widget(form.allowedMimeTypes) }}
+                                {{ form_errors(form.allowedMimeTypes) }}
+                            </div>
                         </div>
+                        
+                        <div class="row mt-5">
+                            <div class="col-12 d-flex justify-content-between">
+                                <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i> Back to List
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-2"></i> Create Category
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {{ form_end(form) }}
                     </div>
                 </div>
             </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Create</button>
-                <a href="{{ path('app_category_index') }}" class="btn btn-link">Cancel</a>
-            </div>
         </div>
-        {{ form_end(form) }}
     </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .category-form .form-control,
+    .category-form .form-select {
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        color: #fff;
+        border-radius: 5px;
+        padding: 12px;
+    }
+    
+    .category-form .form-label {
+        color: #fff;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .category-form .card {
+        background-color: #191932;
+        border: 1px solid #2e2e5c;
+        border-radius: 8px;
+    }
+    
+    .mime-types-container {
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        border-radius: 5px;
+        padding: 15px;
+        min-height: 70px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .mime-type-badge {
+        background-color: #007bff;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 14px;
+        display: inline-block;
+    }
+    
+    .mime-types-placeholder {
+        color: #6c757d;
+        font-style: italic;
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+    }
+    
+    .category-form .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .category-form .btn-outline-secondary {
+        color: #fff;
+        border-color: #6c757d;
+    }
+    
+    .category-form .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+    }
+    
+    .form-select {
+        display: block;
+        width: 100%;
+        height: calc(1.5em + .75rem + 2px);
+        padding: .375rem 1.75rem .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #fff;
+        vertical-align: middle;
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        border-radius: .25rem;
+        appearance: none;
+    }
+</style>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const typeSelect = document.querySelector('#category_type');
-            const mimeTypesContainer = document.querySelector('.form-text');
-
-            typeSelect.addEventListener('change', function() {
-                const selectedType = this.value;
-                if (selectedType) {
-                    fetch(`{{ path('app_category_info', {'id': category.id|default('new') }) }}?type=${selectedType}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.allowedMimeTypes && Array.isArray(data.allowedMimeTypes)) {
-                                let html = '';
-                                data.allowedMimeTypes.forEach(mimeType => {
-                                    html += `<span class="badge bg-secondary me-1">${mimeType}</span>`;
-                                });
-                                mimeTypesContainer.innerHTML = html;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            mimeTypesContainer.innerHTML = '<span class="text-danger">Error loading MIME types</span>';
-                        });
-                } else {
-                    mimeTypesContainer.innerHTML = '<span class="text-muted">Select a type to see allowed file types</span>';
+            const typeSelect = document.querySelector('select[name="category[type]"]');
+            const mimeTypesContainer = document.querySelector('.mime-types-container');
+            const hiddenMimeTypeInputs = document.querySelectorAll('input[name="category[allowedMimeTypes][]"]');
+            
+            function updateMimeTypes(selectedType) {
+                if (!selectedType) {
+                    mimeTypesContainer.innerHTML = '<div class="mime-types-placeholder">Select a type to see allowed file types</div>';
+                    // Uncheck all hidden checkboxes
+                    hiddenMimeTypeInputs.forEach(input => {
+                        input.checked = false;
+                    });
+                    return;
                 }
-            });
+                
+                // Fetch allowed MIME types for the selected category type
+                fetch(`{{ path('app_admin_category_info', {'id': 'new'}) }}?type=${selectedType}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.allowedMimeTypes && Array.isArray(data.allowedMimeTypes)) {
+                            // Display badges for the MIME types
+                            let html = '';
+                            data.allowedMimeTypes.forEach(mimeType => {
+                                html += `<span class="mime-type-badge">${mimeType}</span>`;
+                            });
+                            mimeTypesContainer.innerHTML = html;
+                            
+                            // Update the hidden checkboxes
+                            hiddenMimeTypeInputs.forEach(input => {
+                                input.checked = data.allowedMimeTypes.includes(input.value);
+                            });
+                        } else {
+                            mimeTypesContainer.innerHTML = '<div class="mime-types-placeholder text-danger">No file types available for this category</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mimeTypesContainer.innerHTML = '<div class="mime-types-placeholder text-danger">Error loading file types. Please try again.</div>';
+                    });
+            }
+
+            if (typeSelect) {
+                typeSelect.addEventListener('change', function() {
+                    updateMimeTypes(this.value);
+                });
+                
+                // Initialize on page load if a type is already selected
+                if (typeSelect.value) {
+                    updateMimeTypes(typeSelect.value);
+                }
+            }
         });
     </script>
 {% endblock %}

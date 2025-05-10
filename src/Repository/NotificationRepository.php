@@ -1,6 +1,6 @@
 <?php
-
 namespace App\Repository;
+
 
 use App\Entity\Notification;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Notification>
+ *
+ * @method Notification|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Notification|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Notification[]    findAll()
+ * @method Notification[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class NotificationRepository extends ServiceEntityRepository
 {
@@ -16,28 +21,56 @@ class NotificationRepository extends ServiceEntityRepository
         parent::__construct($registry, Notification::class);
     }
 
-    //    /**
-    //     * @return Notification[] Returns an array of Notification objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('n.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Find notifications ordered by time (newest first)
+     * 
+     * @param int|null $limit Maximum number of notifications to retrieve
+     * @return Notification[]
+     */
+    public function findRecentNotifications(?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('n')
+            ->orderBy('n.time', 'DESC');
+            
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+        
+        return $qb->getQuery()->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Notification
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Find notifications by type
+     * 
+     * @param string $type Notification type
+     * @return Notification[]
+     */
+    public function findByType(string $type): array
+    {
+        return $this->findBy(['type' => $type], ['time' => 'DESC']);
+    }
+
+    /**
+     * Save a notification entity
+     */
+    public function save(Notification $notification, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($notification);
+        
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    /**
+     * Remove a notification entity
+     */
+    public function remove(Notification $notification, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($notification);
+        
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 }

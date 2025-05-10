@@ -3,6 +3,8 @@ parameters:
     raffle_images_directory: '%kernel.project_dir%/public/uploads/raffle_images'
     profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
     evidence_directory: '%kernel.project_dir%/public/uploads/evidence'
+    # Stability AI API key - directly use the hard-coded value
+    stability_ai_api_key: 'sk-7gjnamCmIJr3Ne4rHoKbx3e6IGCXsDGa1yQssDdViEwWP4MZ'
     blog_images_directory: '%kernel.project_dir%/public/uploads/blog_images'
     recaptcha_secret: '%env(RECAPTCHA_SECRET)%'
     app.recaptcha_secret: '%env(GOOGLE_RECAPTCHA_SECRET)%'
@@ -10,6 +12,9 @@ parameters:
     etherscan.api_url: 'https://api-sepolia.etherscan.io/api'
     etherscan.api_key: '%env(ETHERSCAN_API_KEY)%'
     etherscan.contract_address: '0x44Ab62a8DFC2d8403E27F4b85717Cc3b986d1801'
+    etherscan_api_url: '%env(ETHERSCAN_API_URL)%'
+    etherscan_api_key: '%env(ETHERSCAN_API_KEY)%'
+    etherscan_contract_address: '%env(ETHERSCAN_CONTRACT_ADDRESS)%'
 
 services:
     _defaults:
@@ -32,6 +37,10 @@ services:
         arguments:
             $ethereumService: '@App\Service\EthereumService'
 
+    App\Service\FileUploadService:
+        arguments:
+            $targetDirectory: '%artwork_images_directory%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     App\Entity\Artwork:
@@ -43,9 +52,9 @@ services:
     App\Service\EtherscanService:
         arguments:
             $httpClient: '@http_client'
-            $apiUrl: '%etherscan_api_url%'
-            $apiKey: '%etherscan_api_key%'
-            $contractAddress: '%etherscan_contract_address%'
+            $apiUrl: '%etherscan.api_url%'
+            $apiKey: '%etherscan.api_key%'
+            $contractAddress: '%etherscan.contract_address%'
             $logger: '@logger'
 
     App\Service\PasswordResetService:
@@ -66,7 +75,21 @@ services:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
-
+    
+    App\Service\GeminiNftDescriptionService:
+        arguments:
+            $httpClient: '@http_client'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
+            $params: '@parameter_bag'
+            
+            
 
     App\Service\ProfanityFilter:
         autowire: true
+
+    App\Controller\DashboardController:
+        arguments:
+            $etherscanApiUrl: '%etherscan.api_url%'
+            $etherscanApiKey: '%etherscan.api_key%'
+            $contractAddress: '%etherscan.contract_address%'
+
