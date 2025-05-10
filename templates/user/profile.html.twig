@@ -9,11 +9,12 @@
                     <!-- Author Profile -->
                     <div class="card no-hover text-center">
                         <div class="image-over">
-                            <img class="card-img-top" src="{{ asset('assets/img/content/auction_2.jpg') }}" alt="">
-                            <!-- Author -->
-                            <div class="author">
-                                <div class="author-thumb avatar-lg">
-                                    <img class="rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ user.profilePicture) }}" alt="">
+                            <img class="card-img-top" src="{{ asset('assets/img/content/auction_2.jpg') }}" alt="">                            <!-- Author -->
+                            <div class="author">                                <div class="author-thumb avatar-lg">                                    {% if user.profilePicture and (user.profilePicture starts with 'http://' or user.profilePicture starts with 'https://') %}
+                                        <img class="rounded-circle" src="{{ user.profilePicture }}" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='{{ asset('front_office/img/default_user_pfp.jpg') }}';">
+                                    {% else %}
+                                        <img class="rounded-circle" src="{{ user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="">
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
