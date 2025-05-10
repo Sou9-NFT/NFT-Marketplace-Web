@@ -119,11 +119,10 @@
                         {% if app.user %}
                             <li class="nav-item ml-3">
                                 <div class="dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {% if app.user.profilePicture starts with 'http' %}
-                                        <img src="{{ app.user.profilePicture }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">                                    {% if app.user.profilePicture starts with 'http' %}
+                                        <img src="{{ app.user.profilePicture }}" alt="Profile Picture" class="rounded-circle" width="40" height="40" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='{{ asset('front_office/img/default_user_pfp.jpg') }}';">
                                     {% else %}                        {% if app.user.profilePicture and (app.user.profilePicture starts with 'http://' or app.user.profilePicture starts with 'https://') %}
-                            <img src="{{ app.user.profilePicture }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
+                            <img src="{{ app.user.profilePicture }}" alt="Profile Picture" class="rounded-circle" width="40" height="40" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='{{ asset('front_office/img/default_user_pfp.jpg') }}';">
                         {% else %}
                             <img src="{{ app.user.profilePicture ? asset('uploads/profile_pictures/' ~ app.user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" alt="Profile Picture" class="rounded-circle" width="40" height="40">
                         {% endif %}
