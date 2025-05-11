@@ -47,7 +47,8 @@ class Artwork
     #[Assert\NotNull(message: 'Please upload a file')]
     #[Assert\File(
         maxSize: '100M',
-        maxSizeMessage: 'The file is too large ({{ size }} {{ suffix }}). Maximum allowed size is {{ limit }} {{ suffix }}.'
+        maxSizeMessage: 'The file is too large ({{ size }} {{ suffix }}). Maximum allowed size is {{ limit }} {{ suffix }}.',
+        groups: ['file_required']
     )]
     private ?File $imageFile = null;
 
@@ -76,6 +77,12 @@ class Artwork
     
 
     
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     #[ORM\PreUpdate]
     public function setUpdatedAtValue(): void

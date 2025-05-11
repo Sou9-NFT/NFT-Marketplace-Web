@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Service\ImgurUploadService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,10 +19,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class UserController extends AbstractController
 {
     private $entityManager;
+    private $imgurUploadService;
 
-    public function __construct(EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ImgurUploadService $imgurUploadService
+    ) {
         $this->entityManager = $entityManager;
+        $this->imgurUploadService = $imgurUploadService;
     }
 
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
@@ -90,32 +95,22 @@ class UserController extends AbstractController
                     }
                 }
             }
-
             if ($profilePictureFile) {
-                $originalFilename = pathinfo($profilePictureFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $profilePictureFile->guessExtension();
+                // Upload to Imgur instead of local storage
+                $result = $this->imgurUploadService->uploadImage($profilePictureFile);
 
-                $uploadsDirectory = $this->getParameter('profile_pictures_directory');
-                if (!file_exists($uploadsDirectory)) {
-                    mkdir($uploadsDirectory, 0777, true);
+                if ($result['success']) {
+                    // Store the Imgur URL in the database
+                    $user->setProfilePicture($result['url']);
+                    $this->entityManager->persist($user);
+                    $this->entityManager->flush();
+                    $userRepository->save($user, true);
+
+                    $this->addFlash('success', 'Profile picture uploaded successfully.');
+                    return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+                } else {
+                    $this->addFlash('error', 'Failed to upload profile picture: ' . ($result['error'] ?? 'Unknown error'));
                 }
-
-                $profilePictureFile->move($uploadsDirectory, $newFilename);
-
-                $oldFilename = $user->getProfilePicture();
-                if ($oldFilename) {
-                    $oldFilePath = $uploadsDirectory . '/' . $oldFilename;
-                    if (file_exists($oldFilePath)) {
-                        unlink($oldFilePath);
-                    }
-                }
-
-                $user->setProfilePicture($newFilename);
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
-                $userRepository->save($user, true);
-                return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
             }
         }
 

@@ -18,7 +18,7 @@ symfony serve
 ## migration
 
 ```sh
-symfony console make:migration
+symfony console make:migration  
 symfony console doctrine:migrations:migrate
 ```
 

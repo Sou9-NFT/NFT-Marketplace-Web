@@ -40,6 +40,10 @@ class BetSessionType extends AbstractType
                         ->where('a.owner = :owner')
                         ->setParameter('owner', $options['user']);
                 },
+            ])
+            ->add('mysteriousMode', \Symfony\Component\Form\Extension\Core\Type\CheckboxType::class, [
+                'label' => 'Mysterious Mode',
+                'required' => false,
             ]);
     }
 

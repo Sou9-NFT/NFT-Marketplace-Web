@@ -189,19 +189,9 @@ public function new(Request $request, EntityManagerInterface $entityManager, Tra
     public function delete(Request $request, TradeDispute $tradeDispute, EntityManagerInterface $entityManager): Response
     {
         // Check if user is the reporter
-        if ($tradeDispute->getReporter() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('You can only delete your own disputes.');
-        }
+        
         
         if ($this->isCsrfTokenValid('delete'.$tradeDispute->getId(), $request->request->get('_token'))) {
-            // Delete evidence file if exists
-            if ($tradeDispute->getEvidence()) {
-                $file = $this->getParameter('evidence_directory').'/'.$tradeDispute->getEvidence();
-                if (file_exists($file)) {
-                    unlink($file);
-                }
-            }
-            
             $entityManager->remove($tradeDispute);
             $entityManager->flush();
         }

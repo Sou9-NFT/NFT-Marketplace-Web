@@ -1,30 +1,104 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Artwork Gallery{% endblock %}
+{% block title %}Artwork Collection{% endblock %}
 
 {% block body %}
-    <main id="main" class="main">
-        <div class="pagetitle">
-            <h1>Artwork Gallery</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item active">Artworks</li>
-                </ol>
-            </nav>
+<section class="author-area explore-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+                <!-- Intro -->
+                <div class="intro text-center mb-4">
+                    <h3 class="mt-3 mb-0">Explore Artworks</h3>
+                    <p>Discover, collect, and sell extraordinary NFTs</p>
+                </div>
+            </div>
         </div>
-
-        <section class="section">
-            <div class="row">
-                <div class="col-lg-12">
+        
+        <!-- Search and Filter Row -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="search-form">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search artworks..." value="{{ searchTerm ?? '' }}">
+                        <div class="input-group-append">
+                            <select id="sortSelect" class="form-control">
+                                <option value="date" {% if sortBy == 'date' %}selected{% endif %}>Date</option>
+                                <option value="price" {% if sortBy == 'price' %}selected{% endif %}>Price</option>
+                                <option value="title" {% if sortBy == 'title' %}selected{% endif %}>Title</option>
+                                <option value="category" {% if sortBy == 'category' %}selected{% endif %}>Category</option>
+                            </select>
+                            <select id="directionSelect" class="form-control">
+                                <option value="DESC" {% if direction == 'DESC' %}selected{% endif %}>Descending</option>
+                                <option value="ASC" {% if direction == 'ASC' %}selected{% endif %}>Ascending</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Buttons -->
+        <div class="row">
+            <div class="col-12">
+                <!-- Explore Menu -->
+                <div class="explore-menu btn-group btn-group-toggle flex-wrap justify-content-center text-center mb-4" data-toggle="buttons">
+                    <label class="btn active d-table text-uppercase p-2" data-category="">
+                        <input type="radio" autocomplete="off" checked>
+                        <span>All</span>
+                    </label>
+                    {% set uniqueCategories = [] %}
+                    {% for artwork in artworks %}
+                        {% if artwork.category.name not in uniqueCategories %}
+                            {% set uniqueCategories = uniqueCategories|merge([artwork.category.name]) %}
+                            <label class="btn d-table text-uppercase p-2" data-category="{{ artwork.category.name }}">
+                                <input type="radio" autocomplete="off">
+                                <span>{{ artwork.category.name }}</span>
+                            </label>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Artwork Grid -->
+        <div class="row items" id="artworkGrid">
+            {% for artwork in artworks %}
+                <div class="col-12 col-sm-6 col-lg-3 item artwork-item" 
+                     data-title="{{ artwork.title|lower }}" 
+                     data-description="{{ artwork.description|lower }}"
+                     data-price="{{ artwork.price }}" 
+                     data-category="{{ artwork.category.name|lower }}" 
+                     data-date="{{ artwork.createdAt|date('U') }}">
                     <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title">Browse Artworks</h5>
-                                <a href="{{ path('app_artwork_new') }}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle"></i> Create New Artwork
+                        <div class="image-over">                            <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}">
+                                {% if artwork.imageName starts with 'http' %}
+                                    <img class="card-img-top" src="{{ artwork.imageName }}" alt="{{ artwork.title }}" referrerpolicy="no-referrer">
+                                {% else %}
+                                    <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <!-- Card Caption -->
+                        <div class="card-caption col-12 p-0">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}">
+                                    <h5 class="mb-0">{{ artwork.title }}</h5>
                                 </a>
-                            </div>
+                                <div class="seller d-flex align-items-center my-3">
+                                    <span>Owned By</span>
+                                    <a href="#">
+                                        <h6 class="ml-2 mb-0">{{ artwork.owner.name }}</h6>
+                                    </a>
+                                </div>
+                                <div class="card-bottom d-flex justify-content-between">
+                                    <span>{{ artwork.price }} ETH</span>
+                                    <span><i class="fas fa-tag"></i> {{ artwork.category.name }}</span>
+                                </div>
 
+                            </div>
+{#
                             {% for label, messages in app.flashes %}
                                 {% for message in messages %}
                                     <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
@@ -103,11 +177,210 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+  #}
                             </div>
                         </div>
                     </div>
                 </div>
+            {% else %}
+                <div class="col-12 text-center no-results">
+                    <p>No artworks found. Try a different search term or <a href="{{ path('app_artwork_new') }}" class="btn btn-sm btn-primary">Create a new artwork</a></p>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div id="noResultsMessage" class="row mt-4 d-none">
+            <div class="col-12 text-center">
+                <p>No artworks match your search. Try different criteria or <a href="{{ path('app_artwork_new') }}" class="btn btn-sm btn-primary">Create a new artwork</a></p>
             </div>
-        </section>
-    </main>
+        </div>
+        
+        <!-- Add Artwork Button -->
+        <div class="row mt-4 mb-3">
+            <div class="col-12 text-center">
+                <a href="{{ path('app_artwork_new') }}" class="btn btn-bordered-white"><i class="fas fa-plus mr-2"></i> Create New Artwork</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .search-form {
+        margin-bottom: 20px;
+    }
+    
+    .search-form .form-control {
+        background-color: #242435;
+        border: 1px solid #2e2e5c;
+        color: #fff;
+        border-radius: 0;
+    }
+    
+    .search-form .btn {
+        border-radius: 0;
+    }
+    
+    .search-form select.form-control {
+        max-width: 150px;
+    }
+    
+    .card {
+        margin-bottom: 30px;
+        border-radius: 5px;
+        background-color: #24243557;
+        border: 1px solid #2e2e5c;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .artwork-item.hidden {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const sortSelect = document.getElementById('sortSelect');
+            const directionSelect = document.getElementById('directionSelect');
+            const artworkItems = document.querySelectorAll('.artwork-item');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const filterButtons = document.querySelectorAll('.explore-menu .btn');
+            
+            let currentCategory = '';
+            
+            // Function to filter and sort artworks in real-time
+            function filterAndSortArtworks() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const sortBy = sortSelect.value;
+                const direction = directionSelect.value;
+                
+                // Collect all visible items for sorting
+                let visibleItems = [];
+                
+                // First apply search and category filters
+                artworkItems.forEach(item => {
+                    const title = item.dataset.title;
+                    const description = item.dataset.description;
+                    const category = item.dataset.category;
+                    
+                    const matchesSearch = !searchTerm || 
+                        title.includes(searchTerm) || 
+                        description.includes(searchTerm) ||
+                        category.includes(searchTerm);
+                        
+                    const matchesCategory = !currentCategory || category === currentCategory.toLowerCase();
+                    
+                    if (matchesSearch && matchesCategory) {
+                        item.classList.remove('hidden');
+                        visibleItems.push(item);
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+                
+                // Check if there are any visible items
+                if (visibleItems.length === 0) {
+                    noResultsMessage.classList.remove('d-none');
+                } else {
+                    noResultsMessage.classList.add('d-none');
+                }
+                
+                // Sort the visible items
+                visibleItems.sort((a, b) => {
+                    let valueA, valueB;
+                    
+                    switch(sortBy) {
+                        case 'price':
+                            valueA = parseFloat(a.dataset.price);
+                            valueB = parseFloat(b.dataset.price);
+                            break;
+                        case 'date':
+                            valueA = parseInt(a.dataset.date);
+                            valueB = parseInt(b.dataset.date);
+                            break;
+                        case 'title':
+                            valueA = a.dataset.title;
+                            valueB = b.dataset.title;
+                            break;
+                        case 'category':
+                            valueA = a.dataset.category;
+                            valueB = b.dataset.category;
+                            break;
+                        default:
+                            valueA = parseInt(a.dataset.date);
+                            valueB = parseInt(b.dataset.date);
+                    }
+                    
+                    // For string comparisons
+                    if (typeof valueA === 'string') {
+                        if (direction === 'ASC') {
+                            return valueA.localeCompare(valueB);
+                        } else {
+                            return valueB.localeCompare(valueA);
+                        }
+                    }
+                    // For number comparisons
+                    else {
+                        if (direction === 'ASC') {
+                            return valueA - valueB;
+                        } else {
+                            return valueB - valueA;
+                        }
+                    }
+                });
+                
+                // Reorder the items in the DOM
+                const artworkGrid = document.getElementById('artworkGrid');
+                visibleItems.forEach(item => {
+                    artworkGrid.appendChild(item);
+                });
+                
+                // Update URL without reloading the page
+                const url = new URL(window.location);
+                url.searchParams.set('search', searchTerm);
+                url.searchParams.set('sort', sortBy);
+                url.searchParams.set('direction', direction);
+                window.history.replaceState({}, '', url);
+            }
+            
+            // Event listeners for real-time filtering
+            searchInput.addEventListener('input', filterAndSortArtworks);
+            sortSelect.addEventListener('change', filterAndSortArtworks);
+            directionSelect.addEventListener('change', filterAndSortArtworks);
+            
+            // Filter buttons functionality
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Set the current category
+                    currentCategory = this.dataset.category || '';
+                    
+                    // Apply filters
+                    filterAndSortArtworks();
+                });
+            });
+            
+            // Initialize with any URL parameters
+            if (searchInput.value || 
+                sortSelect.value !== 'date' || 
+                directionSelect.value !== 'DESC') {
+                filterAndSortArtworks();
+            }
+        });
+    </script>
 {% endblock %}

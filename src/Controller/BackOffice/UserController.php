@@ -5,6 +5,7 @@ namespace App\Controller\BackOffice;
 use App\Entity\User;
 use App\Form\BackOffice\UserType;
 use App\Repository\UserRepository;
+use App\Service\ImgurUploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/admin/user')]
 #[IsGranted('ROLE_ADMIN')]
@@ -19,13 +21,16 @@ class UserController extends AbstractController
 {
     private $entityManager;
     private $passwordHasher;
+    private $imgurUploadService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        ImgurUploadService $imgurUploadService
     ) {
         $this->entityManager = $entityManager;
         $this->passwordHasher = $passwordHasher;
+        $this->imgurUploadService = $imgurUploadService;
     }
 
     #[Route('/', name: 'app_admin_user_index', methods: ['GET'])]
@@ -35,7 +40,6 @@ class UserController extends AbstractController
             'users' => $userRepository->findAll(),
         ]);
     }
-
     #[Route('/new', name: 'app_admin_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
@@ -51,15 +55,27 @@ class UserController extends AbstractController
                 $user->getPlainPassword()
             );
             $user->setPassword($hashedPassword);
-            
+
             // Set creation date
             $user->setCreatedAt(new \DateTimeImmutable());
-            
+
+            // Handle profile picture upload if provided
+            $profilePictureFile = $form->get('profilePicture')->getData();
+            if ($profilePictureFile) {
+                $result = $this->imgurUploadService->uploadImage($profilePictureFile);
+
+                if ($result['success']) {
+                    $user->setProfilePicture($result['url']);
+                } else {
+                    $this->addFlash('error', 'Failed to upload profile picture: ' . ($result['error'] ?? 'Unknown error'));
+                }
+            }
+
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'User created successfully.');
-            return $this->redirectToRoute('app_back_user_index');
+            return $this->redirectToRoute('app_admin_user_index');
         }
 
         return $this->render('back_user/new.html.twig', [
@@ -75,7 +91,6 @@ class UserController extends AbstractController
             'user' => $user,
         ]);
     }
-
     #[Route('/{id}/edit', name: 'app_admin_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user): Response
     {
@@ -83,7 +98,20 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle profile picture upload if provided
+            $profilePictureFile = $form->get('profilePicture')->getData();
+            if ($profilePictureFile) {
+                $result = $this->imgurUploadService->uploadImage($profilePictureFile);
+
+                if ($result['success']) {
+                    $user->setProfilePicture($result['url']);
+                } else {
+                    $this->addFlash('error', 'Failed to upload profile picture: ' . ($result['error'] ?? 'Unknown error'));
+                }
+            }
+
             $this->entityManager->flush();
+            $this->addFlash('success', 'User updated successfully.');
             return $this->redirectToRoute('app_admin_user_index');
         }
 

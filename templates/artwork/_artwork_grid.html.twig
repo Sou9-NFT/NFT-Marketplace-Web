@@ -1,0 +1,55 @@
+{% for artwork in artworks %}
+    <div class="col-md-4 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="position-relative artwork-media">                {% if artwork.category.type == 'image' %}
+                    {% if artwork.imageName starts with 'http' %}
+                        <img src="{{ artwork.imageName }}"
+                             class="card-img-top"
+                             alt="{{ artwork.title }}"
+                             style="height: 200px; object-fit: cover;"
+                             referrerpolicy="no-referrer">
+                    {% else %}
+                        <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}"
+                             class="card-img-top"
+                             alt="{{ artwork.title }}"
+                             style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ artwork.title }}</h5>
+                <p class="card-text text-muted">
+                    {{ artwork.description|length > 100 ? artwork.description|slice(0, 100) ~ '...' : artwork.description }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary">{{ artwork.category.name }}</span>
+                    <span class="text-primary fw-bold">{{ artwork.price }} ETH</span>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent p-2">
+                <div class="btn-group btn-group-sm w-100" role="group">
+                    <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                    <a href="{{ path('app_artwork_edit', {'id': artwork.id}) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <form method="post" action="{{ path('app_artwork_delete', {'id': artwork.id}) }}" 
+                          onsubmit="return confirm('Are you sure you want to delete this artwork?');" 
+                          style="display: inline-block; flex: 1;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ artwork.id) }}">
+                        <button class="btn btn-outline-danger btn-sm w-100">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            No artworks found. <a href="{{ path('app_artwork_new') }}" class="alert-link">Create your first artwork</a>
+        </div>
+    </div>
+{% endfor %}

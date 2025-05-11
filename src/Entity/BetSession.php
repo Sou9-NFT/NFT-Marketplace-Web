@@ -31,7 +31,20 @@ class BetSession
     #[Assert\NotBlank(message: "End time cannot be blank.")]
     private ?\DateTimeImmutable $endTime = null;
 
-  
+    #[ORM\Column(length: 1000, nullable: true)]
+    private ?string $generatedDescription = null;
+
+    public function getGeneratedDescription(): ?string
+    {
+        return $this->generatedDescription;
+    }
+
+    public function setGeneratedDescription(?string $generatedDescription): static
+    {
+        $this->generatedDescription = $generatedDescription;
+        return $this;
+    }
+
 
     #[ORM\Column(nullable: false)]
     #[Assert\GreaterThan("today", message: "Start time must be in the future.")]
@@ -47,6 +60,34 @@ class BetSession
 
     #[ORM\Column(length: 10)]
     private string $status = 'pending';
+
+    #[ORM\Column(type: 'integer')]
+    private int $numberOfBids = 0;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $mysteriousMode = false;
+
+    public function getNumberOfBids(): int
+    {
+        return $this->numberOfBids;
+    }
+
+    public function setNumberOfBids(int $numberOfBids): static
+    {
+        $this->numberOfBids = $numberOfBids;
+        return $this;
+    }
+
+    public function isMysteriousMode(): bool
+    {
+        return $this->mysteriousMode;
+    }
+
+    public function setMysteriousMode(bool $mysteriousMode): static
+    {
+        $this->mysteriousMode = $mysteriousMode;
+        return $this;
+    }
 
     public function __construct()
     {

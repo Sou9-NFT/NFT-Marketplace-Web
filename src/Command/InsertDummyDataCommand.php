@@ -31,11 +31,18 @@ class InsertDummyDataCommand extends Command
     {
         $this
             ->setDescription('Insert dummy data into the database');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    }    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        
+        // Check if users already exist
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $adminUser = $userRepository->findOneBy(['email' => 'admin@admin.com']);
+        
+        if ($adminUser) {
+            $io->warning('Dummy data already exists. Please clear the database first if you want to re-insert it.');
+            return Command::SUCCESS;
+        }
 
         // Create Admin User
         $admin = new User();
@@ -43,14 +50,13 @@ class InsertDummyDataCommand extends Command
         $admin->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
         $admin->setName('Admin User');
         $admin->setWalletAddress(null);
+        $admin->setCreatedAt(new \DateTimeImmutable());
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($admin, '123456');
         $admin->setPassword($hashedPassword);
+          $this->entityManager->persist($admin);
         
-        $this->entityManager->persist($admin);
-        $this->entityManager->flush();
-
         $io->success('Admin user created: admin@admin.com (password: 123456)');
 
         // Create Regular User
@@ -58,14 +64,13 @@ class InsertDummyDataCommand extends Command
         $user->setEmail('user@user.com');
         $user->setName('Regular User');
         $user->setWalletAddress(null);
+        $user->setCreatedAt(new \DateTimeImmutable());
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($user, '123456');
         $user->setPassword($hashedPassword);
+          $this->entityManager->persist($user);
         
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
         $io->success('Regular user created: user@user.com (password: 123456)');
 
         // Create Seller User
@@ -74,14 +79,13 @@ class InsertDummyDataCommand extends Command
         $seller->setRoles(['ROLE_SELLER', 'ROLE_USER']);
         $seller->setName('Seller User');
         $seller->setWalletAddress(null);
+        $seller->setCreatedAt(new \DateTimeImmutable());
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($seller, '123456');
         $seller->setPassword($hashedPassword);
+          $this->entityManager->persist($seller);
         
-        $this->entityManager->persist($seller);
-        $this->entityManager->flush();
-
         $io->success('Seller user created: seller@artitechs.com (password: 123456)');
 
         // Create Author User
@@ -90,36 +94,33 @@ class InsertDummyDataCommand extends Command
         $author->setRoles(['ROLE_AUTHOR', 'ROLE_USER']);
         $author->setName('Author User');
         $author->setWalletAddress(null);
+        $author->setCreatedAt(new \DateTimeImmutable());
         
         // Hash the password (123456)
         $hashedPassword = $this->passwordHasher->hashPassword($author, '123456');
         $author->setPassword($hashedPassword);
+          $this->entityManager->persist($author);
         
-        $this->entityManager->persist($author);
-        $this->entityManager->flush();
-
-        $io->success('Author user created: author@artitechs.com (password: 123456)');
-
-        // Insert Category
+        $io->success('Author user created: author@artitechs.com (password: 123456)');// Insert Category
         $category = new Category();
         $category->setName('Example Category');
-        $category->setType('image');
+        $category->setType(Category::TYPE_IMAGE);
         $category->setDescription('This is an example category description.');
-        $this->entityManager->persist($category);
-
-        // Insert Artwork
+        $category->setManager($admin);
+        $category->setAllowedMimeTypes(Category::MIME_TYPES[Category::TYPE_IMAGE]);
+        $this->entityManager->persist($category);        // Insert Artwork
         $artwork = new Artwork();
         $artwork->setTitle('Example Artwork');
         $artwork->setDescription('This is an example description for the artwork.');
         $artwork->setPrice(100);
         $artwork->setImageName('example.jpg');
-        $artwork->setCreator($seller);
+        $artwork->setCreator($seller); 
+        $artwork->setOwner($seller);
         $artwork->setCategory($category);
-        $this->entityManager->persist($artwork);
-
-        // Create a sample raffle
+        $artwork->setCreatedAt(new \DateTimeImmutable());
+        $this->entityManager->persist($artwork);        // Create a sample raffle
         $raffle = new Raffle();
-        $raffle->setTitle('Sample Raffle');
+        $raffle->setTitle('Sample Raffle'); 
         $raffle->setRaffleDescription('This is a sample raffle description for testing purposes.');
         $raffle->setCreatorName('Admin');
         $raffle->setCreator($admin);
@@ -127,11 +128,24 @@ class InsertDummyDataCommand extends Command
         $raffle->setEndTime(new \DateTime('+7 days'));
         $raffle->setStatus('active');
         $raffle->setCreatedAt(new \DateTime());
-        $raffle->setImage('example-raffle.jpg');
-        
+        $raffle->setArtwork($artwork);  // Set the required artwork property
         $this->entityManager->persist($raffle);
 
+        // Insert a sample bet session
+        $betSession = new BetSession();
+        $betSession->setAuthor($author);
+        $betSession->setArtwork($artwork);
+        $betSession->setCreatedAt(new \DateTimeImmutable());
+        $betSession->setStartTime(new \DateTimeImmutable('+1 day'));
+        $betSession->setEndTime(new \DateTimeImmutable('+8 days'));
+        $betSession->setInitialPrice(50.0);
+        $betSession->setCurrentPrice(50.0);
+        $betSession->setGeneratedDescription('This is a sample bet session for the example artwork.');
+        $this->entityManager->persist($betSession);
+
         $this->entityManager->flush();
+
+        
 
         $io->success('Dummy data has been inserted successfully.');
 

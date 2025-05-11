@@ -6,16 +6,20 @@ use App\Entity\TradeOffer;
 use App\Entity\User;
 use App\Entity\TradeState;
 use App\Entity\Artwork;
-use App\Entity\Notification;
 use App\Form\TradeOfferType;
 use App\Repository\TradeOfferRepository;
 use App\Repository\ArtworkRepository;
+use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+//use Symfony\Component\Mailer\MailerInterface;
+//use Symfony\Component\Mime\Email;
+
 
 #[Route('/trade')]
 #[IsGranted('ROLE_USER', message: 'You need to be logged in to access this section')]
@@ -112,25 +116,26 @@ public function new(Request $request, EntityManagerInterface $entityManager, int
         $tradeState->setSender($tradeOffer->getSender());
         $tradeState->setReceiver($tradeOffer->getReceiverName());
         $tradeState->setDescription($tradeOffer->getDescription());
+        // Create context message describing the trade
+        $senderName = $tradeOffer->getSender()->getName();
+        $offeredItemName = $tradeOffer->getOfferedItem()->getTitle();
+        $receivedItemName = $tradeOffer->getReceivedItem()->getTitle();
+        // Create and send notification to the receiver
+        $notification = new \App\Entity\Notification();
+        $notification->setReceiver($tradeOffer->getReceiverName());
+        $notification->setType('OfferReceived');
+        $notification->setTitle('New Trade Offer: ' . $senderName . ' wants to trade for your artwork "' . $receivedItemName . '"');
+        $notification->setCreatedAt(new \DateTimeImmutable());
+        $notification->setTradeState($tradeState);
+
+        // Persist the notification
+        $entityManager->persist($notification);
 
         // Persist the trade state
         $entityManager->persist($tradeState);
         $entityManager->flush();
 
-        // Create a notification for the receiver
-        $sender = $this->getUser();
-        $receiverId = $artwork->getOwner()->getId();
-        $notification = new Notification();
-        $notification->setReceiverId($receiverId);
-        $notification->setSenderId($sender->$tradeState->getSender());
-        $notification->setMessage("You have a new trade offer");
-        $notification->setIsRead(false); // Initially, it's unread
-
-        // Persist the notification
-        $entityManager->persist($notification);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Trade offer created successfully, TradeState has been set, and notification has been sent.');
+        $this->addFlash('success', 'Trade offer created successfully, and TradeState has been set.');
         return $this->redirectToRoute('app_trade_offer_index', [], Response::HTTP_SEE_OTHER);
     }
 
@@ -139,8 +144,6 @@ public function new(Request $request, EntityManagerInterface $entityManager, int
         'form' => $form,
     ]);
 }
-
-
 
 
     #[Route('/offer/{id}', name: 'app_trade_offer_show', methods: ['GET'])]
@@ -219,8 +222,19 @@ public function edit(Request $request, TradeOffer $tradeOffer, EntityManagerInte
         return $this->redirectToRoute('app_trade_offer_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    
+    #[Route('/notifications', name: 'app_notifications')]
+    public function showNotifications(NotificationRepository $notificationRepository, UserInterface $user): Response
+    {
+        // Get the current user (receiver)
+        $receiver = $user;
 
+        // Fetch all notifications for the current user (receiver)
+        $notifications = $notificationRepository->findBy(['receiver' => $receiver], ['time' => 'DESC']);
+
+        return $this->render('trade/notification.html.twig', [
+            'notifications' => $notifications,
+        ]);
+    }
 
 
 }

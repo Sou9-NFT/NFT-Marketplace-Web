@@ -61,7 +61,7 @@
                     <div class="col-xxl-4 col-md-6">
                         <div class="card info-card customers-card">
                             <div class="card-body">
-                                <h5 class="card-title">Token Circulation <span>| ESPRIT DAN</span></h5>
+                                <h5 class="card-title">Token Circulation <span>| ESPRIT DAN</h5>
                                 <div class="d-flex align-items-center">
                                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                         <i class="bi bi-currency-exchange"></i>
@@ -72,6 +72,135 @@
                                         <span class="text-muted small pt-2 ps-1">increase</span>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Raffle Stats Cards -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Raffles</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-ticket-perforated"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.raffle_stats.total_raffles }}</h6>
+                                        <span class="text-success small pt-1 fw-bold">5%</span>
+                                        <span class="text-muted small pt-2 ps-1">increase</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Raffle Participants Card -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card revenue-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Raffle Participants <span>| Total</span></h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-person-check"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.raffle_stats.total_participants }}</h6>
+                                        <span class="text-success small pt-1 fw-bold">
+                                            {% if dashboard_data.raffle_stats.total_raffles > 0 %}
+                                                {% set avg_participants = (dashboard_data.raffle_stats.total_participants / dashboard_data.raffle_stats.total_raffles)|round(1) %}
+                                                {{ avg_participants }}
+                                            {% else %}
+                                                0
+                                            {% endif %}
+                                        </span>
+                                        <span class="text-muted small pt-2 ps-1">avg participants per raffle</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blog Stats Cards -->
+                    <div class="col-xxl-4 col-md-6">
+                        <div class="card info-card sales-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Blog Posts</h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-journal-text"></i>
+                                    </div>
+                                    <div class="ps-3">
+                                        <h6>{{ dashboard_data.blog_analytics.total_posts }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Posts Chart -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Monthly Blog Posts <span>| Last 12 Months</span></h5>
+                                <div id="monthlyBlogChart"></div>
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        const monthlyStats = {{ dashboard_data.blog_analytics.monthly_stats|json_encode|raw }};
+                                        const months = monthlyStats.map(stat => stat.month);
+                                        const counts = monthlyStats.map(stat => stat.count);
+
+                                        new ApexCharts(document.querySelector("#monthlyBlogChart"), {
+                                            series: [{
+                                                name: 'Posts',
+                                                data: counts
+                                            }],
+                                            chart: {
+                                                type: 'area',
+                                                height: 350,
+                                                toolbar: {
+                                                    show: false
+                                                }
+                                            },
+                                            markers: {
+                                                size: 4
+                                            },
+                                            colors: ['#4154f1'],
+                                            xaxis: {
+                                                categories: months
+                                            }
+                                        }).render();
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Most Commented Posts -->
+                    <div class="col-12">
+                        <div class="card top-selling overflow-auto">
+                            <div class="card-body pb-0">
+                                <h5 class="card-title">Most Commented Posts</h5>
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Comments</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for post in dashboard_data.blog_analytics.most_commented %}
+                                        <tr>
+                                            <td>{{ post.title }}</td>
+                                            <td>{{ post.comment_count }}</td>
+                                            <td>
+                                                <a href="{{ path('app_blog_back_show', {'id': post.id}) }}" class="btn btn-sm btn-primary">View</a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -159,8 +288,149 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Recent Raffle Winners -->
+                    <div class="col-12">
+                        <div class="card recent-sales overflow-auto">
+                            <div class="card-body">
+                                <h5 class="card-title">Recent Raffle Winners <span>| Last 30 Days</span></h5>
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Raffle ID</th>
+                                            <th scope="col">Artwork</th>
+                                            <th scope="col">Winner</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Prize Value</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for winner in dashboard_data.raffle_stats.recent_winners|slice(0, 5) %}
+                                        <tr>
+                                            <th scope="row"><a href="#">#{{ winner.raffle_id }}</a></th>
+                                            <td>{{ winner.artwork_title }}</td>
+                                            <td>{{ winner.winner_name }}</td>
+                                            <td>{{ winner.draw_date|date('Y-m-d') }}</td>
+                                            <td>{{ winner.prize_value|number_format(2) }} ESPRIT</td>
+                                            <td>
+                                                <a href="{{ path('app_raffle_show', {'id': winner.raffle_id}) }}" class="btn btn-sm btn-primary">View Details</a>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No recent raffle winners</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+          {#  <!-- Bet Session Stats -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Auction Statistics</h5>
+                        <div class="row">
+                            <!-- Total Bet Sessions Card -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Total Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary-light">
+                                                <i class="bi bi-calendar-event text-primary"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ totalBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Bet Sessions -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Active Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success-light">
+                                                <i class="bi bi-play-circle text-success"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.activeBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pending Bet Sessions -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Pending Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-warning-light">
+                                                <i class="bi bi-hourglass text-warning"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.pendingBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ended Bet Sessions -->
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card info-card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Ended Auctions</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info-light">
+                                                <i class="bi bi-flag text-info"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.endedBetSessions }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Bids -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card info-card revenue-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total Bids Placed</h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-cash-coin"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h3 class="mb-0">{{ dashboard_data.totalBids }}</h3>
+                                                <span class="text-success small pt-1 fw-bold">
+                                                    {% set bidPerAuction = (dashboard_data.totalBids / dashboard_data.totalBetSessions)|round(1) %}
+                                                    {{ bidPerAuction }} bids
+                                                </span>
+                                                <span class="text-muted small pt-2 ps-1">per auction average</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          #}
 
             <!-- Right side columns -->
             <div class="col-lg-4">

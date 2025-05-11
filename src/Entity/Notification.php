@@ -1,10 +1,11 @@
 <?php
-
 namespace App\Entity;
 
+  
 use App\Repository\NotificationRepository;
 use Doctrine\ORM\Mapping as ORM;
-
+use Doctrine\ORM\Mapping\ManyToOne; // Import ManyToOne
+use Doctrine\ORM\Mapping\JoinColumn;
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification
 {
@@ -13,46 +14,90 @@ class Notification
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ManyToOne(targetEntity: TradeState::class, cascade: ['remove'])]
+    #[JoinColumn(nullable: true)]
+    private ?TradeState $tradeState = null;
+public function getTradeStateId(): ?int
+{
+    return $this->tradeState ? $this->tradeState->getId() : null;
+}
+
+
+public function setTradeState(?TradeState $tradeState): self
+{
+    $this->tradeState = $tradeState;
+    return $this;
+}
     #[ORM\Column]
-    private ?int $sender_id = null;
+    private ?\DateTimeImmutable $created_at = null;
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
+    private ?User $receiver = null;
+
+    public function getReceiver(): ?User
+    {
+        return $this->receiver;
+    }
+
+    public function setReceiver(?User $receiver): self
+    {
+        $this->receiver = $receiver;
+
+        return $this;
+    }
 
     #[ORM\Column]
-    private ?int $receiver_id = null;
+    private ?\DateTimeImmutable $time = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(length: 50)]
     private ?string $type = null;
 
-    #[ORM\Column]
-    private ?bool $is_read = null;
 
-    #[ORM\Column(type: 'text')]
-    private $message;
+    public function __construct()
+    {
+        $this->time = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getSenderId(): ?int
+    public function getTime(): ?\DateTimeImmutable
     {
-        return $this->sender_id;
+        return $this->time;
     }
 
-    public function setSenderId(int $sender_id): static
+    public function setTime(\DateTimeImmutable $time): self
     {
-        $this->sender_id = $sender_id;
+        $this->time = $time;
 
         return $this;
     }
 
-    public function getReceiverId(): ?int
+    public function getTitle(): ?string
     {
-        return $this->receiver_id;
+        return $this->title;
     }
 
-    public function setReceiverId(int $receiver_id): static
+    public function setTitle(string $title): self
     {
-        $this->receiver_id = $receiver_id;
+        $this->title = $title;
 
         return $this;
     }
@@ -62,34 +107,12 @@ class Notification
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(string $type): self
     {
         $this->type = $type;
 
         return $this;
     }
 
-    public function isRead(): ?bool
-    {
-        return $this->is_read;
-    }
 
-    public function setIsRead(bool $is_read): static
-    {
-        $this->is_read = $is_read;
-
-        return $this;
-    }
-
-    public function getMessage(): ?string
-    {
-        return $this->message;
-    }
-
-    public function setMessage(string $message): self
-    {
-        $this->message = $message;
-
-        return $this;
-    }
 }
