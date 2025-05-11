@@ -17,9 +17,22 @@
                     <div class="card h-100 raffle-card">
                         <div class="position-relative">
                             {% if raffle.artwork.imageName %}
-                                <img src="{{ asset('uploads/artworks/' ~ raffle.artwork.imageName) }}" 
-                                     class="card-img-top" 
-                                     alt="{{ raffle.artwork.title }}"
+                                {% if raffle.artwork.imageName starts with 'http' %}
+                                    <img src="{{ raffle.artwork.imageName }}"
+                                         class="card-img-top"
+                                         alt="{{ raffle.artwork.title }}"
+                                         style="height: 200px; object-fit: cover;"
+                                         referrerpolicy="no-referrer">
+                                {% else %}
+                                    <img src="{{ asset('uploads/artworks/' ~ raffle.artwork.imageName) }}"
+                                         class="card-img-top"
+                                         alt="{{ raffle.artwork.title }}"
+                                         style="height: 200px; object-fit: cover;">
+                                {% endif %}
+                            {% else %}
+                                <img src="{{ asset('front_office/img/content/auction_2.jpg') }}"
+                                     class="card-img-top"
+                                     alt="No artwork available"
                                      style="height: 200px; object-fit: cover;">
                             {% endif %}
                             <div class="position-absolute top-0 end-0 m-2">
