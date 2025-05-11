@@ -13,14 +13,27 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                {% if raffle.artwork.imageName %}
-                                    <div class="mb-4 text-center">
-                                        <img src="{{ asset('uploads/artworks/' ~ raffle.artwork.imageName) }}" 
-                                             alt="Artwork" 
-                                             class="img-fluid rounded" 
+                                <div class="mb-4 text-center">
+                                    {% if raffle.artwork.imageName %}
+                                        {% if raffle.artwork.imageName starts with 'http' %}
+                                            <img src="{{ raffle.artwork.imageName }}"
+                                                 alt="Artwork"
+                                                 class="img-fluid rounded"
+                                                 style="max-height: 400px; object-fit: contain;"
+                                                 referrerpolicy="no-referrer">
+                                        {% else %}
+                                            <img src="{{ asset('uploads/artworks/' ~ raffle.artwork.imageName) }}"
+                                                 alt="Artwork"
+                                                 class="img-fluid rounded"
+                                                 style="max-height: 400px; object-fit: contain;">
+                                        {% endif %}
+                                    {% else %}
+                                        <img src="{{ asset('front_office/img/content/auction_2.jpg') }}"
+                                             alt="No artwork available"
+                                             class="img-fluid rounded"
                                              style="max-height: 400px; object-fit: contain;">
-                                    </div>
-                                {% endif %}
+                                    {% endif %}
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-4">
