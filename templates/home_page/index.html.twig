@@ -73,11 +73,10 @@
                                         <div class="swiper-slide item">
                                             <div class="card">
                                                 <div class="image-over">
-                                                    <a href="{{ path('app_item_details', {'id': session.id}) }}">
-                                                        {% if session.artwork.imageName %}
-                                                            <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="">
+                                                    <a href="{{ path('app_item_details', {'id': session.id}) }}">                                                        {% if session.artwork.imageName %}
+                                                            <img class="card-img-top" src="{{ session.artwork.imageName }}" alt="" referrerpolicy="no-referrer">
                                                         {% else %}
-                                                            <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+                                                            <img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" referrerpolicy="no-referrer">
                                                         {% endif %}
                                                     </a>
                                                 </div>
@@ -93,11 +92,10 @@
                                                         <a href="/item_details/{{ session.id }}">
                                                             <h5 class="mb-0">{{ session.artwork.title }}</h5>
                                                         </a>
-                                                        <a class="seller d-flex align-items-center my-3" href="">
-                                                            {% if session.author.profilePicture %}
-                                                                <img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session .author.profilePicture) }}" alt="">
+                                                        <a class="seller d-flex align-items-center my-3" href="">                                                            {% if session.author.profilePicture %}
+                                                                <img class="avatar-sm rounded-circle" src="{{ session.author.profilePicture }}" alt="" referrerpolicy="no-referrer">
                                                             {% else %}
-                                                                <img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+                                                                <img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="" referrerpolicy="no-referrer">
                                                             {% endif %}
                                                             <span class="ml-2">{{session.author.name|capitalize}}</span>
                                                         </a>
