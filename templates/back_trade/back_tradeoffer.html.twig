@@ -49,7 +49,7 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Id</th>
+                                
                                 <th>Sender Name</th> <!-- Added Sender Name column -->
                                 <th>Receiver Name</th>
                                 <th>Offered Item</th>
@@ -63,7 +63,7 @@
                         <tbody>
                             {% for trade_offer in trade_offers %}
                             <tr>
-                                <td>{{ trade_offer.id }}</td>
+                                
                                 <td>{{ trade_offer.sender ? trade_offer.sender.getName() : 'N/A' }}</td> <!-- Display Sender's name -->
                                 <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A'  }}</td>
                                 <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getTitle() : 'N/A' }}</td>

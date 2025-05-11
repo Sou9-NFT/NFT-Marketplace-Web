@@ -41,7 +41,7 @@
         <table border='2'>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    
                     <th>Other Party</th>
                     <th>Offered Item</th>
                     <th>Received Item</th>
@@ -55,7 +55,7 @@
             {% for trade_offer in trade_offers %}
                 {% if trade_offer.sender.id == app.user.id %}
                     <tr>
-                        <td>{{ trade_offer.id }}</td>
+                        
                         <td>
                             {% if trade_offer.receiverName and trade_offer.receiverName.id != 0 %}
                                 {{ trade_offer.receiverName.name }}

@@ -29,22 +29,29 @@ public function index(TradeOfferRepository $tradeOfferRepository, Request $reque
     // Start building the query
     $queryBuilder = $tradeOfferRepository->createQueryBuilder('t')
         ->leftJoin('t.receiver_name', 'r') // Join User entity via receiver_name relation
-        ->leftJoin('t.sender', 's') // Join User entity for sender
-        ->where('t.sender = :user') // Check if the logged-in user is the sender
-        ->orWhere('t.receiver_name = :user') // Check if the logged-in user is the receiver
-        ->setParameter('user', $user)
-        ->andWhere('r.name LIKE :search') // Filter by receiver's name
-        ->setParameter('search', '%' . $searchTerm . '%'); // Use the search term for receiver
+        ->leftJoin('t.sender', 's'); // Join User entity for sender
 
-    // Add filter for sender name if provided
+    // Only filter by user for non-admin users
+    if (!$this->isGranted('ROLE_ADMIN')) {
+        $queryBuilder
+            ->where('t.sender = :user')
+            ->orWhere('t.receiver_name = :user')
+            ->setParameter('user', $user);
+    }
+
+    if (!empty($searchTerm)) {
+        $queryBuilder->andWhere('r.name LIKE :search')
+                     ->setParameter('search', '%' . $searchTerm . '%');
+    }
+
     if (!empty($senderSearchTerm)) {
-        $queryBuilder->andWhere('s.name LIKE :sender_search') // Filter by sender's name
+        $queryBuilder->andWhere('s.name LIKE :sender_search')
                      ->setParameter('sender_search', '%' . $senderSearchTerm . '%');
     }
 
     // Add the status filter if it's provided
     if ($status) {
-        $queryBuilder->andWhere('t.status = :status') // Filter by status
+        $queryBuilder->andWhere('t.status = :status')
                      ->setParameter('status', $status);
     }
 
