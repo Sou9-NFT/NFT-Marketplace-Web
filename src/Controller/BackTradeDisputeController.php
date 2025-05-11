@@ -32,14 +32,13 @@ class BackTradeDisputeController extends AbstractController
         $status = $request->query->get('status', ''); // Get the status input for filtering
         $sort = $request->query->get('sort', 'desc'); // Get the sort option (default is descending)
     
-        // Get disputes where the user is involved in the trade
+        // Start building the base query
         $queryBuilder = $tradeDisputeRepository->createQueryBuilder('d')
             ->leftJoin('d.trade_id', 't')
-            ->where('d.reporter = :user')
-            ->orWhere('t.sender = :user')
-            ->orWhere('t.receiver_name = :user')
-            ->setParameter('user', $user)
             ->orderBy('d.timestamp', $sort); // Apply sorting based on timestamp
+        
+        // Since this is an admin controller (with ROLE_ADMIN requirement in the class annotation),
+        // we don't need to filter by user - admins can see all disputes
     
         // Apply search filter for received item if provided
         if (!empty($searchTerm)) {

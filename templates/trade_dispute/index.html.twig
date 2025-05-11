@@ -46,8 +46,8 @@
             {% for trade_dispute in trade_disputes %}
                 {% if trade_dispute.reporter == app.user %}
                     <tr>
-                        <td>{{ trade_dispute.offeredItem }}</td>
-                        <td>{{ trade_dispute.receivedItem }}</td>
+                        <td>{{ trade_dispute.tradeId ? trade_dispute.tradeId.offeredItem.getTitle() : 'N/A' }}</td>
+                        <td>{{ trade_dispute.tradeId ? trade_dispute.tradeId.receivedItem.getTitle() : 'N/A' }}</td>
                         <td>{{ trade_dispute.reason }}</td>
                         <td>{{ trade_dispute.status }}</td>
                         <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : '' }}</td>
