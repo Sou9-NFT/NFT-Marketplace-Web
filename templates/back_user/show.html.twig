@@ -23,9 +23,13 @@
 
                         <div class="row mb-4">
                             <div class="col-md-3">
-                                <img src="{{ user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" 
+                                <img src="{{ user.profilePicture and (user.profilePicture starts with 'http://' or user.profilePicture starts with 'https://') ? user.profilePicture : (user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg')) }}" 
                                      alt="Profile Picture" 
-                                     class="img-fluid rounded-circle">
+                                     class="img-fluid rounded-circle"
+                                     {% if user.profilePicture starts with 'http://' or user.profilePicture starts with 'https://' %}
+                                     referrerpolicy="no-referrer"
+                                     onerror="this.onerror=null; this.src='{{ asset('front_office/img/default_user_pfp.jpg') }}';"
+                                     {% endif %}>
                             </div>
                             <div class="col-md-9">
                                 <table class="table">
