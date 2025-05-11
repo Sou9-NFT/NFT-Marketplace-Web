@@ -71,9 +71,12 @@
                      data-category="{{ artwork.category.name|lower }}" 
                      data-date="{{ artwork.createdAt|date('U') }}">
                     <div class="card">
-                        <div class="image-over">
-                            <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}">
-                                <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}">
+                        <div class="image-over">                            <a href="{{ path('app_artwork_show', {'id': artwork.id}) }}">
+                                {% if artwork.imageName starts with 'http' %}
+                                    <img class="card-img-top" src="{{ artwork.imageName }}" alt="{{ artwork.title }}" referrerpolicy="no-referrer">
+                                {% else %}
+                                    <img class="card-img-top" src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}">
+                                {% endif %}
                             </a>
                         </div>
                         <!-- Card Caption -->

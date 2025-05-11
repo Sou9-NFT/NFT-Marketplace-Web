@@ -22,8 +22,14 @@ class FileUploadService
     public function upload(UploadedFile $file): string
     {
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeFilename = $this->slugger->slug($originalFilename);
-        $fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+        // Limit slug length to 100 chars for filesystem safety
+        $safeFilename = substr($this->slugger->slug($originalFilename), 0, 100);
+        $extension = $file->guessExtension();
+        if (!$extension) {
+            // Fallback to original extension or 'bin'
+            $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION) ?: 'bin';
+        }
+        $fileName = $safeFilename.'-'.uniqid().'.'.$extension;
 
         try {
             $file->move($this->targetDirectory, $fileName);

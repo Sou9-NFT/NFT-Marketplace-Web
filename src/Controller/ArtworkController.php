@@ -6,6 +6,7 @@ use App\Entity\Artwork;
 use App\Form\ArtworkType;
 use App\Repository\ArtworkRepository;
 use App\Service\FileUploadService;
+use App\Service\ImgurArtworkService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -21,13 +22,16 @@ class ArtworkController extends AbstractController
 {
     private ?EntityManagerInterface $entityManager;
     private FileUploadService $fileUploadService;
+    private ImgurArtworkService $imgurArtworkService;
 
     public function __construct(
         EntityManagerInterface $entityManager = null,
-        FileUploadService $fileUploadService
+        FileUploadService $fileUploadService,
+        ImgurArtworkService $imgurArtworkService
     ) {
         $this->entityManager = $entityManager;
         $this->fileUploadService = $fileUploadService;
+        $this->imgurArtworkService = $imgurArtworkService;
     }
     
     /**
@@ -71,24 +75,52 @@ class ArtworkController extends AbstractController
         }
 
         $artwork = new Artwork();
-        
-        // Check if we need to use an AI-generated image
+          // Check if we need to use an AI-generated image
         $aiImagePath = $request->query->get('aiImage');
         $aiImageUsed = false;
         
         if ($aiImagePath) {
             $fullPath = $this->getParameter('artwork_images_directory') . '/' . basename($aiImagePath);
             if (file_exists($fullPath)) {
-                $aiFile = new File($fullPath);
-                $artwork->setImageFile($aiFile);
-                $artwork->setImageName(basename($aiImagePath));
-                $aiImageUsed = true;
-                
-                // Store AI image info in session
-                $request->getSession()->set('ai_generated_image', [
-                    'path' => $aiImagePath,
-                    'filename' => basename($aiImagePath)
-                ]);
+                // Upload the local AI-generated image to Imgur
+                try {
+                    $imgurResult = $this->imgurArtworkService->handleAiGeneratedImage($fullPath);
+                    if ($imgurResult) {
+                        // Use the Imgur URL
+                        $artwork->setImageName($imgurResult);
+                        $aiImageUsed = true;
+                        
+                        // Store AI image info in session
+                        $request->getSession()->set('ai_generated_image', [
+                            'path' => $imgurResult,
+                            'filename' => $imgurResult
+                        ]);
+                    } else {
+                        // Fallback to local file if Imgur upload fails
+                        $aiFile = new File($fullPath);
+                        $artwork->setImageFile($aiFile);
+                        $artwork->setImageName(basename($aiImagePath));
+                        $aiImageUsed = true;
+                        
+                        // Store AI image info in session
+                        $request->getSession()->set('ai_generated_image', [
+                            'path' => $aiImagePath,
+                            'filename' => basename($aiImagePath)
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Fallback to local file if exception occurs
+                    $aiFile = new File($fullPath);
+                    $artwork->setImageFile($aiFile);
+                    $artwork->setImageName(basename($aiImagePath));
+                    $aiImageUsed = true;
+                    
+                    // Store AI image info in session
+                    $request->getSession()->set('ai_generated_image', [
+                        'path' => $aiImagePath,
+                        'filename' => basename($aiImagePath)
+                    ]);
+                }
             }
         }
         
@@ -98,36 +130,38 @@ class ArtworkController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                // Set creator/owner before starting transaction
                 $artwork->setCreator($this->getUser());
                 $artwork->setOwner($this->getUser());
-                // Remove the status activation
-                // $artwork->activate(); // Set status to active
-                
                 $this->getEntityManager()->beginTransaction();
-                
+
                 // Handle image file (regular upload OR AI-generated)
                 if ($aiImageUsed) {
-                    // AI-generated image was already saved to disk, just make sure the name is set
-                    if (!$artwork->getImageName()) {
-                        $artwork->setImageName(basename($aiImagePath));
+                    // AI-generated image was already saved to disk, upload it to Imgur
+                    if (!$artwork->getImageName() || strpos($artwork->getImageName(), 'imgur.com') === false) {
+                        $fullPath = $this->getParameter('artwork_images_directory') . '/' . basename($aiImagePath);
+                        if (file_exists($fullPath) && is_readable($fullPath)) {
+                            $imgurUrl = $this->imgurArtworkService->handleAiGeneratedImage($fullPath);
+                            if ($imgurUrl) {
+                                $artwork->setImageName($imgurUrl);
+                            } else {
+                                $artwork->setImageName(basename($aiImagePath));
+                            }
+                        } else {
+                            throw new \InvalidArgumentException(sprintf('The file "%s" does not exist or is not readable.', $fullPath));
+                        }
                     }
                 } else {
-                    // Regular file upload
+                    // Regular file upload - use Imgur instead of local storage
                     $imageFile = $form->has('imageFile') ? $form->get('imageFile')->getData() : null;
                     if ($imageFile) {
-                        $this->fileUploadService->processArtworkImage($artwork, $imageFile);
+                        $this->imgurArtworkService->processArtworkImage($artwork, $imageFile);
                     }
                 }
 
                 $this->getEntityManager()->persist($artwork);
                 $this->getEntityManager()->flush();
-                
                 $this->getEntityManager()->commit();
-                
-                // Clear any stored AI image data from session
                 $request->getSession()->remove('ai_generated_image');
-                
                 $this->addFlash('success', 'Artwork created successfully.');
                 return $this->redirectToRoute('app_artwork_index');
             } catch (\Exception $e) {
@@ -235,8 +269,7 @@ class ArtworkController extends AbstractController
             
             // Get the base64 image data from the first artifact
             $base64Image = $responseData['artifacts'][0]['base64'];
-            
-            // Save the image to your server
+              // First save the image temporarily to your server
             $imageData = base64_decode($base64Image);
             $filename = 'stability-ai-' . uniqid() . '.png';
             $imagePath = $this->getParameter('artwork_images_directory') . '/' . $filename;
@@ -245,21 +278,33 @@ class ArtworkController extends AbstractController
                 throw new \Exception('Failed to save generated image');
             }
             
-            // Create a real file object from the saved file
-            $file = new File($imagePath);
+            // Try to upload directly to Imgur
+            $imgurUrl = null;
+            try {
+                $imgurResult = $this->imgurArtworkService->handleAiGeneratedImage($imagePath);
+                if ($imgurResult) {
+                    $imgurUrl = $imgurResult;
+                    // Delete the local file after Imgur upload succeeds
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            } catch (\Exception $e) {
+                // Continue with local file if Imgur upload fails
+                $this->addFlash('warning', 'Image uploaded locally. Imgur upload failed: ' . $e->getMessage());
+            }
             
             // Store the AI image info in session
             $request->getSession()->set('ai_generated_image', [
-                'path' => '/uploads/artworks/' . $filename,
-                'filename' => $filename
+                'path' => $imgurUrl ? $imgurUrl : '/uploads/artworks/' . $filename,
+                'filename' => $imgurUrl ? $imgurUrl : $filename
             ]);
-            
-            // Return success response with the image details
+              // Return success response with the image details
             return $this->json([
                 'success' => true,
-                'filename' => $filename,
-                'path' => '/uploads/artworks/' . $filename,
-                'message' => 'Image generated successfully'
+                'filename' => $imgurUrl ? $imgurUrl : $filename,
+                'path' => $imgurUrl ? $imgurUrl : '/uploads/artworks/' . $filename,
+                'message' => 'Image generated successfully' . ($imgurUrl ? ' and uploaded to Imgur' : '')
             ]);
             
         } catch (\Exception $e) {
@@ -286,9 +331,7 @@ class ArtworkController extends AbstractController
         return $this->render('artwork/show.html.twig', [
             'artwork' => $artwork,
         ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_artwork_edit', methods: ['GET', 'POST'])]
+    }    #[Route('/{id}/edit', name: 'app_artwork_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Artwork $artwork, EntityManagerInterface $entityManager): Response
     {
         // Use the entity manager passed as method parameter
@@ -300,12 +343,11 @@ class ArtworkController extends AbstractController
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 try {
-                    $this->getEntityManager()->beginTransaction();
-                    
+                    $this->getEntityManager()->beginTransaction();                    
                     $imageFile = $form->get('imageFile')->getData();
                     if ($imageFile) {
-                        // Use the file upload service instead of handling it directly
-                        $this->fileUploadService->processArtworkImage($artwork, $imageFile);
+                        // Use Imgur for image storage
+                        $this->imgurArtworkService->processArtworkImage($artwork, $imageFile);
                     }
                     
                     $this->getEntityManager()->flush();
@@ -335,12 +377,11 @@ class ArtworkController extends AbstractController
     {
         // Use the entity manager passed as method parameter
         $this->entityManager = $entityManager;
-        
-        if ($this->isCsrfTokenValid('delete'.$artwork->getId(), $request->request->get('_token'))) {
+          if ($this->isCsrfTokenValid('delete'.$artwork->getId(), $request->request->get('_token'))) {
             try {
-                // Use the file upload service to delete the file
-                $this->fileUploadService->deleteOldFile($artwork);
-                
+                // No need to delete the file from Imgur since we can't delete without the delete hash
+                // We're just removing the reference from our database
+                                
                 $this->getEntityManager()->remove($artwork);
                 $this->getEntityManager()->flush();
                 $this->addFlash('success', 'Artwork deleted successfully.');
