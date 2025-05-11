@@ -45,25 +45,23 @@ class ArtworkType extends AbstractType
                 'label' => 'Category',
                 'attr' => ['class' => 'form-select']
             ]);
-            
-        // Check if we're using an AI-generated image
+              // Always include the image file field, but mark it as not required if we're using an AI-generated image
         $request = $this->requestStack->getCurrentRequest();
         $aiImageData = $request ? $request->getSession()->get('ai_generated_image') : null;
         $aiImageParameter = $request ? $request->query->get('aiImage') : null;
+        $usingAiImage = $aiImageData || $aiImageParameter;
         
-        // Only add the imageFile field if not using an AI-generated image
-        if (!$aiImageData && !$aiImageParameter) {
-            $builder->add('imageFile', FileType::class, [
-                'label' => 'Image File',
-                'required' => ($options['data']->getId() === null), // Required only for new artworks
-                'attr' => ['class' => 'form-control'],
-                'constraints' => $options['data']->getId() === null ? [
-                    new File([
-                        'maxSize' => '100M',
-                    ])
-                ] : []
-            ]);
-        }
+        // Always add the imageFile field, but make it optional when using AI image
+        $builder->add('imageFile', FileType::class, [
+            'label' => 'Image File',
+            'required' => (!$usingAiImage && $options['data']->getId() === null), // Required only for new artworks without AI image
+            'attr' => ['class' => 'form-control'],
+            'constraints' => $options['data']->getId() === null && !$usingAiImage ? [
+                new File([
+                    'maxSize' => '100M',
+                ])
+            ] : []
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -7,6 +7,8 @@ use App\Repository\ArtworkRepository;
 use App\Repository\BetSessionRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\BlogRepository;
+use App\Repository\RaffleRepository;
+use App\Repository\ParticipantRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -61,12 +63,40 @@ class DashboardController extends AbstractController
         ArtworkRepository $artworkRepository,
         BetSessionRepository $betSessionRepository,
         CategoryRepository $categoryRepository,
-        BlogRepository $blogRepository
+        BlogRepository $blogRepository,
+        RaffleRepository $raffleRepository,
+        ParticipantRepository $participantRepository
     ): Response {
         $totalCirculation = $this->getTokenSupply();
         
         // Get blog analytics
         $blogAnalytics = $blogRepository->getBlogAnalytics();
+        
+        // Get raffle statistics
+        $raffles = $raffleRepository->findAll();
+        $totalRaffles = count($raffles);
+        $totalParticipants = $participantRepository->count([]);
+        
+        // Get recent winners (last 30 days)
+        $recentWinners = [];
+        $thirtyDaysAgo = new \DateTime('-30 days');
+        
+        foreach ($raffles as $raffle) {
+            if ($raffle->getDrawDate() > $thirtyDaysAgo && $raffle->getWinner()) {
+                $recentWinners[] = [
+                    'raffle_id' => $raffle->getId(),
+                    'artwork_title' => $raffle->getArtwork() ? $raffle->getArtwork()->getTitle() : 'Unknown Artwork',
+                    'winner_name' => $raffle->getWinner() ? $raffle->getWinner()->getName() : 'Unknown Winner',
+                    'draw_date' => $raffle->getDrawDate(),
+                    'prize_value' => $raffle->getPrizeValue()
+                ];
+            }
+        }
+        
+        // Sort winners by most recent draw date
+        usort($recentWinners, function ($a, $b) {
+            return $b['draw_date'] <=> $a['draw_date'];
+        });
 
         $dashboard_data = [
             'users' => $userRepository->findAll(),
@@ -76,7 +106,12 @@ class DashboardController extends AbstractController
             'total_circulation' => $totalCirculation,
             'contract_address' => $this->contractAddress,
             'fee_wallet' => '0x1234567890123456789012345678901234567890',
-            'blog_analytics' => $blogAnalytics
+            'blog_analytics' => $blogAnalytics,
+            'raffle_stats' => [
+                'total_raffles' => $totalRaffles,
+                'total_participants' => $totalParticipants,
+                'recent_winners' => $recentWinners
+            ]
         ];
 
         return $this->render('admin/dashboard.html.twig', [

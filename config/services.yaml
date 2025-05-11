@@ -15,6 +15,9 @@ parameters:
     etherscan_api_url: '%env(ETHERSCAN_API_URL)%'
     etherscan_api_key: '%env(ETHERSCAN_API_KEY)%'
     etherscan_contract_address: '%env(ETHERSCAN_CONTRACT_ADDRESS)%'
+    # Imgur API configuration
+    imgur_client_id: '%env(IMGUR_CLIENT_ID)%'
+    imgur_client_secret: '%env(IMGUR_CLIENT_SECRET)%'
 
 services:
     _defaults:
@@ -75,15 +78,20 @@ services:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
-    
+            
     App\Service\GeminiNftDescriptionService:
         arguments:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $params: '@parameter_bag'
             
+    App\Service\ImgurArtworkService:
+        arguments:
+            $targetDirectory: '%artwork_images_directory%'
+            $imgurUploadService: '@App\Service\ImgurUploadService'
+            $slugger: '@Symfony\Component\String\Slugger\SluggerInterface'
+            $logger: '@logger'
             
-
     App\Service\ProfanityFilter:
         autowire: true
 
@@ -92,4 +100,3 @@ services:
             $etherscanApiUrl: '%etherscan.api_url%'
             $etherscanApiKey: '%etherscan.api_key%'
             $contractAddress: '%etherscan.contract_address%'
-

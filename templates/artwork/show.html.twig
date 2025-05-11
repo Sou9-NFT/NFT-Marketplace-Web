@@ -8,10 +8,13 @@
     <div class="container">
         <div class="row justify-content-between">
             <div class="col-12 col-lg-5">
-                <div class="item-info">
-                    <div class="card">
+                <div class="item-info">                    <div class="card">
                         <div class="card-body" style="padding: 0;">
-                            <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}" class="card-img-top rounded">
+                            {% if artwork.imageName starts with 'http' %}
+                                <img src="{{ artwork.imageName }}" alt="{{ artwork.title }}" class="card-img-top rounded" referrerpolicy="no-referrer">
+                            {% else %}
+                                <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}" class="card-img-top rounded">
+                            {% endif %}
                         </div>
                     </div>
                 </div>
