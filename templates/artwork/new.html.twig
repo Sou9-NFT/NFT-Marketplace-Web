@@ -19,15 +19,18 @@
             <div class="col-12 col-md-10 col-lg-8">
                 <div class="card">
                     <div class="card-body p-4 p-md-5">
-                        {{ form_start(form, {'attr': {'class': 'artwork-form'}}) }}
+                        {{ form_start(form, {'attr': {'class': 'artwork-form'}, 'enctype': 'multipart/form-data'}) }}
                         {{ form_errors(form) }}
 
                         {% if aiImageUsed %}
-                            <div class="alert alert-info artwork-preview ai-preview mb-4">
-                                <h5 class="mb-3">AI-Generated Image</h5>
+                            <div class="alert alert-info artwork-preview ai-preview mb-4">                                <h5 class="mb-3">AI-Generated Image</h5>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="AI Generated Image" class="img-fluid rounded">
+                                        {% if artwork.imageName starts with 'http' %}
+                                            <img src="{{ artwork.imageName }}" alt="AI Generated Image" class="img-fluid rounded" referrerpolicy="no-referrer">
+                                        {% else %}
+                                            <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="AI Generated Image" class="img-fluid rounded">
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-6 d-flex flex-column justify-content-center">
                                         <p>Your AI-generated image is ready to use.</p>

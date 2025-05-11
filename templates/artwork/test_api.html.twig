@@ -153,9 +153,15 @@
                                 <strong>Success!</strong> ${data.message}
                             </div>
                         `;
-                        
-                        // Display generated image
-                        generatedImage.src = '/uploads/artworks/' + data.filename;
+                          // Display generated image
+                        if (data.path.startsWith('http')) {
+                            // Imgur URL
+                            generatedImage.src = data.path;
+                            generatedImage.setAttribute('referrerpolicy', 'no-referrer');
+                        } else {
+                            // Local path
+                            generatedImage.src = data.path;
+                        }
                         generatedImageContainer.style.display = 'block';
                     } else {
                         apiResponseArea.innerHTML = `

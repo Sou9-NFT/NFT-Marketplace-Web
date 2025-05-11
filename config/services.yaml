@@ -78,12 +78,19 @@ services:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $entityManager: '@doctrine.orm.entity_manager'
-    
+            
     App\Service\GeminiNftDescriptionService:
         arguments:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $params: '@parameter_bag'
+            
+    App\Service\ImgurArtworkService:
+        arguments:
+            $targetDirectory: '%artwork_images_directory%'
+            $imgurUploadService: '@App\Service\ImgurUploadService'
+            $slugger: '@Symfony\Component\String\Slugger\SluggerInterface'
+            $logger: '@logger'
             
     App\Service\ProfanityFilter:
         autowire: true

@@ -22,12 +22,18 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ artwork.title }}</h5>
 
-                            <div class="mb-4">
-                                {% if artwork.imageName %}
+                            <div class="mb-4">                                {% if artwork.imageName %}
                                     {% if artwork.category.type == 'image' %}
-                                        <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
-                                             class="img-fluid rounded" 
-                                             alt="{{ artwork.title }}">
+                                        {% if artwork.imageName starts with 'http' %}
+                                            <img src="{{ artwork.imageName }}" 
+                                                 class="img-fluid rounded" 
+                                                 alt="{{ artwork.title }}"
+                                                 referrerpolicy="no-referrer">
+                                        {% else %}
+                                            <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
+                                                 class="img-fluid rounded" 
+                                                 alt="{{ artwork.title }}">
+                                        {% endif %}
                                     {% elseif artwork.category.type == 'video' %}
                                         <video class="w-100 rounded" controls>
                                             <source src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" type="video/mp4">
