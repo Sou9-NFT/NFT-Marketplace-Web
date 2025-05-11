@@ -8,14 +8,14 @@
             {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
             <div class="row justify-content-between">
                 <div class="col-12 col-md-4">
-                    <div class="author-profile text-center">
-                        <div class="profile-image-container d-flex flex-column align-items-center">
-                            {% if user.profilePicture and user.profilePicture starts with 'https://' %}
-                                <img src="{{ user.profilePicture }}" 
+                    <div class="author-profile text-center">                        <div class="profile-image-container d-flex flex-column align-items-center">                            {% if user.profilePicture and (user.profilePicture starts with 'http://' or user.profilePicture starts with 'https://') %}
+                                <img src="{{ user.profilePicture }}?v={{ "now"|date('U') }}" 
                                      alt="Profile Picture" 
                                      class="img-fluid rounded-circle mb-3" 
                                      id="profile-preview"
-                                     style="width: 200px; height: 200px; object-fit: cover;">
+                                     referrerpolicy="no-referrer"
+                                     style="width: 200px; height: 200px; object-fit: cover;"
+                                     onerror="this.onerror=null; this.src='{{ asset('front_office/img/default_user_pfp.jpg') }}';">
                             {% else %}
                                 <img src="{{ user.profilePicture ? asset('uploads/profile_pictures/' ~ user.profilePicture) : asset('front_office/img/default_user_pfp.jpg') }}" 
                                      alt="Profile Picture" 

@@ -5,6 +5,7 @@ namespace App\Controller\BackOffice;
 use App\Entity\Artwork;
 use App\Form\ArtworkType;
 use App\Repository\ArtworkRepository;
+use App\Service\ImgurArtworkService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -16,6 +17,12 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/admin/artwork')]
 class BackArtworkController extends AbstractController
 {
+    private ImgurArtworkService $imgurArtworkService;
+    
+    public function __construct(ImgurArtworkService $imgurArtworkService)
+    {
+        $this->imgurArtworkService = $imgurArtworkService;
+    }
     #[Route('/', name: 'app_admin_artwork_index', methods: ['GET'])]
     public function index(ArtworkRepository $artworkRepository): Response
     {
@@ -36,23 +43,15 @@ class BackArtworkController extends AbstractController
                 try {
                     $entityManager->beginTransaction();
                     
-                    // Set the current user as both creator and owner
-                    $artwork->setCreator($this->getUser());
+                    // Set the current user as both creator and owner                    $artwork->setCreator($this->getUser());
                     $artwork->setOwner($this->getUser());
                     
                     $imageFile = $form->get('imageFile')->getData();
                     if ($imageFile) {
-                        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                        $safeFilename = $slugger->slug($originalFilename);
-                        $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-
                         try {
-                            $imageFile->move(
-                                $this->getParameter('artwork_images_directory'),
-                                $newFilename
-                            );
-                            $artwork->setImageName($newFilename);
-                        } catch (FileException $e) {
+                            // Upload to Imgur instead of storing locally
+                            $this->imgurArtworkService->processArtworkImage($artwork, $imageFile);
+                        } catch (\Exception $e) {
                             $this->addFlash('error', 'Failed to upload file: ' . $e->getMessage());
                             return $this->redirectToRoute('app_admin_artwork_new');
                         }
@@ -99,28 +98,13 @@ class BackArtworkController extends AbstractController
             if ($form->isValid()) {
                 try {
                     $entityManager->beginTransaction();
-                    
-                    $imageFile = $form->get('imageFile')->getData();
+                      $imageFile = $form->get('imageFile')->getData();
                     if ($imageFile) {
-                        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                        $safeFilename = $slugger->slug($originalFilename);
-                        $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-
                         try {
-                            // Delete old file if it exists
-                            if ($artwork->getImageName()) {
-                                $oldFilePath = $this->getParameter('artwork_images_directory').'/'.$artwork->getImageName();
-                                if (file_exists($oldFilePath)) {
-                                    unlink($oldFilePath);
-                                }
-                            }
-                            
-                            $imageFile->move(
-                                $this->getParameter('artwork_images_directory'),
-                                $newFilename
-                            );
-                            $artwork->setImageName($newFilename);
-                        } catch (FileException $e) {
+                            // Upload to Imgur instead of storing locally
+                            // No need to delete old file as we're using Imgur links now
+                            $this->imgurArtworkService->processArtworkImage($artwork, $imageFile);
+                        } catch (\Exception $e) {
                             $this->addFlash('error', 'Failed to upload file: ' . $e->getMessage());
                             return $this->redirectToRoute('app_admin_artwork_edit', ['id' => $artwork->getId()]);
                         }

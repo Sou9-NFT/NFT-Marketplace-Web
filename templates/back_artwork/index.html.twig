@@ -62,12 +62,19 @@
                                         <tr>
                                             <td>{{ artwork.id }}</td>
                                             <td style="width: 100px;">
-                                                {% if artwork.imageName %}
-                                                    {% if artwork.category.type == 'image' %}
-                                                        <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
-                                                             alt="{{ artwork.title }}"
-                                                             class="img-thumbnail"
-                                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                                {% if artwork.imageName %}                                                    {% if artwork.category.type == 'image' %}
+                                                        {% if artwork.imageName starts with 'http' %}
+                                                            <img src="{{ artwork.imageName }}" 
+                                                                 alt="{{ artwork.title }}"
+                                                                 class="img-thumbnail"
+                                                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                                                 referrerpolicy="no-referrer">
+                                                        {% else %}
+                                                            <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
+                                                                 alt="{{ artwork.title }}"
+                                                                 class="img-thumbnail"
+                                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                                        {% endif %}
                                                     {% elseif artwork.category.type == 'video' %}
                                                         <i class="bi bi-film text-primary" style="font-size: 2rem;"></i>
                                                     {% elseif artwork.category.type == 'audio' %}

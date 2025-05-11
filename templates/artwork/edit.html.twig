@@ -21,11 +21,14 @@
                     <div class="card-body p-4 p-md-5">
                         {{ form_start(form, {'attr': {'class': 'artwork-form'}}) }}
                         {{ form_errors(form) }}
-                        
-                        {% if artwork.imageName %}
+                          {% if artwork.imageName %}
                             <div class="text-center mb-4">
                                 <div class="artwork-preview">
-                                    <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}" class="img-fluid rounded" style="max-height: 300px;">
+                                    {% if artwork.imageName starts with 'http' %}
+                                        <img src="{{ artwork.imageName }}" alt="{{ artwork.title }}" class="img-fluid rounded" style="max-height: 300px;" referrerpolicy="no-referrer">
+                                    {% else %}
+                                        <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" alt="{{ artwork.title }}" class="img-fluid rounded" style="max-height: 300px;">
+                                    {% endif %}
                                 </div>
                                 <p class="text-muted mt-2">Current artwork image</p>
                             </div>
