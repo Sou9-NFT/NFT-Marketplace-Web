@@ -7,17 +7,13 @@
         <div class="row">
             <div class="col-12">
                 <h1>BetSession Details</h1>
-                <a href="{{ path('app_bet_session_index') }}" class="btn btn-secondary">Back to list</a>
+              <a href="{{ path('app_admin_bet_session_index') }}" class="btn btn-secondary">Back to list</a>
             </div>
         </div>
         <div class="row">
             <div class="col-12">
                 <table class="table">
                     <tbody>
-                        <tr>
-                            <th>Id</th>
-                            <td>{{ bet_session.id }}</td>
-                        </tr>
                         <tr>
                             <th>Start Time</th>
                             <td>{{ bet_session.startTime ? bet_session.startTime|date('Y-m-d H:i:s') : '' }}</td>

@@ -28,11 +28,11 @@
                                             <img src="{{ artwork.imageName }}" 
                                                  class="img-fluid rounded" 
                                                  alt="{{ artwork.title }}"
-                                                 referrerpolicy="no-referrer">
-                                        {% else %}
+                                                 referrerpolicy="no-referrer">                                        {% else %}
                                             <img src="{{ asset('uploads/artworks/' ~ artwork.imageName) }}" 
                                                  class="img-fluid rounded" 
-                                                 alt="{{ artwork.title }}">
+                                                 alt="{{ artwork.title }}"
+                                                 referrerpolicy="no-referrer">
                                         {% endif %}
                                     {% elseif artwork.category.type == 'video' %}
                                         <video class="w-100 rounded" controls>

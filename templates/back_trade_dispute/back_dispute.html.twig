@@ -46,12 +46,9 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Id</th>
-                                <th>Trade Offer id</th>
-                                <th>Received Item</th>
+                                  <th>Received Item</th>
                                 <th>Offered Item</th>
                                 <th>Reason</th>
-                                <th>Evidence</th>
                                 <th>Timestamp</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -60,12 +57,9 @@
                         <tbody>
                             {% for trade_dispute in trade_disputes %}
                             <tr>
-                                <td>{{ trade_dispute.id }}</td>
-                                <td>{{ trade_dispute.tradeId }}</td>
-                                <td>{{ trade_dispute.ReceivedItem }}</td>
-                                <td>{{ trade_dispute.OfferedItem }}</td>
+                                <td>{{ trade_dispute.tradeId ? trade_dispute.tradeId.receivedItem.getTitle() : 'N/A' }}</td>
+                                <td>{{ trade_dispute.tradeId ? trade_dispute.tradeId.offeredItem.getTitle() : 'N/A' }}</td>
                                 <td>{{ trade_dispute.reason }}</td>
-                                <td>{{ trade_dispute.evidence }}</td>
                                 <td>{{ trade_dispute.timestamp ? trade_dispute.timestamp|date('Y-m-d H:i:s') : '' }}</td>
                                 <td>{{ trade_dispute.status }}</td>
                                 <td>

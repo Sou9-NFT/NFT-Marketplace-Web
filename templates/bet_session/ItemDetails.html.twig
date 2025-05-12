@@ -36,23 +36,22 @@
 				<div class="row justify-content-between">
 					<div class="col-12 col-lg-5">
 						<div class="item-info">
-							<div class="item-thumb text-center">
-													{% if bet_session.mysteriousMode %}
+							<div class="item-thumb text-center">									{% if bet_session.mysteriousMode %}
 									{% set initialBlur = 50 %}
 									{% set blurAmount = initialBlur - (bet_session.getNumberOfBids() * 5) %}
 									{% if blurAmount < 0 %}
 										{% set blurAmount = 0 %}
 									{% endif %}
 									{% if bet_session.artwork.imageName %}
-										<img src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="" style="width: 450px; height: 450px; filter: blur({{ blurAmount / 5 }}px);">
+										<img src="{{ bet_session.artwork.imageName }}" alt="" referrerpolicy="no-referrer" style="width: 450px; height: 450px; filter: blur({{ blurAmount / 5 }}px);">
 									{% else %}
-										<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" style="filter: blur({{ blurAmount / 5 }}px);">
+										<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" referrerpolicy="no-referrer" style="filter: blur({{ blurAmount / 5 }}px);">
 									{% endif %}
 									{% else %}
 									{% if bet_session.artwork.imageName %}
-										<img src="{{ asset('uploads/artworks/' ~ bet_session.artwork.imageName) }}" alt="" style="width: 450px; height: 450px;">
+										<img src="{{ bet_session.artwork.imageName }}" alt="" referrerpolicy="no-referrer" style="width: 450px; height: 450px;">
 									{% else %}
-										<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+										<img src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" referrerpolicy="no-referrer">
 									{% endif %}
 									{% endif %}
 							</div>
@@ -84,65 +83,63 @@
 							<!-- Tab Content -->
 							<div class="tab-content" id="nav-tabContent">
 								<div class="tab-pane fade show active" id="nav-home">
-									<ul
-										class="list-unstyled">
-										<!-- Single Tab List -->
-										{% for bid in bids %}
-											<li class="single-tab-list d-flex align-items-center">
-												{% if bid.author.profilePicture %}
-													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('uploads/profile_pictures/' ~ bid.author.profilePicture) }}" alt="">
-												{% else %}
-													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-												{% endif %}
-												<p class="m-0">Bid listed for
-													<strong>{{ bid.bidValue }}
-														Dannous</strong>
-													{{ bid.bidTime|date('d M Y H:i:s') }}
-													<br>by
-													<a href="author.html">@{{ bid.author.name }}</a>
-												</p>
-											</li>
-										{% endfor %}
-									</ul>
-								</div>
-								<div class="tab-pane fade" id="nav-profile">
-									<ul
-										class="list-unstyled">
-										<!-- Single Tab List -->
-										{% for bid in bids %}
-											<li class="single-tab-list d-flex align-items-center">
-												{% if bid.author.profilePicture %}
-													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('uploads/profile_pictures/' ~ bid.author.profilePicture) }}" alt="">
-												{% else %}
-													<img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-												{% endif %}
-												<p class="m-0">Bid listed for
-													<strong>{{ bid.bidValue }}
-														Dannous</strong>
-													{{ bid.bidTime|date('d M Y H:i:s') }}
-													<br>by
-													<a href="author.html">@{{ bid.author.name }}</a>
-												</p>
-											</li>
-										{% endfor %}
-									</ul>
-								</div>
-								<div
-									class="tab-pane fade" id="nav-contact">
-									<!-- Single Tab List -->
-									<div class="owner-meta d-flex align-items-center mt-3">
-										<span>Owner</span>
-										<a class="owner d-flex align-items-center ml-2" href="author.html">
-											{% if bet_session.artwork.owner.profilePicture %}
-												<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
-											{% else %}
-												<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
-											{% endif %}
-											<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
-										</a>
+										<ul class="list-unstyled">
+											<!-- Single Tab List -->
+											{% for bid in bids %}
+												<li class="single-tab-list d-flex align-items-center">
+													{% if bid.author.profilePicture %}
+														<img class="avatar-sm rounded-circle mr-3" src="{{ bid.author.profilePicture }}" alt="" referrerpolicy="no-referrer">
+													{% else %}
+														<img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="" referrerpolicy="no-referrer">
+													{% endif %}
+													<p class="m-0">Bid listed for
+														<strong>{{ bid.bidValue }}
+															Dannous</strong>
+														{{ bid.bidTime|date('d M Y H:i:s') }}
+														<br>by
+														<a href="author.html">@{{ bid.author.name }}</a>
+													</p>
+												</li>
+											{% endfor %}
+										</ul>
 									</div>
-									<p class="mt-2">Created :
-										{{ bet_session.createdat|date('Y-m-d H:i:s') }}</p>
+									<div class="tab-pane fade" id="nav-profile">
+										<ul class="list-unstyled">
+											<!-- Single Tab List -->
+											{% for bid in bids %}
+												<li class="single-tab-list d-flex align-items-center">
+													{% if bid.author.profilePicture %}
+														<img class="avatar-sm rounded-circle mr-3" src="{{ bid.author.profilePicture }}" alt="" referrerpolicy="no-referrer">
+													{% else %}
+														<img class="avatar-sm rounded-circle mr-3" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="" referrerpolicy="no-referrer">
+													{% endif %}
+													<p class="m-0">Bid listed for
+														<strong>{{ bid.bidValue }}
+															Dannous</strong>
+														{{ bid.bidTime|date('d M Y H:i:s') }}
+														<br>by
+														<a href="author.html">@{{ bid.author.name }}</a>
+													</p>
+												</li>
+											{% endfor %}
+										</ul>
+									</div>
+									<div class="tab-pane fade" id="nav-contact">
+										<!-- Single Tab List -->
+										<div class="owner-meta d-flex align-items-center mt-3">
+											<span>Owner</span>
+											<a class="owner d-flex align-items-center ml-2" href="author.html">
+												{% if bet_session.artwork.owner.profilePicture %}
+													<img class="avatar-sm rounded-circle" src="{{ bet_session.artwork.owner.profilePicture }}" alt="" referrerpolicy="no-referrer">
+												{% else %}
+													<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="" referrerpolicy="no-referrer">
+												{% endif %}
+												<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
+											</a>
+										</div>
+										<p class="mt-2">Created :
+											{{ bet_session.createdat|date('Y-m-d H:i:s') }}</p>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -159,12 +156,11 @@
 							{% endif %}
 							<!-- Owner -->
 							<div class="owner d-flex align-items-center">
-								<span>Owned By</span>
-								<a class="owner-meta d-flex align-items-center ml-3" href="author.html">
+								<span>Owned By</span>								<a class="owner-meta d-flex align-items-center ml-3" href="author.html">
 									{% if bet_session.artwork.owner.profilePicture %}
-										<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.owner.profilePicture) }}" alt="">
+										<img class="avatar-sm rounded-circle" src="{{ bet_session.artwork.owner.profilePicture }}" alt="" referrerpolicy="no-referrer">
 									{% else %}
-										<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+										<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="" referrerpolicy="no-referrer">
 									{% endif %}
 									<h6 class="ml-2">@{{bet_session.artwork.owner.name|capitalize}}</h6>
 								</a>
@@ -179,12 +175,11 @@
 									</div>
 									<div class="col-12 col-md-6 item px-lg-2">
 										<div class="card no-hover">
-											<div class="single-seller d-flex align-items-center">
-												<a href="author.html">
+											<div class="single-seller d-flex align-items-center">												<a href="author.html">
 													{% if bet_session.artwork.creator.profilePicture %}
-														<img class="avatar-md rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ bet_session.artwork.creator.profilePicture) }}" alt="">
+														<img class="avatar-md rounded-circle" src="{{ bet_session.artwork.creator.profilePicture }}" alt="" referrerpolicy="no-referrer">
 													{% else %}
-														<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="">
+														<img class="avatar-md rounded-circle" src="{{ asset('front_office/img/content/avatar_1.jpg') }}" alt="" referrerpolicy="no-referrer">
 													{% endif %}
 												</a>
 												<!-- Seller Info -->
@@ -284,12 +279,11 @@
 										<!-- Single Slide -->
 										<div class="swiper-slide item">
 											<div class="card">
-												<div class="image-over">
-													<a href="{{ path('app_item_details', {'id': session.id}) }}">
+												<div class="image-over">													<a href="{{ path('app_item_details', {'id': session.id}) }}">
 														{% if session.artwork.imageName %}
-															<img class="card-img-top" src="{{ asset('uploads/artworks/' ~ session.artwork.imageName) }}" alt="">
+															<img class="card-img-top" src="{{ session.artwork.imageName }}" alt="" referrerpolicy="no-referrer">
 														{% else %}
-															<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="">
+															<img class="card-img-top" src="{{ asset('front_office/img/content/auction_2.jpg') }}" alt="" referrerpolicy="no-referrer">
 														{% endif %}
 													</a>
 												</div>
@@ -306,11 +300,10 @@
 														<a href="/item_details/{{ session.id }}">
 															<h5 class="mb-0">{{ session.artwork.title }}</h5>
 														</a>
-														<a class="seller d-flex align-items-center my-3" href="">
-															{% if session.author.profilePicture %}
-																<img class="avatar-sm rounded-circle" src="{{ asset('uploads/profile_pictures/' ~ session .author.profilePicture) }}" alt="">
+														<a class="seller d-flex align-items-center my-3" href="">															{% if session.author.profilePicture %}
+																<img class="avatar-sm rounded-circle" src="{{ session.author.profilePicture }}" alt="" referrerpolicy="no-referrer">
 															{% else %}
-																<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="">
+																<img class="avatar-sm rounded-circle" src="{{ asset('front_office/img/content/author_1.jpg') }}" alt="" referrerpolicy="no-referrer">
 															{% endif %}
 															<span class="ml-2">{{session.author.name|capitalize}}</span>
 														</a>
@@ -354,9 +347,8 @@
                 bidsList.innerHTML = ''; // Clear the existing bids
                 data.bids.forEach(bid => {
                     const newBid = document.createElement('li');
-                    newBid.classList.add('single-tab-list', 'd-flex', 'align-items-center');
-                    newBid.innerHTML = `
-                        <img class="avatar-sm rounded-circle mr-3" src="${bid.author.profilePicture ? '{{ asset('uploads/profile_pictures/') }}' + bid.author.profilePicture : '{{ asset('front_office/img/content/avatar_1.jpg') }}'}" alt="">
+                    newBid.classList.add('single-tab-list', 'd-flex', 'align-items-center');                    newBid.innerHTML = `
+                        <img class="avatar-sm rounded-circle mr-3" src="${bid.author.profilePicture || '{{ asset('front_office/img/content/avatar_1.jpg') }}'}" alt="" referrerpolicy="no-referrer">
                         <p class="m-0">Bid listed for
                             <strong>${bid.bidValue} Dannous</strong>
                             ${new Date(bid.bidTime).toLocaleString()}

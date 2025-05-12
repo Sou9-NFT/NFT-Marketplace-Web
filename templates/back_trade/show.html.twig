@@ -19,31 +19,27 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Trade Offer Details #{{ trade_offer.id }}</h5>
+                    <h5 class="card-title">Trade Offer Details</h5>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <table class="table">
                                 <tbody>
                                     <tr>
-                                        <th>ID</th>
-                                        <td>{{ trade_offer.id }}</td>
+                                        <th>Sender</th>
+                                        <td>{{ trade_offer.sender ? trade_offer.sender.getName() : 'N/A' }}</td>
                                     </tr>
                                     <tr>
-                                        <th>Sender ID</th> <!-- Added Sender ID row -->
-                                        <td>{{ trade_offer.sender ? trade_offer.sender.id : 'N/A' }}</td> <!-- Display Sender's ID -->
+                                        <th>Receiver</th>
+                                        <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getName() : 'N/A' }}</td>
                                     </tr>
                                     <tr>
-                                        <th>Receiver ID</th>
-                                        <td>{{ trade_offer.receiverName ? trade_offer.receiverName.getId() : 'N/A' }}</td>
+                                        <th>Offered Item</th>
+                                        <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getTitle() : 'N/A' }}</td>
                                     </tr>
                                     <tr>
-                                        <th>Offered Item ID</th>
-                                        <td>{{ trade_offer.offeredItem ? trade_offer.offeredItem.getId() : 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Received Item ID</th>
-                                        <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getId() : 'N/A' }}</td>
+                                        <th>Received Item</th>
+                                        <td>{{ trade_offer.receivedItem ? trade_offer.receivedItem.getTitle() : 'N/A' }}</td>
                                     </tr>
                                     <tr>
                                         <th>Description</th>
@@ -68,9 +64,9 @@
                                 <div class="col-md-6">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h6>Offered Item</h6>
+                                            <h6>{{ trade_offer.offeredItem.getTitle() }}</h6>
                                         </div>
-                                        <img src="{{ asset('uploads/artworks/' ~ trade_offer.offeredItem.getImageName()) }}" class="card-img-top" alt="Offered Item">
+                                        <img src="{{ asset('uploads/artworks/' ~ trade_offer.offeredItem.getImageName()) }}" class="card-img-top" alt="{{ trade_offer.offeredItem.getTitle() }}">
                                     </div>
                                 </div>
                                 {% endif %}
@@ -79,9 +75,9 @@
                                 <div class="col-md-6">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h6>Received Item</h6>
+                                            <h6>{{ trade_offer.receivedItem.getTitle() }}</h6>
                                         </div>
-                                        <img src="{{ asset('uploads/artworks/' ~ trade_offer.receivedItem.getImageName()) }}" class="card-img-top" alt="Received Item">
+                                        <img src="{{ asset('uploads/artworks/' ~ trade_offer.receivedItem.getImageName()) }}" class="card-img-top" alt="{{ trade_offer.receivedItem.getTitle() }}">
                                     </div>
                                 </div>
                                 {% endif %}

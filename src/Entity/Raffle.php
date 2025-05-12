@@ -13,45 +13,45 @@ class Raffle
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(name: "id")]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Artwork::class, inversedBy: 'raffles')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "artwork_id", referencedColumnName: "id", nullable: false)]
     #[Assert\NotNull(message: 'Please select an artwork to raffle')]
     private ?Artwork $artwork = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: "start_time", type: 'datetime')]
     private ?\DateTimeInterface $start_time = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: "end_time", type: 'datetime')]
     #[Assert\NotBlank(message: "The end time cannot be blank.")]
     #[Assert\GreaterThan(propertyPath: "start_time", message: "The end time must be after the start time.")]
     #[Assert\GreaterThan(value: "today", message: "The end time must be in the future.")]
     private ?\DateTimeInterface $end_time = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: "status", length: 255)]
     private string $status = 'active';
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'createdRaffles')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "creator_id", referencedColumnName: "id", nullable: false)]
     private ?User $creator = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: "created_at", type: 'datetime')]
     private ?\DateTimeInterface $created_at;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(name: "winner_id", nullable: true)]
     private ?int $winner_id = null;
 
     #[ORM\OneToMany(mappedBy: 'raffle', targetEntity: Participant::class, cascade: ['persist', 'remove'])]
     private Collection $participants;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(name: "creator_name", length: 255, nullable: true)]
     #[Assert\NotBlank(message: "The creator name cannot be blank.")]
     #[Assert\Length(max: 255, maxMessage: "The creator name cannot be longer than {{ limit }} characters.")]
     private ?string $creator_name = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: "title", length: 255)]
     #[Assert\NotBlank(message: "The title cannot be blank.")]
     #[Assert\Length(
         min: 3,
@@ -61,7 +61,7 @@ class Raffle
     )]
     private ?string $title = null;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(name: "raffle_description", type: "text")]
     #[Assert\NotBlank(message: "The description cannot be blank.")]
     #[Assert\Length(
         min: 10,
@@ -69,7 +69,7 @@ class Raffle
         minMessage: "The description must be at least {{ limit }} characters long",
         maxMessage: "The description cannot be longer than {{ limit }} characters"
     )]
-    private ?string $raffleDescription = null;
+    private ?string $raffle_description = null;
 
     public function __construct()
     {
@@ -206,12 +206,12 @@ class Raffle
 
     public function getRaffleDescription(): ?string
     {
-        return $this->raffleDescription;
+        return $this->raffle_description;
     }
 
-    public function setRaffleDescription(string $raffleDescription): self
+    public function setRaffleDescription(string $raffle_description): self
     {
-        $this->raffleDescription = $raffleDescription;
+        $this->raffle_description = $raffle_description;
         return $this;
     }
 
